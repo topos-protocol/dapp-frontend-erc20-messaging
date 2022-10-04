@@ -1,0 +1,15 @@
+name: Get code coverage report
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/build-push-action@v3
+        with:
+          target: coverage
+          build-args: |
+            NPM_TOKEN=${{ secrets.ROBOT_TOPOSWARE_GH_PACKAGE_TOKEN }}
