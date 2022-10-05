@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
     "@polkadot/api": "^9.4.3",
     "antd": "^4.16.12",
     "metamask-react": "^2.4.0",
