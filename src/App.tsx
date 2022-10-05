@@ -1,4 +1,5 @@
-import { Divider, Layout, Space } from 'antd'
+import styled from '@emotion/styled'
+import { Layout } from 'antd'
 import React from 'react'
 
 import Header from './components/Header'
@@ -7,9 +8,13 @@ import { MOCKED_SUBNETS, SubnetsContext } from './contexts'
 import { Subnet } from './types'
 import usePolkadotApi from './hooks/usePolkadotApi'
 
-import './App.css'
+import 'antd/dist/antd.dark.css'
 
-const { Content } = Layout
+const { Content: _Content } = Layout
+
+const Content = styled(_Content)`
+  padding: 3rem 0;
+`
 
 export default () => {
   const api = usePolkadotApi('wss://wss.topos-subnet.demo.toposware.com')
@@ -31,13 +36,8 @@ export default () => {
         }}
       >
         <Header />
-        <Content
-          style={{
-            padding: '0 50px',
-          }}
-        >
+        <Content>
           <MultiStepForm />
-          <Divider />
         </Content>
       </SubnetsContext.Provider>
     </Layout>

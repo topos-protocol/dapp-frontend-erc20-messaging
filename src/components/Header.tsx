@@ -10,11 +10,11 @@ export default () => {
   return (
     <Header style={{ backgroundColor: '#242526' }}>
       <Row justify="space-between">
-        <Col span={4}>
+        <Col span={6}>
           <Space align="start">
             <img src={logo} width={40} />
             <h3 style={{ color: '#fff', fontWeight: 'bold' }}>
-              dApp Frontend Template
+              Cross-subnet messages
             </h3>
           </Space>
         </Col>

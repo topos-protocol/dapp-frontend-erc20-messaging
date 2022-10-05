@@ -1,5 +1,6 @@
 export interface Subnet {
+  chainId: string
   endpoint: string
-  logo_url: string
+  logoUrl: string
   name: string
 }

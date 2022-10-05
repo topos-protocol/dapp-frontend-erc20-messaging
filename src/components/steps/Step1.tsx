@@ -1,32 +1,55 @@
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Form, Input, Segmented, Select } from 'antd'
+import styled from '@emotion/styled'
+import { Avatar, Button, Form, Input, Segmented, Select, Space } from 'antd'
+import { SegmentedValue } from 'antd/lib/segmented'
 import React from 'react'
 
 import { SubnetsContext } from '../../contexts'
-import { StepProps, SubnetLogo } from '../MultiStepForm'
+import {
+  FormsContext,
+  StepProps,
+  TransactionType,
+  TransactionTypeContext,
+} from '../MultiStepForm'
+
+const TransactionTypeSelector = styled(Segmented)`
+  margin-bottom: 1rem;
+`
 
 const { Option } = Select
 
-export default ({ form, onFinish, onPrev }: StepProps) => {
+export default ({ onFinish, onPrev }: StepProps) => {
   const { subnets } = React.useContext(SubnetsContext)
-
-  const transactionTypeOptions = React.useMemo(
-    () => ['Asset Transfer', 'Smart Contract Call'],
-    []
+  const { form0, form1 } = React.useContext(FormsContext)
+  const sendingSubnet = React.useMemo(
+    () => form0.getFieldValue('sendingSubnet'),
+    [form0]
   )
-  const [transactionType, setTransactionType] = React.useState<string | number>(
-    transactionTypeOptions[0]
+  const subnetsWithoutSendingOne = React.useMemo(
+    () => subnets.filter((s) => s.name !== sendingSubnet),
+    [subnets, sendingSubnet]
+  )
+
+  const { transactionType, setTransactionType } = React.useContext(
+    TransactionTypeContext
+  )
+
+  const onTransactionTypeChange = React.useCallback(
+    (value: SegmentedValue) => {
+      setTransactionType(value.toString() as TransactionType)
+    },
+    [setTransactionType]
   )
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
-      <Segmented
-        onChange={setTransactionType}
-        options={transactionTypeOptions}
+    <Form form={form1} layout="vertical" onFinish={onFinish}>
+      <TransactionTypeSelector
+        onChange={onTransactionTypeChange}
+        options={Object.values(TransactionType)}
         value={transactionType}
       />
       <>
-        {transactionType === transactionTypeOptions[0] ? (
+        {transactionType === TransactionType.ASSET_TRANSFER ? (
           <>
             <Form.Item
               label="Token Contract Address"
@@ -51,9 +74,9 @@ export default ({ form, onFinish, onPrev }: StepProps) => {
               ]}
             >
               <Select placeholder="Select a subnet">
-                {subnets.map((subnet) => (
+                {subnetsWithoutSendingOne.map((subnet) => (
                   <Option key={subnet.name} value={subnet.name}>
-                    {subnet.name}
+                    <Avatar size="small" src={subnet.logoUrl} /> {subnet.name}
                   </Option>
                 ))}
               </Select>
@@ -96,9 +119,9 @@ export default ({ form, onFinish, onPrev }: StepProps) => {
               ]}
             >
               <Select placeholder="Select a subnet">
-                {subnets.map((subnet) => (
+                {subnetsWithoutSendingOne.map((subnet) => (
                   <Option key={subnet.name} value={subnet.name}>
-                    {subnet.name}
+                    <Avatar size="small" src={subnet.logoUrl} /> {subnet.name}
                   </Option>
                 ))}
               </Select>
@@ -164,10 +187,12 @@ export default ({ form, onFinish, onPrev }: StepProps) => {
         )}
       </>
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-        <Button onClick={onPrev}>Prev</Button>
-        <Button type="primary" htmlType="submit">
-          Next
-        </Button>
+        <Space>
+          <Button onClick={onPrev}>Prev</Button>
+          <Button type="primary" htmlType="submit">
+            Next
+          </Button>
+        </Space>
       </Form.Item>
     </Form>
   )

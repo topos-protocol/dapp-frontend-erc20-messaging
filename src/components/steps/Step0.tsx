@@ -1,16 +1,17 @@
-import { Button, Form, Select } from 'antd'
+import { Avatar, Button, Form, Select } from 'antd'
 import React from 'react'
 
 import { SubnetsContext } from '../../contexts'
-import { StepProps, SubnetLogo } from '../MultiStepForm'
+import { FormsContext, StepProps } from '../MultiStepForm'
 
 const { Option } = Select
 
-export default ({ form, onFinish }: StepProps) => {
+export default ({ onFinish }: StepProps) => {
   const { subnets } = React.useContext(SubnetsContext)
+  const { form0 } = React.useContext(FormsContext)
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
+    <Form form={form0} layout="vertical" onFinish={onFinish}>
       <Form.Item
         label="Sending subnet"
         name="sendingSubnet"
@@ -24,7 +25,7 @@ export default ({ form, onFinish }: StepProps) => {
         <Select size="large">
           {subnets.map((subnet) => (
             <Option key={subnet.name} value={subnet.name}>
-              <SubnetLogo src={subnet.logo_url} /> {subnet.name}
+              <Avatar size="small" src={subnet.logoUrl} /> {subnet.name}
             </Option>
           ))}
         </Select>

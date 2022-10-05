@@ -15,7 +15,7 @@ export default function usePolkadotApi(endpoint: string) {
     }
 
     createApiPromise()
-  }, [])
+  }, [endpoint])
 
   return api
 }
