@@ -3,6 +3,7 @@ import React from 'react'
 
 import { SubnetsContext } from '../../contexts'
 import {
+  ExtraDataContext,
   FormsContext,
   TransactionType,
   TransactionTypeContext,
@@ -10,6 +11,7 @@ import {
 
 export default () => {
   const { form1 } = React.useContext(FormsContext)
+  const { token } = React.useContext(ExtraDataContext)
   const { transactionType } = React.useContext(TransactionTypeContext)
   const { subnets } = React.useContext(SubnetsContext)
   const subnet = React.useMemo(
@@ -42,8 +44,8 @@ export default () => {
       {transactionType === TransactionType.ASSET_TRANSFER ? (
         <>
           <Space direction="vertical" size={4}>
-            <b>Token Contract Address</b>
-            <>{form1.getFieldValue('tokenContractAddress')}</>
+            <b>Token</b>
+            <Tag>{token!.symbol}</Tag>
           </Space>
           <Space direction="vertical" size={4}>
             <b>Recipient Address</b>

@@ -1,11 +1,23 @@
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import { Avatar, Button, Form, Input, Segmented, Select, Space } from 'antd'
+import {
+  Avatar,
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  Segmented,
+  Select,
+  Space,
+  Spin,
+  Tag,
+} from 'antd'
 import { SegmentedValue } from 'antd/lib/segmented'
 import React from 'react'
 
 import { SubnetsContext } from '../../contexts'
 import {
+  ExtraDataContext,
   FormsContext,
   StepProps,
   TransactionType,
@@ -20,7 +32,9 @@ const { Option } = Select
 
 export default ({ onFinish, onPrev }: StepProps) => {
   const { subnets } = React.useContext(SubnetsContext)
+  const { token, setToken } = React.useContext(ExtraDataContext)
   const { form0, form1 } = React.useContext(FormsContext)
+  const [loadingToken, setLoadingToken] = React.useState(false)
   const sendingSubnet = React.useMemo(
     () => form0.getFieldValue('sendingSubnet'),
     [form0]
@@ -41,6 +55,23 @@ export default ({ onFinish, onPrev }: StepProps) => {
     [setTransactionType]
   )
 
+  const tokenContractAddress = Form.useWatch('tokenContractAddress', form1)
+
+  const onTokenContractAddressBlur = React.useCallback(() => {
+    if (token?.address !== tokenContractAddress) {
+      setLoadingToken(true)
+
+      setTimeout(() => {
+        setToken({
+          address: tokenContractAddress,
+          balance: Math.floor(Math.random() * 100),
+          symbol: 'USDC',
+        })
+        setLoadingToken(false)
+      }, 1500)
+    }
+  }, [tokenContractAddress, token])
+
   return (
     <Form form={form1} layout="vertical" onFinish={onFinish}>
       <TransactionTypeSelector
@@ -54,6 +85,15 @@ export default ({ onFinish, onPrev }: StepProps) => {
             <Form.Item
               label="Token Contract Address"
               name="tokenContractAddress"
+              extra={
+                loadingToken ? (
+                  <Spin style={{ marginTop: '0.5rem' }} />
+                ) : token ? (
+                  <Tag style={{ marginTop: '0.5rem' }} color="gold">
+                    {token?.symbol} | Current balance: {token?.balance}
+                  </Tag>
+                ) : null
+              }
               rules={[
                 {
                   required: true,
@@ -61,7 +101,7 @@ export default ({ onFinish, onPrev }: StepProps) => {
                 },
               ]}
             >
-              <Input />
+              <Input onBlur={onTokenContractAddressBlur} />
             </Form.Item>
             <Form.Item
               name="receivingSubnet"
@@ -73,7 +113,7 @@ export default ({ onFinish, onPrev }: StepProps) => {
                 },
               ]}
             >
-              <Select placeholder="Select a subnet">
+              <Select placeholder="Select a subnet" disabled={!token}>
                 {subnetsWithoutSendingOne.map((subnet) => (
                   <Option key={subnet.name} value={subnet.name}>
                     <Avatar size="small" src={subnet.logoUrl} /> {subnet.name}
@@ -91,7 +131,7 @@ export default ({ onFinish, onPrev }: StepProps) => {
                 },
               ]}
             >
-              <Input />
+              <Input disabled={!token} />
             </Form.Item>
             <Form.Item
               label="Amount"
@@ -103,7 +143,11 @@ export default ({ onFinish, onPrev }: StepProps) => {
                 },
               ]}
             >
-              <Input />
+              <InputNumber
+                disabled={!token}
+                addonAfter={token?.symbol}
+                max={token?.balance}
+              />
             </Form.Item>
           </>
         ) : (

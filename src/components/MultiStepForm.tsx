@@ -1,5 +1,6 @@
 import { Col, Form, FormInstance, Row, Space } from 'antd'
 import React from 'react'
+import { TokenWithBalance } from '../types'
 
 import Step0 from './steps/Step0'
 import Step1 from './steps/Step1'
@@ -47,12 +48,23 @@ export const TransactionTypeContext =
     setTransactionType: () => {},
   })
 
+interface ExtraDataContext {
+  setToken: React.Dispatch<React.SetStateAction<TokenWithBalance | undefined>>
+  token: TokenWithBalance | undefined
+}
+
+export const ExtraDataContext = React.createContext<ExtraDataContext>({
+  setToken: () => {},
+  token: undefined,
+})
+
 export default () => {
   const [transactionType, setTransactionType] = React.useState<TransactionType>(
     TransactionType.ASSET_TRANSFER
   )
+  const [token, setToken] = React.useState<TokenWithBalance>()
   const [currentStep, setCurrentStep] = React.useState(0)
-  const [[form0], [form1], [form2], [form3], [form4]] = [
+  const [[form0], [form1], [form2], [form3]] = [
     useForm(),
     useForm(),
     useForm(),
@@ -74,33 +86,35 @@ export default () => {
         <TransactionTypeContext.Provider
           value={{ transactionType, setTransactionType }}
         >
-          <Col
-            span={currentStep > 0 ? 4 : 1}
-            style={{
-              opacity: currentStep > 0 ? 1 : 0,
-              transition: 'all 0.4s ease 0.1s, opacity 0.4s ease 0.2s',
-            }}
-          >
-            <Space direction="vertical" size={12}>
-              {currentStep > 0 && <Summary0 />}
-              {currentStep > 1 && <Summary1 />}
-            </Space>
-          </Col>
-          <Col
-            span={8}
-            style={{
-              transition: 'all 0.4s ease 0.1s',
-            }}
-          >
-            <>
-              {currentStep === 0 && <Step0 onFinish={nextStep} />}
-              {currentStep === 1 && (
-                <Step1 onFinish={nextStep} onPrev={prevStep} />
-              )}
-              {currentStep === 2 && <Step2 onFinish={nextStep} />}
-              {currentStep === 3 && <Step3 />}
-            </>
-          </Col>
+          <ExtraDataContext.Provider value={{ setToken, token }}>
+            <Col
+              span={currentStep > 0 ? 4 : 1}
+              style={{
+                opacity: currentStep > 0 ? 1 : 0,
+                transition: 'all 0.4s ease 0.1s, opacity 0.4s ease 0.2s',
+              }}
+            >
+              <Space direction="vertical" size={12}>
+                {currentStep > 0 && <Summary0 />}
+                {currentStep > 1 && <Summary1 />}
+              </Space>
+            </Col>
+            <Col
+              span={8}
+              style={{
+                transition: 'all 0.4s ease 0.1s',
+              }}
+            >
+              <>
+                {currentStep === 0 && <Step0 onFinish={nextStep} />}
+                {currentStep === 1 && (
+                  <Step1 onFinish={nextStep} onPrev={prevStep} />
+                )}
+                {currentStep === 2 && <Step2 onFinish={nextStep} />}
+                {currentStep === 3 && <Step3 />}
+              </>
+            </Col>
+          </ExtraDataContext.Provider>
         </TransactionTypeContext.Provider>
       </FormsContext.Provider>
     </Row>
