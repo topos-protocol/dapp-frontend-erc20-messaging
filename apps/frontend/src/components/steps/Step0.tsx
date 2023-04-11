@@ -63,7 +63,7 @@ const Step0 = ({ onFinish }: StepProps) => {
       </Form.Item>
       <Form.Item>
         <Button type="primary" htmlType="submit">
-          Nextt
+          Next
         </Button>
       </Form.Item>
     </Form>

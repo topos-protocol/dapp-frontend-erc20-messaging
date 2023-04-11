@@ -1,8 +1,11 @@
-import { Button, Result } from 'antd'
+import { ThunderboltTwoTone } from '@ant-design/icons'
+import { Button, Result, Typography } from 'antd'
 import React from 'react'
 
 import { SubnetsContext } from '../../contexts'
 import { FormsContext, StepProps } from '../MultiStepForm'
+
+const { Title } = Typography
 
 const Step3 = ({ onFinish }: StepProps) => {
   const { registeredSubnets } = React.useContext(SubnetsContext)
@@ -25,8 +28,14 @@ const Step3 = ({ onFinish }: StepProps) => {
 
   return (
     <Result
+      icon={<ThunderboltTwoTone twoToneColor="#00c890" />}
       status="success"
-      title={`Successfully transacted from ${sendingSubnet?.name} to ${receivingSubnet?.name}`}
+      title={
+        <Title level={3}>
+          Successfully transacted <br /> from {sendingSubnet?.name} to{' '}
+          {receivingSubnet?.name}
+        </Title>
+      }
       subTitle={`Transaction was submitted on ${receivingSubnet?.name}`}
       extra={[
         <Button type="primary" key="transact" onClick={onFinish}>

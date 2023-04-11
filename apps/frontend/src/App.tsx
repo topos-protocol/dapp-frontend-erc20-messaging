@@ -1,31 +1,29 @@
-import styled from '@emotion/styled';
-import { Alert, ConfigProvider, Layout, theme } from 'antd';
-import React from 'react';
+import styled from '@emotion/styled'
+import { Alert, ConfigProvider, Layout, theme } from 'antd'
+import React from 'react'
 
-import Header from './components/Header';
-import MultiStepForm from './components/MultiStepForm';
-import { ErrorsContext, SubnetsContext } from './contexts';
-import { Subnet } from './types';
+import Header from './components/Header'
+import MultiStepForm from './components/MultiStepForm'
+import { ErrorsContext, SubnetsContext } from './contexts'
+import { Subnet } from './types'
 
-import 'antd/dist/reset.css';
+import 'antd/dist/reset.css'
 
-const { Content: _Content } = Layout;
+const { Content: _Content } = Layout
 
 const Errors = styled.div`
   margin: 1rem auto;
   width: 80%;
   max-width: 800px;
-`;
+`
 
 const Content = styled(_Content)`
   padding: 3rem 0;
-`;
+`
 
 const App = () => {
-  const [errors, setErrors] = React.useState<string[]>([]);
-  const [registeredSubnets, setRegisteredSubnets] = React.useState<Subnet[]>(
-    []
-  );
+  const [errors, setErrors] = React.useState<string[]>([])
+  const [registeredSubnets, setRegisteredSubnets] = React.useState<Subnet[]>([])
 
   return (
     <ConfigProvider
@@ -59,7 +57,7 @@ const App = () => {
         </ErrorsContext.Provider>
       </Layout>
     </ConfigProvider>
-  );
-};
+  )
+}
 
-export default App;
+export default App
