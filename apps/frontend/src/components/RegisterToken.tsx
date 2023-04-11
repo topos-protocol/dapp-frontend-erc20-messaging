@@ -1,6 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, Form, Input, message, Modal } from 'antd'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import React from 'react'
 import { SubnetsContext } from '../contexts'
 
@@ -38,7 +38,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
   const contract = toposCoreContract.connect(provider.getSigner())
 
   const mint = React.useCallback(
-    async (symbol: string, amount: number) => {
+    async (symbol: string, amount: BigNumber) => {
       const tx = await contract.giveToken(
         symbol,
         await provider.getSigner().getAddress(),
@@ -71,7 +71,13 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
 
       const params = ethers.utils.defaultAbiCoder.encode(
         ['string', 'string', 'uint256', 'address', 'uint256'],
-        [name, symbol, cap, address, dailyMintLimit]
+        [
+          name,
+          symbol,
+          ethers.utils.parseUnits(cap.toString()),
+          address,
+          ethers.utils.parseUnits(dailyMintLimit.toString()),
+        ]
       )
 
       const tx = await contract.deployToken(params)
@@ -80,7 +86,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
         .wait()
         .then(async () => {
           message.success('The token has been successfully registered!')
-          await mint(symbol, 1_000)
+          await mint(symbol, ethers.utils.parseUnits('1000'))
           setOpen(false)
         })
         .catch((error: Error) => {
@@ -153,7 +159,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
         </Form.Item>
         <Form.Item
           name="cap"
-          initialValue={1_000_000_000}
+          initialValue={100_000}
           label="Cap"
           rules={[
             {
@@ -167,7 +173,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
         <Form.Item
           name="dailyMintLimit"
           label="Daily mint limit"
-          initialValue={1_000_000}
+          initialValue={10_000}
           rules={[
             {
               required: true,

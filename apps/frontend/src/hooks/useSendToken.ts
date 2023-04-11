@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import React from 'react'
 
 import { toposCoreContract } from '../contracts'
@@ -19,7 +19,7 @@ export default function useSendToken() {
       receivingSubnetId: string,
       recipientAddress: string,
       tokenSymbol: string,
-      amount: number
+      amount: BigNumber
     ) => {
       setLoading(true)
 

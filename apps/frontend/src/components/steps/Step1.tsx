@@ -43,7 +43,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
   const { form0, form1 } = React.useContext(FormsContext)
   const [loadingReceivingSubnet, setLoadingReceivingSubnet] =
     React.useState(false)
-  const [balance, setBalance] = React.useState<number>()
+  const [balance, setBalance] = React.useState<string>()
   const sendingSubnet = React.useMemo(
     () =>
       registeredSubnets.find(
@@ -108,7 +108,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
   const getTokenBalance = React.useCallback(async () => {
     if (tokenContract) {
       const balance = await tokenContract.balanceOf(signerAddress)
-      setBalance(balance)
+      setBalance(ethers.utils.formatUnits(balance))
     }
   }, [tokenContract, signerAddress])
 

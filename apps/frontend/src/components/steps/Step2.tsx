@@ -53,7 +53,10 @@ const Step2 = ({ onFinish }: StepProps) => {
     [form1]
   )
 
-  const amount = React.useMemo(() => form1.getFieldValue('amount'), [form1])
+  const amount = React.useMemo<number>(
+    () => form1.getFieldValue('amount'),
+    [form1]
+  )
 
   const { provider } = useEthers({
     subnet: sendingSubnet,
@@ -63,19 +66,19 @@ const Step2 = ({ onFinish }: StepProps) => {
   const progressSteps = React.useMemo(
     () => [
       {
-        description: '',
+        description: `Requesting ${tokenSymbol} allowance approval`,
         logo: sendingSubnet?.logoURL,
-        title: `${sendingSubnet?.name}: Requesting ${tokenSymbol} allowance approval`,
+        title: sendingSubnet?.name,
       },
       {
-        description: '',
+        description: `Requesting ${tokenSymbol} transfer`,
         logo: sendingSubnet?.logoURL,
-        title: `${sendingSubnet?.name}: Requesting ${tokenSymbol} transfer`,
+        title: sendingSubnet?.name,
       },
       {
-        description: '',
+        description: `Waiting for transaction execution`,
         logo: receivingSubnet?.logoURL,
-        title: `${receivingSubnet?.name}: Waiting for transaction execution`,
+        title: receivingSubnet?.name,
       },
     ],
     []
@@ -93,14 +96,15 @@ const Step2 = ({ onFinish }: StepProps) => {
         observeExecutorServiceJob &&
         sendToExecutorService
       ) {
-        await approveAllowance(token, amount)
+        const parsedAmount = ethers.utils.parseUnits(amount.toString())
+        await approveAllowance(token, parsedAmount)
         setActiveProgressStep((s) => s + 1)
 
         const { sendTokenTx, sendTokenReceipt } = await sendToken(
           receivingSubnet?.subnetId,
           recipientAddress,
           tokenSymbol,
-          amount
+          parsedAmount
         )
         setActiveProgressStep((s) => s + 1)
 
