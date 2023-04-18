@@ -7,13 +7,13 @@ const { Option } = Select
 const { Text } = Typography
 
 interface Props extends SelectProps {
-  subnets: Subnet[]
+  subnets?: Subnet[]
 }
 
 export default ({ subnets, ...selectProps }: Props) => (
   <Select {...selectProps}>
-    {subnets.map((subnet) => (
-      <Option key={subnet.name} value={subnet.chainId.toHexString()}>
+    {subnets?.map((subnet) => (
+      <Option key={subnet.name} value={subnet.subnetId}>
         <Space>
           <Avatar size="small" src={subnet.logoURL} />
           <Text>{subnet.name}</Text>

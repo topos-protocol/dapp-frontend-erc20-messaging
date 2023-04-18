@@ -13,7 +13,9 @@
       },
       "configurations": {
         "development": {
-          "mode": "development"
+          "mode": "development",
+          "sourcemap": true,
+          "watch": false
         },
         "production": {
           "mode": "production"

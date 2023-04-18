@@ -1,6 +1,7 @@
 import { ethers } from 'ethers'
 import React from 'react'
 
+import { ErrorsContext } from '../contexts/errors'
 import { toposCoreContract } from '../contracts'
 import { Subnet, Token } from '../types'
 import useEthers from './useEthers'
@@ -10,11 +11,14 @@ export default function useRegisteredTokens(subnet?: Subnet) {
     subnet,
     viaMetaMask: true,
   })
-  const [errors, setErrors] = React.useState<string[]>([])
+  const { setErrors } = React.useContext(ErrorsContext)
   const [loading, setLoading] = React.useState(false)
   const [tokens, setTokens] = React.useState<Token[]>()
 
-  const contract = toposCoreContract.connect(provider)
+  const contract = React.useMemo(
+    () => toposCoreContract.connect(provider),
+    [provider]
+  )
 
   const getRegisteredTokens = React.useCallback(async () => {
     setLoading(true)
@@ -29,6 +33,7 @@ export default function useRegisteredTokens(subnet?: Subnet) {
           `Error when fetching the count of registered token.`,
         ])
       })
+    console.log(registeredTokensCount)
 
     if (registeredTokensCount !== undefined) {
       const promises: Promise<Token>[] = []
@@ -57,6 +62,7 @@ export default function useRegisteredTokens(subnet?: Subnet) {
       }
 
       const tokens = await Promise.all(promises)
+      console.log(tokens)
       setTokens(tokens.filter((t) => t !== undefined))
     }
 
@@ -64,7 +70,15 @@ export default function useRegisteredTokens(subnet?: Subnet) {
   }, [])
 
   React.useEffect(
-    function init() {
+    function onSubnetChange() {
+      console.log('subnet change')
+      getRegisteredTokens()
+    },
+    [subnet]
+  )
+
+  React.useEffect(
+    function watchTokenDeployed() {
       if (contract && getRegisteredTokens) {
         contract.on('TokenDeployed', getRegisteredTokens)
       }
@@ -78,5 +92,5 @@ export default function useRegisteredTokens(subnet?: Subnet) {
     [contract, getRegisteredTokens]
   )
 
-  return { errors, getRegisteredTokens, loading, tokens }
+  return { loading, tokens }
 }

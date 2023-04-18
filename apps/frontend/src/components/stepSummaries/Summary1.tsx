@@ -1,37 +1,16 @@
 import { Avatar, Space, Tag, Typography } from 'antd'
 import React from 'react'
 
-import { SubnetsContext } from '../../contexts'
+import { MultiStepFormContext } from '../../contexts/multiStepForm'
 import { shortenAddress } from '../../util'
-import {
-  ExtraDataContext,
-  FormsContext,
-  TransactionType,
-  TransactionTypeContext,
-} from '../MultiStepForm'
+import { TransactionType, TransactionTypeContext } from '../MultiStepForm'
 
 const { Text } = Typography
 
 const Summary1 = () => {
-  const { form1 } = React.useContext(FormsContext)
-  const { registeredTokens } = React.useContext(ExtraDataContext)
+  const { amount, form1, receivingSubnet, recipientAddress, token } =
+    React.useContext(MultiStepFormContext)
   const { transactionType } = React.useContext(TransactionTypeContext)
-  const { registeredSubnets } = React.useContext(SubnetsContext)
-  const subnet = React.useMemo(
-    () =>
-      registeredSubnets.find(
-        (s) =>
-          s.chainId.toHexString() === form1.getFieldValue('receivingSubnet')
-      ),
-    [form1, registeredSubnets]
-  )
-
-  const tokenSymbol = React.useMemo(() => form1.getFieldValue('token'), [form1])
-
-  const token = React.useMemo(
-    () => registeredTokens.find((t) => t.symbol === tokenSymbol),
-    [tokenSymbol, registeredTokens]
-  )
 
   return (
     <Space direction="vertical" size={12}>
@@ -50,8 +29,8 @@ const Summary1 = () => {
       <Space direction="vertical" size={4}>
         <Text strong>Receiving subnet</Text>
         <Space>
-          <Avatar size="small" src={subnet?.logoURL} />
-          <Text>{subnet?.name}</Text>
+          <Avatar size="small" src={receivingSubnet?.logoURL} />
+          <Text>{receivingSubnet?.name}</Text>
         </Space>
       </Space>
       {transactionType === TransactionType.ASSET_TRANSFER ? (
@@ -62,13 +41,11 @@ const Summary1 = () => {
           </Space>
           <Space direction="vertical" size={4}>
             <Text strong>Recipient Address</Text>
-            <Text>
-              {shortenAddress(form1.getFieldValue('recipientAddress'))}
-            </Text>
+            <Text>{shortenAddress(recipientAddress || '')}</Text>
           </Space>
           <Space direction="vertical" size={4}>
             <Text strong>Amount</Text>
-            <Text>{form1.getFieldValue('amount')}</Text>
+            <Text>{amount}</Text>
           </Space>
         </>
       ) : (
@@ -76,17 +53,17 @@ const Summary1 = () => {
           <Space direction="vertical" size={4}>
             <Text strong>Contract Address</Text>
             <Text>
-              {shortenAddress(form1.getFieldValue('contractAddress'))}
+              {shortenAddress(form1?.getFieldValue('contractAddress'))}
             </Text>
           </Space>
           <Space direction="vertical" size={4}>
             <Text strong>Function</Text>
-            <Text>{form1.getFieldValue('function')}</Text>
+            <Text>{form1?.getFieldValue('function')}</Text>
           </Space>
           <Space direction="vertical" size={4}>
             <Text strong>Arguments</Text>
             {form1
-              .getFieldValue('arguments')
+              ?.getFieldValue('arguments')
               .map((argument: string, index: number) => (
                 <Space direction="vertical" size={2} key={index}>
                   <Text>{argument}</Text>

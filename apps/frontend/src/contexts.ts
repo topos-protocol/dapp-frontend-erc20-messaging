@@ -1,3 +1,4 @@
+import opentelemetry, { Context, Span, Tracer } from '@opentelemetry/api'
 import { BigNumber } from 'ethers'
 import React from 'react'
 
@@ -14,21 +15,3 @@ export const DEFAULT_SUBNETS: Subnet[] = [
     subnetId: '1',
   },
 ]
-
-interface SubnetsContext {
-  registeredSubnets: Subnet[]
-  setRegisteredSubnets: React.Dispatch<React.SetStateAction<Subnet[]>>
-}
-
-export const SubnetsContext = React.createContext<SubnetsContext>({
-  registeredSubnets: DEFAULT_SUBNETS,
-  setRegisteredSubnets: () => {},
-})
-
-interface ErrorsContext {
-  setErrors: React.Dispatch<React.SetStateAction<string[]>>
-}
-
-export const ErrorsContext = React.createContext<ErrorsContext>({
-  setErrors: () => {},
-})

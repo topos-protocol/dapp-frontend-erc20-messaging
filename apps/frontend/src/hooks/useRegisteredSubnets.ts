@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 import React from 'react'
-import { ErrorsContext, SubnetsContext } from '../contexts'
+import { ErrorsContext } from '../contexts/errors'
 
 import { subnetRegistratorContract } from '../contracts'
 import { Subnet } from '../types'
@@ -10,7 +10,7 @@ export default function useRegisteredSubnets() {
   const { setErrors } = React.useContext(ErrorsContext)
   const { provider } = useEthers()
   const [loading, setLoading] = React.useState(false)
-  const [subnets, setSubnets] = React.useState<Subnet[]>()
+  const [registeredSubnets, setRegisteredSubnets] = React.useState<Subnet[]>()
 
   const contract = subnetRegistratorContract.connect(provider)
 
@@ -50,7 +50,7 @@ export default function useRegisteredSubnets() {
                 ...subnet,
                 subnetId,
               }))
-              .catch((error: any) => {
+              .catch((error: Error) => {
                 console.error(error)
                 setErrors((e) => [
                   ...e,
@@ -63,11 +63,15 @@ export default function useRegisteredSubnets() {
       }
 
       const subnets = await Promise.all(promises)
-      setSubnets(subnets.filter((s) => s !== undefined))
+      setRegisteredSubnets(subnets.filter((s) => s !== undefined))
     }
 
     setLoading(false)
   }, [])
 
-  return { getRegisteredSubnets, loading, subnets }
+  React.useEffect(function init() {
+    getRegisteredSubnets()
+  }, [])
+
+  return { loading, registeredSubnets }
 }

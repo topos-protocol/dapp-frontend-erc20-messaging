@@ -1,12 +1,11 @@
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, Form, Input, message, Modal } from 'antd'
-import { BigNumber, ethers } from 'ethers'
 import React from 'react'
-import { SubnetsContext } from '../contexts'
 
+import { MultiStepFormContext } from '../contexts/multiStepForm'
 import { toposCoreContract } from '../contracts'
 import useEthers from '../hooks/useEthers'
-import { FormsContext } from './MultiStepForm'
+import useRegisterToken from '../hooks/useRegisterToken'
 
 export interface Values {
   address: string
@@ -22,87 +21,25 @@ interface RegisterTokenFormProps {
 }
 
 const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
-  const { registeredSubnets } = React.useContext(SubnetsContext)
-  const { form0 } = React.useContext(FormsContext)
-  const sendingSubnet = React.useMemo(
-    () =>
-      registeredSubnets.find(
-        (s) => s.chainId.toHexString() === form0.getFieldValue('sendingSubnet')
-      ),
-    [registeredSubnets, form0]
-  )
+  const { sendingSubnet } = React.useContext(MultiStepFormContext)
   const [loading, setLoading] = React.useState(false)
   const { provider } = useEthers({ subnet: sendingSubnet, viaMetaMask: true })
   const [form] = Form.useForm()
+  const { registerToken } = useRegisterToken()
 
   const contract = toposCoreContract.connect(provider.getSigner())
-
-  const mint = React.useCallback(
-    async (symbol: string, amount: BigNumber) => {
-      const tx = await contract.giveToken(
-        symbol,
-        await provider.getSigner().getAddress(),
-        amount,
-        { gasLimit: 4_000_000 }
-      )
-
-      return tx
-        .wait()
-        .then(() => {
-          message.success('The token has been successfully minted!')
-        })
-        .catch((error: Error) => {
-          message.error('Something wrong happened!')
-          console.error(error)
-        })
-    },
-    [contract, provider]
-  )
-
-  const onRegister = React.useCallback(
-    async ({
-      address = '0x0000000000000000000000000000000000000000',
-      cap,
-      dailyMintLimit,
-      name,
-      symbol,
-    }: Values) => {
-      setLoading(true)
-
-      const params = ethers.utils.defaultAbiCoder.encode(
-        ['string', 'string', 'uint256', 'address', 'uint256'],
-        [
-          name,
-          symbol,
-          ethers.utils.parseUnits(cap.toString()),
-          address,
-          ethers.utils.parseUnits(dailyMintLimit.toString()),
-        ]
-      )
-
-      const tx = await contract.deployToken(params)
-
-      return tx
-        .wait()
-        .then(async () => {
-          message.success('The token has been successfully registered!')
-          await mint(symbol, ethers.utils.parseUnits('1000'))
-          setOpen(false)
-        })
-        .catch((error: Error) => {
-          message.error('Something wrong happened!')
-          console.error(error)
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    },
-    [contract, mint, setOpen]
-  )
 
   const onCancel = React.useCallback(() => {
     setOpen(false)
   }, [setOpen])
+
+  const registrationSuccessCallback = React.useCallback(() => {
+    message.success('The token has been successfully registered!')
+  }, [])
+
+  const mintSuccessCallback = React.useCallback(() => {
+    message.success('The token has been successfully minted!')
+  }, [])
 
   return (
     <Modal
@@ -119,7 +56,11 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
           .then((values) => {
             setLoading(true)
 
-            onRegister(values).then(() => {
+            registerToken(
+              values,
+              registrationSuccessCallback,
+              mintSuccessCallback
+            ).then(() => {
               setLoading(false)
               form.resetFields()
             })

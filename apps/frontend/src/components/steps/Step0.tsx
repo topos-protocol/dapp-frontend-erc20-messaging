@@ -1,50 +1,53 @@
 import { Button, Form } from 'antd'
 import React from 'react'
 
-import { SubnetsContext } from '../../contexts'
-import { FormsContext, StepProps } from '../MultiStepForm'
-import SubnetSelector from '../SubnetSelect'
+import { MultiStepFormContext } from '../../contexts/multiStepForm'
+import { RegisteredSubnetsContext } from '../../contexts/registeredSubnets'
+import { TracingContext } from '../../contexts/tracing'
+import { StepProps } from '../MultiStepForm'
+import SubnetSelect from '../SubnetSelect'
 import useEthers from '../../hooks/useEthers'
-import useRegisteredSubnets from '../../hooks/useRegisteredSubnets'
+import useTracingCreateSpan from '../../hooks/useTracingCreateSpan'
 
 const Step0 = ({ onFinish }: StepProps) => {
-  const { getRegisteredSubnets, loading, subnets } = useRegisteredSubnets()
-  const { registeredSubnets, setRegisteredSubnets } =
-    React.useContext(SubnetsContext)
-  const { form0 } = React.useContext(FormsContext)
-
-  const sendingSubnetChainId = Form.useWatch('sendingSubnet', form0)
-  const sendingSubnet = React.useMemo(
-    () =>
-      registeredSubnets.find(
-        (s) => s.chainId.toHexString() === sendingSubnetChainId
-      ),
-    [sendingSubnetChainId, registeredSubnets]
-  )
+  const { activeSpan } = React.useContext(TracingContext)
+  const { span } = useTracingCreateSpan('step-0', activeSpan)
+  const { data: registeredSubnets, loading: getRegisteredSubnetsLoading } =
+    React.useContext(RegisteredSubnetsContext)
+  const { form0, sendingSubnet } = React.useContext(MultiStepFormContext)
 
   useEthers({
     subnet: sendingSubnet,
     viaMetaMask: sendingSubnet !== undefined,
   })
 
+  const nextStep = React.useCallback(() => {
+    span?.end()
+    onFinish()
+  }, [span])
+
   React.useEffect(
-    function getSubnets() {
-      getRegisteredSubnets()
+    function traceFetchRegisteredSubnets() {
+      if (registeredSubnets) {
+        span?.addEvent('fetch registered subnets', {
+          registeredSubnets: JSON.stringify(registeredSubnets),
+        })
+      }
     },
-    [getRegisteredSubnets]
+    [registeredSubnets]
   )
 
   React.useEffect(
-    function setSubnetsInContext() {
-      if (subnets) {
-        setRegisteredSubnets(subnets)
-      }
+    function traceSelectSendingSubnet() {
+      span?.addEvent('select sending subnet', {
+        sendingSubnet: JSON.stringify(sendingSubnet),
+      })
     },
-    [subnets]
+    [sendingSubnet]
   )
 
   return (
-    <Form form={form0} layout="vertical" onFinish={onFinish}>
+    <Form form={form0} layout="vertical" onFinish={nextStep}>
       <Form.Item
         label="Sending subnet"
         name="sendingSubnet"
@@ -55,8 +58,8 @@ const Step0 = ({ onFinish }: StepProps) => {
           },
         ]}
       >
-        <SubnetSelector
-          loading={loading}
+        <SubnetSelect
+          loading={getRegisteredSubnetsLoading}
           size="large"
           subnets={registeredSubnets}
         />

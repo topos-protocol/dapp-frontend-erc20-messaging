@@ -1,17 +1,20 @@
 import { CheckCircleFilled } from '@ant-design/icons'
-import { Avatar, List, Space, Spin } from 'antd'
+import { Avatar, List, Spin } from 'antd'
 import { ethers } from 'ethers'
 import React from 'react'
 
-import { ErrorsContext, SubnetsContext } from '../../contexts'
+import { ErrorsContext } from '../../contexts/errors'
+import { TracingContext } from '../../contexts/tracing'
+import { MultiStepFormContext } from '../../contexts/multiStepForm'
 import useEthers from '../../hooks/useEthers'
 import useApproveAllowance from '../../hooks/useApproveAllowance'
 import useExecutorService from '../../hooks/useExecutorService'
 import useTransactionTrie from '../../hooks/useTransactionTrie'
 import useSendToken from '../../hooks/useSendToken'
 import { getRawTransaction } from '../../util'
-import { ExtraDataContext, FormsContext, StepProps } from '../MultiStepForm'
+import { StepProps } from '../MultiStepForm'
 import Progress from '../Progress'
+import useTracingCreateSpan from '../../hooks/useTracingCreateSpan'
 
 const Step2 = ({ onFinish }: StepProps) => {
   const { setErrors } = React.useContext(ErrorsContext)
@@ -20,43 +23,11 @@ const Step2 = ({ onFinish }: StepProps) => {
     useExecutorService()
   const { sendToken } = useSendToken()
   const { createMerkleProof } = useTransactionTrie()
-  const { registeredSubnets } = React.useContext(SubnetsContext)
-  const { registeredTokens } = React.useContext(ExtraDataContext)
-  const { form0, form1 } = React.useContext(FormsContext)
+  const { amount, receivingSubnet, recipientAddress, sendingSubnet, token } =
+    React.useContext(MultiStepFormContext)
   const [progress, setProgress] = React.useState(0)
-
-  const sendingSubnet = React.useMemo(
-    () =>
-      registeredSubnets.find(
-        (s) => s.chainId.toHexString() === form0.getFieldValue('sendingSubnet')
-      ),
-    [form0]
-  )
-  const receivingSubnet = React.useMemo(
-    () =>
-      registeredSubnets.find(
-        (s) =>
-          s.chainId.toHexString() === form1.getFieldValue('receivingSubnet')
-      ),
-    [form1]
-  )
-
-  const tokenSymbol = React.useMemo(() => form1.getFieldValue('token'), [form1])
-
-  const token = React.useMemo(
-    () => registeredTokens.find((t) => t.symbol === tokenSymbol),
-    [registeredTokens, tokenSymbol]
-  )
-
-  const recipientAddress = React.useMemo(
-    () => form1.getFieldValue('recipientAddress'),
-    [form1]
-  )
-
-  const amount = React.useMemo<number>(
-    () => form1.getFieldValue('amount'),
-    [form1]
-  )
+  const { activeSpan } = React.useContext(TracingContext)
+  const { span } = useTracingCreateSpan('step-2', activeSpan)
 
   const { provider } = useEthers({
     subnet: sendingSubnet,
@@ -66,12 +37,12 @@ const Step2 = ({ onFinish }: StepProps) => {
   const progressSteps = React.useMemo(
     () => [
       {
-        description: `Requesting ${tokenSymbol} allowance approval`,
+        description: `Requesting ${token?.symbol} allowance approval`,
         logo: sendingSubnet?.logoURL,
         title: sendingSubnet?.name,
       },
       {
-        description: `Requesting ${tokenSymbol} transfer`,
+        description: `Requesting ${token?.symbol} transfer`,
         logo: sendingSubnet?.logoURL,
         title: sendingSubnet?.name,
       },
@@ -103,7 +74,7 @@ const Step2 = ({ onFinish }: StepProps) => {
         const { sendTokenTx, sendTokenReceipt } = await sendToken(
           receivingSubnet?.subnetId,
           recipientAddress,
-          tokenSymbol,
+          token?.symbol,
           parsedAmount
         )
         setActiveProgressStep((s) => s + 1)
@@ -164,16 +135,17 @@ const Step2 = ({ onFinish }: StepProps) => {
     receivingSubnet,
     recipientAddress,
     sendToExecutorService,
-    tokenSymbol,
+    token,
   ])
 
   React.useEffect(
     function onCompletion() {
-      if (onFinish && activeProgressStep === progressSteps.length) {
+      if (onFinish && span && activeProgressStep === progressSteps.length) {
+        span.end()
         setTimeout(onFinish, 1000)
       }
     },
-    [activeProgressStep]
+    [activeProgressStep, span]
   )
 
   return (

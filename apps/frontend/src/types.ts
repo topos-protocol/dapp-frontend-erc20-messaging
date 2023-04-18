@@ -13,3 +13,9 @@ export interface Token {
   tokenAddress: string
   symbol: string
 }
+
+export interface FetchData<T> {
+  data?: T
+  error?: Error
+  loading?: boolean
+}

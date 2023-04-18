@@ -5,7 +5,7 @@ import React from 'react'
 import { Observable } from 'rxjs'
 
 import { OAuthResponse } from '@dapp-frontend-cross-subnet/backend/auth'
-import { ErrorsContext } from '../contexts'
+import { ErrorsContext } from '../contexts/errors'
 
 interface ExecuteDto {
   txRaw: string
@@ -27,7 +27,7 @@ export default function useExecutorService() {
       })
       .catch((error) => {
         console.error(error)
-        setErrors(error)
+        setErrors(e => [...e, `Error when requesting an access token (Auth0)`])
       })
   }, [])
 

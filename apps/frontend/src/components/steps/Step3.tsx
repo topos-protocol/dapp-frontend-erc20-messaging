@@ -2,29 +2,24 @@ import { ThunderboltTwoTone } from '@ant-design/icons'
 import { Button, Result, Typography } from 'antd'
 import React from 'react'
 
-import { SubnetsContext } from '../../contexts'
-import { FormsContext, StepProps } from '../MultiStepForm'
+import { TracingContext } from '../../contexts/tracing'
+import { MultiStepFormContext } from '../../contexts/multiStepForm'
+import { StepProps } from '../MultiStepForm'
+import useTracingCreateSpan from '../../hooks/useTracingCreateSpan'
 
 const { Title } = Typography
 
 const Step3 = ({ onFinish }: StepProps) => {
-  const { registeredSubnets } = React.useContext(SubnetsContext)
-  const { form0, form1 } = React.useContext(FormsContext)
-  const sendingSubnet = React.useMemo(
-    () =>
-      registeredSubnets.find(
-        (s) => s.chainId.toHexString() === form0.getFieldValue('sendingSubnet')
-      ),
-    [form0]
-  )
-  const receivingSubnet = React.useMemo(
-    () =>
-      registeredSubnets.find(
-        (s) =>
-          s.chainId.toHexString() === form1.getFieldValue('receivingSubnet')
-      ),
-    [form1]
-  )
+  const { receivingSubnet, sendingSubnet } =
+    React.useContext(MultiStepFormContext)
+
+  const { activeSpan } = React.useContext(TracingContext)
+  const { span } = useTracingCreateSpan('step-3', activeSpan)
+
+  const reset = React.useCallback(() => {
+    span?.end()
+    onFinish()
+  }, [span])
 
   return (
     <Result
@@ -38,7 +33,7 @@ const Step3 = ({ onFinish }: StepProps) => {
       }
       subTitle={`Transaction was submitted on ${receivingSubnet?.name}`}
       extra={[
-        <Button type="primary" key="transact" onClick={onFinish}>
+        <Button type="primary" key="transact" onClick={reset}>
           Transact again
         </Button>,
       ]}
