@@ -12,8 +12,10 @@ export default function useCheckTokenOnSubnet() {
   const [loading, setLoading] = React.useState(false)
 
   const checkTokenOnSubnet = React.useCallback(
-    async (token?: Token, subnet?: Subnet) => {
+    async (token?: Token, subnetId?: string) => {
       setLoading(true)
+
+      const subnet = registeredSubnets?.find((s) => s.subnetId === subnetId)
 
       const subnetProvider = new ethers.providers.JsonRpcProvider(
         subnet?.endpoint

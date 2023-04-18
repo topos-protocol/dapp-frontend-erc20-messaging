@@ -27,7 +27,10 @@ export default function useExecutorService() {
       })
       .catch((error) => {
         console.error(error)
-        setErrors(e => [...e, `Error when requesting an access token (Auth0)`])
+        setErrors((e) => [
+          ...e,
+          `Error when requesting an access token (Auth0)`,
+        ])
       })
   }, [])
 

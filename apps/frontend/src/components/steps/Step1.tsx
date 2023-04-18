@@ -1,6 +1,5 @@
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import * as BurnableMintableCappedERC20JSON from '@toposware/topos-smart-contracts/brownie/build/contracts/BurnableMintableCappedERC20.json'
 import {
   Button,
   Divider,
@@ -18,7 +17,6 @@ import React from 'react'
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
 import { RegisteredSubnetsContext } from '../../contexts/registeredSubnets'
 import { TracingContext } from '../../contexts/tracing'
-import useEthers from '../../hooks/useEthers'
 import {
   StepProps,
   TransactionType,
@@ -38,8 +36,15 @@ const { Option } = Select
 
 const Step1 = ({ onFinish, onPrev }: StepProps) => {
   const { data: registeredSubnets } = React.useContext(RegisteredSubnetsContext)
-  const { form1, receivingSubnet, registeredTokens, sendingSubnet, token } =
-    React.useContext(MultiStepFormContext)
+  const {
+    amount,
+    form1,
+    receivingSubnet,
+    recipientAddress,
+    registeredTokens,
+    sendingSubnet,
+    token,
+  } = React.useContext(MultiStepFormContext)
   const { checkTokenOnSubnet, loading: receivingSubnetLoading } =
     useCheckTokenOnSubnet()
   const { activeSpan } = React.useContext(TracingContext)
@@ -68,6 +73,42 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
       form1?.validateFields(['receivingSubnet'])
     }
   }, [form1, token])
+
+  React.useEffect(
+    function traceSelectToken() {
+      span?.addEvent('select token', {
+        token: JSON.stringify(token),
+      })
+    },
+    [token]
+  )
+
+  React.useEffect(
+    function traceSelectReceivingSubnet() {
+      span?.addEvent('select receiving subnet', {
+        receivingSubnet: JSON.stringify(receivingSubnet),
+      })
+    },
+    [receivingSubnet]
+  )
+
+  React.useEffect(
+    function traceSelectRecipientAddress() {
+      span?.addEvent('select recipient address', {
+        recipientAddress: JSON.stringify(recipientAddress),
+      })
+    },
+    [recipientAddress]
+  )
+
+  React.useEffect(
+    function traceSelectAmount() {
+      span?.addEvent('select amount', {
+        amount: JSON.stringify(amount),
+      })
+    },
+    [amount]
+  )
 
   const nextStep = React.useCallback(() => {
     span?.end()
@@ -125,7 +166,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
                   message: 'Please select the receiving subnet!',
                 },
                 {
-                  validator: (_, value) => checkTokenOnSubnet(value),
+                  validator: (_, value) => checkTokenOnSubnet(token, value),
                 },
               ]}
             >

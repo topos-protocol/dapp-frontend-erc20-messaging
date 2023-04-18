@@ -59,7 +59,6 @@ const MultiStepForm = () => {
   const sendingSubnetId =
     Form.useWatch('sendingSubnet', form0) ||
     form0.getFieldValue('sendingSubnet')
-  console.log(sendingSubnetId)
 
   const sendingSubnet = React.useMemo(
     () => registeredSubnets?.find((s) => s.subnetId === sendingSubnetId),
@@ -85,13 +84,21 @@ const MultiStepForm = () => {
     [registeredTokens, tokenSymbol]
   )
 
+  const recipientAddress =
+    Form.useWatch('recipientAddress', form1) ||
+    form1.getFieldValue('recipientAddress')
+
+  const amount = Form.useWatch('amount', form1) || form1.getFieldValue('amount')
+
   return (
     <Row justify="center">
       <MultiStepFormContext.Provider
         value={{
+          amount,
           form0,
           form1,
           receivingSubnet,
+          recipientAddress,
           registeredTokens,
           sendingSubnet,
           token,

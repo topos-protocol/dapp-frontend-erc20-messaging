@@ -16,63 +16,66 @@ export default function useRegisteredTokens(subnet?: Subnet) {
   const [tokens, setTokens] = React.useState<Token[]>()
 
   const contract = React.useMemo(
-    () => toposCoreContract.connect(provider),
-    [provider]
+    () => (subnet ? toposCoreContract.connect(provider) : undefined),
+    [subnet, provider]
   )
 
   const getRegisteredTokens = React.useCallback(async () => {
-    setLoading(true)
+    if (contract) {
+      setLoading(true)
 
-    const registeredTokensCount = await contract
-      .getTokenCount()
-      .then((count: ethers.BigNumber) => count.toNumber())
-      .catch((error: any) => {
-        console.error(error)
-        setErrors((e) => [
-          ...e,
-          `Error when fetching the count of registered token.`,
-        ])
-      })
-    console.log(registeredTokensCount)
+      const registeredTokensCount = await contract
+        .getTokenCount()
+        .then((count: ethers.BigNumber) => count.toNumber())
+        .catch((error: any) => {
+          console.error(error)
+          setErrors((e) => [
+            ...e,
+            `Error when fetching the count of registered token.`,
+          ])
+        })
 
-    if (registeredTokensCount !== undefined) {
-      const promises: Promise<Token>[] = []
-      let i = 0
-      while (i < registeredTokensCount) {
-        const tokenKey: ethers.BytesLike = await contract
-          .getTokenKeyAtIndex(i)
-          .catch((error: any) => {
-            console.error(error)
-            setErrors((e) => [
-              ...e,
-              `Error fetching the id of the registered token at index ${i}.`,
-            ])
-          })
+      if (registeredTokensCount !== undefined) {
+        const promises: Promise<Token>[] = []
+        let i = 0
+        while (i < registeredTokensCount) {
+          const tokenKey: ethers.BytesLike = await contract
+            .getTokenKeyAtIndex(i)
+            .catch((error: any) => {
+              console.error(error)
+              setErrors((e) => [
+                ...e,
+                `Error fetching the id of the registered token at index ${i}.`,
+              ])
+            })
 
-        promises.push(
-          contract.tokens(tokenKey).catch((error: any) => {
-            console.error(error)
-            setErrors((e) => [
-              ...e,
-              `Error fetching registered token with key ${tokenKey}.`,
-            ])
-          })
-        )
-        i++
+          promises.push(
+            contract.tokens(tokenKey).catch((error: any) => {
+              console.error(error)
+              setErrors((e) => [
+                ...e,
+                `Error fetching registered token with key ${tokenKey}.`,
+              ])
+            })
+          )
+          i++
+        }
+
+        const tokens = await Promise.all(promises)
+        console.log(tokens)
+        setTokens(tokens.filter((t) => t !== undefined))
       }
 
-      const tokens = await Promise.all(promises)
-      console.log(tokens)
-      setTokens(tokens.filter((t) => t !== undefined))
+      setLoading(false)
     }
-
-    setLoading(false)
-  }, [])
+  }, [contract])
 
   React.useEffect(
     function onSubnetChange() {
-      console.log('subnet change')
-      getRegisteredTokens()
+      if (subnet) {
+        console.log('subnet change')
+        getRegisteredTokens()
+      }
     },
     [subnet]
   )
