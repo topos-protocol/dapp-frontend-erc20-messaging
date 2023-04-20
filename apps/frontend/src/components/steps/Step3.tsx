@@ -4,8 +4,8 @@ import React from 'react'
 
 import { TracingContext } from '../../contexts/tracing'
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
+import useCreateTracingSpan from '../../hooks/useCreateTracingSpan'
 import { StepProps } from '../MultiStepForm'
-import useTracingCreateSpan from '../../hooks/useTracingCreateSpan'
 
 const { Title } = Typography
 
@@ -13,13 +13,14 @@ const Step3 = ({ onFinish }: StepProps) => {
   const { receivingSubnet, sendingSubnet } =
     React.useContext(MultiStepFormContext)
 
-  const { activeSpan } = React.useContext(TracingContext)
-  const { span } = useTracingCreateSpan('step-3', activeSpan)
+  const { rootSpan } = React.useContext(TracingContext)
+  const stepSpan = React.useMemo(() => useCreateTracingSpan('step-3', rootSpan), [rootSpan])
 
   const reset = React.useCallback(() => {
-    span?.end()
+    stepSpan?.end()
+    rootSpan?.end()
     onFinish()
-  }, [span])
+  }, [stepSpan])
 
   return (
     <Result

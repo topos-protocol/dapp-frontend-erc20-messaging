@@ -5,12 +5,9 @@ import React from 'react'
 import Header from './components/Header'
 import MultiStepForm from './components/MultiStepForm'
 import { ErrorsContext } from './contexts/errors'
-import { TracingContext } from './contexts/tracing'
 import { RegisteredSubnetsContext } from './contexts/registeredSubnets'
 
 import 'antd/dist/reset.css'
-import { Span, trace } from '@opentelemetry/api'
-import { SERVICE_NAME } from './tracing'
 import useRegisteredSubnets from './hooks/useRegisteredSubnets'
 
 const { Content: _Content } = _Layout
@@ -31,15 +28,7 @@ const Content = styled(_Content)`
 
 const App = () => {
   const [errors, setErrors] = React.useState<string[]>([])
-  const [activeSpan, setActiveSpan] = React.useState<Span>()
   const { loading, registeredSubnets } = useRegisteredSubnets()
-
-  React.useEffect(function init() {
-    const tracer = trace.getTracer(SERVICE_NAME)
-    const span = tracer.startSpan('new session')
-    setActiveSpan(span)
-    span.end()
-  }, [])
 
   return (
     <ConfigProvider
@@ -52,28 +41,26 @@ const App = () => {
         },
       }}
     >
-      <TracingContext.Provider value={{ activeSpan, setActiveSpan }}>
-        <ErrorsContext.Provider value={{ setErrors }}>
-          <RegisteredSubnetsContext.Provider
-            value={{
-              loading,
-              data: registeredSubnets,
-            }}
-          >
-            <Layout>
-              <Header />
-              <Errors>
-                {errors.map((e) => (
-                  <Alert type="error" showIcon closable message={e} key={e} />
-                ))}
-              </Errors>
-              <Content>
-                <MultiStepForm />
-              </Content>
-            </Layout>
-          </RegisteredSubnetsContext.Provider>
-        </ErrorsContext.Provider>
-      </TracingContext.Provider>
+      <ErrorsContext.Provider value={{ setErrors }}>
+        <RegisteredSubnetsContext.Provider
+          value={{
+            loading,
+            data: registeredSubnets,
+          }}
+        >
+          <Layout>
+            <Header />
+            <Errors>
+              {errors.map((e) => (
+                <Alert type="error" showIcon closable message={e} key={e} />
+              ))}
+            </Errors>
+            <Content>
+              <MultiStepForm />
+            </Content>
+          </Layout>
+        </RegisteredSubnetsContext.Provider>
+      </ErrorsContext.Provider>
     </ConfigProvider>
   )
 }

@@ -62,7 +62,6 @@ export default function useRegisteredTokens(subnet?: Subnet) {
         }
 
         const tokens = await Promise.all(promises)
-        console.log(tokens)
         setTokens(tokens.filter((t) => t !== undefined))
       }
 
@@ -73,7 +72,6 @@ export default function useRegisteredTokens(subnet?: Subnet) {
   React.useEffect(
     function onSubnetChange() {
       if (subnet) {
-        console.log('subnet change')
         getRegisteredTokens()
       }
     },

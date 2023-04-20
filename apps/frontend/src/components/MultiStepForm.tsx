@@ -12,6 +12,7 @@ import Summary1 from './stepSummaries/Summary1'
 import useRegisteredTokens from '../hooks/useRegisteredTokens'
 import { SERVICE_NAME } from '../tracing'
 import { trace } from '@opentelemetry/api'
+import { TracingContext } from '../contexts/tracing'
 
 const NUMBER_OF_STEPS = 4
 
@@ -92,6 +93,11 @@ const MultiStepForm = () => {
 
   const amount = Form.useWatch('amount', form1) || form1.getFieldValue('amount')
 
+  const rootSpan = React.useMemo(() => {
+    const tracer = trace.getTracer(SERVICE_NAME)
+    return tracer.startSpan('root')
+  }, [])
+
   return (
     <Row justify="center">
       <MultiStepFormContext.Provider
@@ -127,14 +133,14 @@ const MultiStepForm = () => {
               transition: 'all 0.4s ease 0.1s',
             }}
           >
-            <>
+            <TracingContext.Provider value={{ rootSpan }}>
               {currentStep === 0 && <Step0 onFinish={nextStep} />}
               {currentStep === 1 && (
                 <Step1 onFinish={nextStep} onPrev={prevStep} />
               )}
               {currentStep === 2 && <Step2 onFinish={nextStep} />}
               {currentStep === 3 && <Step3 onFinish={reset} />}
-            </>
+            </TracingContext.Provider>
           </Col>
         </TransactionTypeContext.Provider>
       </MultiStepFormContext.Provider>

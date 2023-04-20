@@ -24,7 +24,7 @@ import {
 } from '../MultiStepForm'
 import RegisterToken from '../RegisterToken'
 import SubnetSelect from '../SubnetSelect'
-import useTracingCreateSpan from '../../hooks/useTracingCreateSpan'
+import useCreateTracingSpan from '../../hooks/useCreateTracingSpan'
 import useCheckTokenOnSubnet from '../../hooks/useCheckTokenOnReceivingSubnet'
 import useTokenBalance from '../../hooks/useTokenBalance'
 
@@ -47,8 +47,8 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
   } = React.useContext(MultiStepFormContext)
   const { checkTokenOnSubnet, loading: receivingSubnetLoading } =
     useCheckTokenOnSubnet()
-  const { activeSpan } = React.useContext(TracingContext)
-  const { span } = useTracingCreateSpan('step-1', activeSpan)
+  const { rootSpan } = React.useContext(TracingContext)
+  const stepSpan = React.useMemo(() => useCreateTracingSpan('step-1', rootSpan), [rootSpan])
 
   const subnetsWithoutSendingOne = React.useMemo(
     () => registeredSubnets?.filter((s) => s.name !== sendingSubnet?.name),
@@ -76,7 +76,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
 
   React.useEffect(
     function traceSelectToken() {
-      span?.addEvent('select token', {
+      stepSpan?.addEvent('select token', {
         token: JSON.stringify(token),
       })
     },
@@ -85,7 +85,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
 
   React.useEffect(
     function traceSelectReceivingSubnet() {
-      span?.addEvent('select receiving subnet', {
+      stepSpan?.addEvent('select receiving subnet', {
         receivingSubnet: JSON.stringify(receivingSubnet),
       })
     },
@@ -94,7 +94,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
 
   React.useEffect(
     function traceSelectRecipientAddress() {
-      span?.addEvent('select recipient address', {
+      stepSpan?.addEvent('select recipient address', {
         recipientAddress: JSON.stringify(recipientAddress),
       })
     },
@@ -103,7 +103,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
 
   React.useEffect(
     function traceSelectAmount() {
-      span?.addEvent('select amount', {
+      stepSpan?.addEvent('select amount', {
         amount: JSON.stringify(amount),
       })
     },
@@ -111,9 +111,9 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
   )
 
   const nextStep = React.useCallback(() => {
-    span?.end()
+    stepSpan?.end()
     onFinish()
-  }, [span])
+  }, [stepSpan])
 
   return (
     <Form form={form1} layout="vertical" onFinish={nextStep}>
