@@ -1,6 +1,7 @@
 import { CheckCircleFilled } from '@ant-design/icons'
+import { context, trace } from '@opentelemetry/api'
 import { Avatar, List, Spin } from 'antd'
-import { ethers } from 'ethers'
+import { ContractReceipt, Transaction, ethers } from 'ethers'
 import React from 'react'
 
 import { ErrorsContext } from '../../contexts/errors'
@@ -14,7 +15,7 @@ import useSendToken from '../../hooks/useSendToken'
 import { getRawTransaction } from '../../util'
 import { StepProps } from '../MultiStepForm'
 import Progress from '../Progress'
-import useTracingCreateSpan from '../../hooks/useTracingCreateSpan'
+import { SERVICE_NAME } from '../../tracing'
 
 const Step2 = ({ onFinish }: StepProps) => {
   const { setErrors } = React.useContext(ErrorsContext)
@@ -27,7 +28,6 @@ const Step2 = ({ onFinish }: StepProps) => {
     React.useContext(MultiStepFormContext)
   const [progress, setProgress] = React.useState(0)
   const { activeSpan } = React.useContext(TracingContext)
-  const { span } = useTracingCreateSpan('step-2', activeSpan)
 
   const { provider } = useEthers({
     subnet: sendingSubnet,
@@ -67,16 +67,39 @@ const Step2 = ({ onFinish }: StepProps) => {
         observeExecutorServiceJob &&
         sendToExecutorService
       ) {
+        const tracer = trace.getTracer(SERVICE_NAME)
+        const stepSpan = tracer.startSpan('step-2', {
+          links: activeSpan ? [{ context: activeSpan.spanContext() }] : [],
+        })
         const parsedAmount = ethers.utils.parseUnits(amount.toString())
+
+        const allowanceSpan = tracer.startSpan(
+          'approve-allowance',
+          undefined,
+          trace.setSpan(context.active(), stepSpan)
+        )
+
         await approveAllowance(token, parsedAmount)
+          .catch((error) => {
+            allowanceSpan.recordException(error)
+          })
+          .finally(() => {
+            allowanceSpan.end()
+          })
         setActiveProgressStep((s) => s + 1)
 
+        const sendTokenSpan = tracer.startSpan(
+          'send-token',
+          undefined,
+          trace.setSpan(context.active(), stepSpan)
+        )
         const { sendTokenTx, sendTokenReceipt } = await sendToken(
           receivingSubnet?.subnetId,
           recipientAddress,
           token?.symbol,
           parsedAmount
         )
+        sendTokenSpan.end()
         setActiveProgressStep((s) => s + 1)
 
         if (sendTokenReceipt) {
@@ -93,6 +116,11 @@ const Step2 = ({ onFinish }: StepProps) => {
           const trieRoot = ethers.utils.hexlify(trie.root())
 
           if (proof && trie) {
+            const sendExecutorServiceSpan = tracer.startSpan(
+              'send-to-executor-service',
+              undefined,
+              trace.setSpan(context.active(), stepSpan)
+            )
             await sendToExecutorService({
               txRaw: sendTokenTxRaw,
               indexOfDataInTxRaw,
@@ -100,16 +128,33 @@ const Step2 = ({ onFinish }: StepProps) => {
               txTrieMerkleProof: proof,
               txTrieRoot: trieRoot,
             })
-              .then(async (job) => {
+              .then((job) => {
+                sendExecutorServiceSpan.end()
+
+                const observeExecutorJobSpan = tracer.startSpan(
+                  'observe-executor-service',
+                  undefined,
+                  trace.setSpan(context.active(), stepSpan)
+                )
                 observeExecutorServiceJob(job.id).subscribe({
                   next: (progress: number) => {
                     setProgress(progress)
+                    observeExecutorJobSpan.addEvent('progress', {
+                      progress,
+                    })
                   },
                   error: (error) => {
                     setErrors((e) => [...e, error])
+                    console.log('ending span step-2 error')
+                    observeExecutorJobSpan.recordException(error)
+                    observeExecutorJobSpan.end()
+                    stepSpan.end()
                   },
                   complete: () => {
                     setActiveProgressStep((s) => s + 1)
+                    console.log('ending span step-2')
+                    observeExecutorJobSpan.end()
+                    stepSpan.end()
                   },
                 })
               })
@@ -118,6 +163,7 @@ const Step2 = ({ onFinish }: StepProps) => {
                   ...e,
                   `Error when calling the Executor Service`,
                 ])
+                sendExecutorServiceSpan.recordException(error)
                 console.error(error)
               })
           }
@@ -140,12 +186,11 @@ const Step2 = ({ onFinish }: StepProps) => {
 
   React.useEffect(
     function onCompletion() {
-      if (onFinish && span && activeProgressStep === progressSteps.length) {
-        span.end()
+      if (onFinish && activeProgressStep === progressSteps.length) {
         setTimeout(onFinish, 1000)
       }
     },
-    [activeProgressStep, span]
+    [activeProgressStep]
   )
 
   return (

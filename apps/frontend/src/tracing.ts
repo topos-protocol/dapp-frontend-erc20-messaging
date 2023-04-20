@@ -2,12 +2,13 @@ import {
   BatchSpanProcessor,
   ConsoleSpanExporter,
 } from '@opentelemetry/sdk-trace-base'
-import { trace } from '@opentelemetry/api'
 import { Resource } from '@opentelemetry/resources'
+import * as api from '@opentelemetry/api'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto'
+import { ZoneContextManager } from '@opentelemetry/context-zone'
 
 export const SERVICE_NAME =
   import.meta.env.VITE_TRACING_SERVICE_NAME || 'cross-subnet-message'
@@ -41,4 +42,6 @@ const exporter = new OTLPTraceExporter({
 const processor = new BatchSpanProcessor(exporter)
 provider.addSpanProcessor(processor)
 
-provider.register()
+provider.register({
+  contextManager: new ZoneContextManager(),
+})

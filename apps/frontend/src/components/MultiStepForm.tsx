@@ -10,6 +10,8 @@ import Step3 from './steps/Step3'
 import Summary0 from './stepSummaries/Summary0'
 import Summary1 from './stepSummaries/Summary1'
 import useRegisteredTokens from '../hooks/useRegisteredTokens'
+import { SERVICE_NAME } from '../tracing'
+import { trace } from '@opentelemetry/api'
 
 const NUMBER_OF_STEPS = 4
 

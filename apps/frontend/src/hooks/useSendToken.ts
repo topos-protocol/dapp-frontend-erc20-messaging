@@ -2,7 +2,6 @@ import { BigNumber, ethers } from 'ethers'
 import React from 'react'
 
 import { toposCoreContract } from '../contracts'
-import { Subnet, Token } from '../types'
 import useEthers from './useEthers'
 
 export default function useSendToken() {
