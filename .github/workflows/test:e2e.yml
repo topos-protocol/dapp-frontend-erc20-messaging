@@ -1,0 +1,40 @@
+name: Run e2e tests
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  e2e:
+    runs-on: ubuntu-latest-16-core
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Checkout full-msg-protocol-infra repo
+        uses: actions/checkout@v3
+        with:
+          repository: toposware/full-msg-protocol-infra
+          path: full-msg-protocol-infra
+
+      - name: Start containers
+        run: docker-compose -f "full-msg-protocol-infra/docker-compose.yml" up -d
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - run: npm ci
+
+      - name: Install linux deps
+        run: |
+          sudo apt-get install --no-install-recommends -y \
+          fluxbox \
+          xvfb
+
+      - name: Run xvfb and fluxbox
+        run: |
+          Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
+          fluxbox &
+        env:
+          DISPLAY: :0.0
+
+      - run: npm run test:e2e

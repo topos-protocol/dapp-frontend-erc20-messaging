@@ -1,0 +1,17 @@
+{
+  "name": "dapp-frontend-cross-subnet",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "backend:start": "npm run start --workspace=backend",
+    "frontend:e2e": "npm run test:e2e --workspace=frontend",
+    "frontend:build": "npm run build --workspace=frontend",
+    "frontend:start": "npm run start --workspace=frontend",
+    "test:e2e": "start-server-and-test 'npm run backend:start' http-get://localhost:3001 'npm run frontend:e2e'"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "author": "Sébastien Dan sebastien.dan@toposware.com",
+  "license": "MIT"
+}
