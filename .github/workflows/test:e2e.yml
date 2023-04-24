@@ -5,7 +5,8 @@ on:
       - main
 jobs:
   e2e:
-    runs-on: ubuntu-latest-16-core
+    runs-on: ubuntu-latest-16-cores
+    environment: devnet-1
     steps:
       - uses: actions/checkout@v3
 
@@ -13,16 +14,44 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: toposware/full-msg-protocol-infra
-          path: full-msg-protocol-infra
+          ref: 'main'
+          token: ${{ secrets.ROBOT_PAT_READ_FULL_MSG_PROTOCO_INFRA }}
+          path: infra
+
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: robot-toposware
+          password: ${{ secrets.ROBOT_TOPOSWARE_GH_PACKAGE_TOKEN }}
 
       - name: Start containers
-        run: docker-compose -f "full-msg-protocol-infra/docker-compose.yml" up -d
+        run: >
+          cd infra &&
+          cat .env &&
+          docker compose up -d
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          TOKEN_DEPLOYER_SALT: ${{ secrets.TOKEN_DEPLOYER_SALT }}
+          TOPOS_CORE_SALT: ${{ secrets.TOPOS_CORE_SALT }}
+          TOPOS_CORE_PROXY_SALT: ${{ secrets.TOPOS_CORE_PROXY_SALT }}
+          SUBNET_REGISTRATOR_SALT: ${{ secrets.SUBNET_REGISTRATOR_SALT }}
+
+      - name: Debug containers
+        if: failure()
+        run: docker inspect contracts-edena | grep Image && docker logs contracts-edena
 
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: 'npm'
 
-      - run: npm ci
+      - name: Install npm packages
+        run: >
+          npm set //npm.pkg.github.com/:_authToken $NPM_TOKEN &&
+          npm ci
+        env:
+          NPM_TOKEN: ${{ secrets.ROBOT_TOPOSWARE_GH_PACKAGE_TOKEN }}
 
       - name: Install linux deps
         run: |
@@ -37,4 +66,41 @@ jobs:
         env:
           DISPLAY: :0.0
 
-      - run: npm run test:e2e
+      - name: Build frontend
+        run: npm run frontend:build
+        env:
+          VITE_EXECUTOR_SERVICE_ENDPOINT: ${{ vars.VITE_EXECUTOR_SERVICE_ENDPOINT }}
+          VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS: ${{ vars.VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS }}
+          VITE_TOPOS_CORE_CONTRACT_ADDRESS: ${{ vars.VITE_TOPOS_CORE_CONTRACT_ADDRESS }}
+          VITE_TOPOS_SUBNET_CHAIN_ID: ${{ vars.VITE_TOPOS_SUBNET_CHAIN_ID }}
+          VITE_TOPOS_SUBNET_CURRENCY_SYMBOL: ${{ vars.VITE_TOPOS_SUBNET_CURRENCY_SYMBOL }}
+          VITE_TOPOS_SUBNET_ENDPOINT: ${{ vars.VITE_TOPOS_SUBNET_ENDPOINT }}
+          VITE_TRACING_OTEL_COLLECTOR_ENDPOINT: ${{ vars.VITE_TRACING_OTEL_COLLECTOR_ENDPOINT }}
+          VITE_TRACING_SERVICE_NAME: ${{ vars.VITE_TRACING_SERVICE_NAME }}
+          VITE_TRACING_SERVICE_VERSION: ${{ vars.VITE_TRACING_SERVICE_VERSION }}
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+          AUTH0_ISSUER_URL: ${{ secrets.AUTH0_ISSUER_URL }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          CHAIN_ID: ${{ vars.VITE_TOPOS_SUBNET_CHAIN_ID }}
+          CYPRESS_REMOTE_DEBUGGING_PORT: ${{ vars.CYPRESS_REMOTE_DEBUGGING_PORT }}
+          PORT: 3001
+          NETWORK_NAME: ${{ vars.NETWORK_NAME }}
+          RPC_URL: ${{ vars.VITE_TOPOS_SUBNET_ENDPOINT }}
+          SYMBOL: ${{ vars.VITE_TOPOS_SUBNET_CURRENCY_SYMBOL }}
+          DISPLAY: :0.0
+
+      - name: Archive e2e artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: e2e-artifacts
+          path: |
+            packages/frontend/cypress/videos
+            packages/frontend/cypress/screenshots
+        continue-on-error: true

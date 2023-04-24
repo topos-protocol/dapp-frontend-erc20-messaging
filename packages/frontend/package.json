@@ -8,7 +8,7 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "start": "tsc && vite build --mode development --watch --sourcemap true",
-    "test:e2e": "env-cmd cypress run --browser chrome --headed"
+    "test:e2e": "env-cmd --silent cypress run --browser chrome --headed"
   },
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
