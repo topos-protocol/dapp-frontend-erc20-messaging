@@ -9,7 +9,7 @@
 <br />
 
 <p align="center">
-frontend is the React web app to interact with cross-subnet messages on any subnets.
+dApp Frontend Cross-Subnet is the web app to interact with cross-subnet messages on any subnets.
 </p>
 
 <br />
@@ -17,8 +17,7 @@ frontend is the React web app to interact with cross-subnet messages on any subn
 </div>
 
 [![codecov](https://codecov.io/gh/toposware/frontend/branch/main/graph/badge.svg?token=FOH2B2GRL9&style=flat)](https://codecov.io/gh/toposware/topos)
-![example workflow](https://github.com/toposware/frontend/actions/workflows/test:unit.yml/badge.svg)
-![example workflow](https://github.com/toposware/frontend/actions/workflows/test:coverage.yml/badge.svg)
+![example workflow](https://github.com/toposware/dapp-frontend-cross-subnet/actions/workflows/test:e2e.yml/badge.svg)
 [![](https://dcbadge.vercel.app/api/server/7HZ8F8ykBT?style=flat)](https://discord.gg/7HZ8F8ykBT)
 
 ## Getting Started
@@ -27,21 +26,7 @@ Install NodeJS by following the guidelines from the [official NodeJS website](ht
 
 ### Environment
 
-Create an `.env` file, at the root of the project, with the content of `.env.example` and fill the relevant env var values.
-
-```
-AUTH0_AUDIENCE=
-AUTH0_CLIENT_ID=
-AUTH0_CLIENT_SECRET=
-AUTH0_ISSUER_URL=
-VITE_EXECUTOR_SERVICE_ENDPOINT=http://localhost:3000
-VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS=0x0eF66D7Ce86381870EeC547Acd94f6b3926651bc
-VITE_TOPOS_CORE_CONTRACT_ADDRESS=0x76394959E430e539b9c30d526c3b70518ca4A3C8
-VITE_TOPOS_SUBNET_CHAIN_ID=2357
-VITE_TOPOS_SUBNET_CURRENCY_SYMBOL=TOPOS
-VITE_TOPOS_SUBNET_ENDPOINT=https://rpc.topos-subnet.devnet-1.toposware.com
-
-```
+In all `packages/*` workspaces, create an `.env` file, at the root of the workspace, with the content of `.env.example` and fill the relevant env var values.
 
 ### Install Dependencies
 
