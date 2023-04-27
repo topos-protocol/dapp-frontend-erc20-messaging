@@ -3,8 +3,8 @@ import React from 'react'
 
 import { ErrorsContext } from '../contexts/errors'
 import { RegisteredSubnetsContext } from '../contexts/registeredSubnets'
-import { toposCoreContract } from '../contracts'
-import { Subnet, Token } from '../types'
+import { toposMessagingContract } from '../contracts'
+import { Token } from '../types'
 
 export default function useCheckTokenOnSubnet() {
   const { setErrors } = React.useContext(ErrorsContext)
@@ -23,14 +23,15 @@ export default function useCheckTokenOnSubnet() {
 
       if (subnet && token) {
         if (
-          (await subnetProvider.getCode(toposCoreContract.address)) === '0x'
+          (await subnetProvider.getCode(toposMessagingContract.address)) ===
+          '0x'
         ) {
           setLoading(false)
           return Promise.reject(
             `ToposCore contract could not be found on ${subnet.name}!`
           )
         } else {
-          const contract = toposCoreContract.connect(subnetProvider)
+          const contract = toposMessagingContract.connect(subnetProvider)
 
           const onChainToken = await contract
             .getTokenBySymbol(token.symbol)

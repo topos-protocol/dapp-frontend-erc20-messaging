@@ -13,5 +13,8 @@
     "packages/*"
   ],
   "author": "Sébastien Dan sebastien.dan@toposware.com",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@toposware/topos-smart-contracts": "^1.0.0"
+  }
 }

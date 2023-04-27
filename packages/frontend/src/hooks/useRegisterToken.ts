@@ -3,7 +3,7 @@ import React from 'react'
 
 import { Values } from '../components/RegisterToken'
 import { ErrorsContext } from '../contexts/errors'
-import { toposCoreContract } from '../contracts'
+import { toposMessagingContract } from '../contracts'
 import { Subnet } from '../types'
 import useEthers from './useEthers'
 
@@ -15,7 +15,7 @@ export default function useRegisterToken(subnet?: Subnet) {
   const { setErrors } = React.useContext(ErrorsContext)
   const [loading, setLoading] = React.useState(false)
 
-  const contract = toposCoreContract.connect(provider)
+  const contract = toposMessagingContract.connect(provider)
 
   const mint = React.useCallback(
     async (symbol: string, amount: BigNumber, successCallback: () => void) => {

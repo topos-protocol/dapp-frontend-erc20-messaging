@@ -1,4 +1,4 @@
-import * as BurnableMintableCappedERC20JSON from '@toposware/topos-smart-contracts/brownie/build/contracts/BurnableMintableCappedERC20.json'
+import * as BurnableMintableCappedERC20JSON from '@toposware/topos-smart-contracts/artifacts/contracts/topos-core/BurnableMintableCappedERC20.sol/BurnableMintableCappedERC20.json'
 import { BigNumber, ethers } from 'ethers'
 import React from 'react'
 

@@ -3,7 +3,7 @@ import { Button, Form, Input, message, Modal } from 'antd'
 import React from 'react'
 
 import { MultiStepFormContext } from '../contexts/multiStepForm'
-import { toposCoreContract } from '../contracts'
+import { toposMessagingContract } from '../contracts'
 import useEthers from '../hooks/useEthers'
 import useRegisterToken from '../hooks/useRegisterToken'
 
@@ -27,7 +27,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
   const [form] = Form.useForm()
   const { registerToken } = useRegisterToken()
 
-  const contract = toposCoreContract.connect(provider.getSigner())
+  const contract = toposMessagingContract.connect(provider.getSigner())
 
   const onCancel = React.useCallback(() => {
     setOpen(false)

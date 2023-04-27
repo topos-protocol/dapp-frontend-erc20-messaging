@@ -1,13 +1,13 @@
-import * as SubnetRegistratorJSON from '@toposware/topos-smart-contracts/brownie/build/contracts/SubnetRegistrator.json';
-import * as ToposCoreContractJSON from '@toposware/topos-smart-contracts/brownie/build/contracts/ToposCore.json';
-import { ethers } from 'ethers';
+import * as SubnetRegistratorJSON from '@toposware/topos-smart-contracts/artifacts/contracts/topos-core/SubnetRegistrator.sol/SubnetRegistrator.json'
+import * as ToposMessagingContractJSON from '@toposware/topos-smart-contracts/artifacts/contracts/topos-core/ToposMessaging.sol/ToposMessaging.json'
+import { ethers } from 'ethers'
 
 export const subnetRegistratorContract = new ethers.Contract(
   import.meta.env.VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS || '',
   SubnetRegistratorJSON.abi
-);
+)
 
-export const toposCoreContract = new ethers.Contract(
-  import.meta.env.VITE_TOPOS_CORE_CONTRACT_ADDRESS || '',
-  ToposCoreContractJSON.abi
-);
+export const toposMessagingContract = new ethers.Contract(
+  import.meta.env.VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS || '',
+  ToposMessagingContractJSON.abi
+)

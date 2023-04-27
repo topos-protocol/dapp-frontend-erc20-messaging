@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from 'ethers'
 import React from 'react'
 
-import { toposCoreContract } from '../contracts'
+import { toposMessagingContract } from '../contracts'
 import useEthers from './useEthers'
 
 export default function useSendToken() {
@@ -11,7 +11,7 @@ export default function useSendToken() {
   const [errors, setErrors] = React.useState<string[]>([])
   const [loading, setLoading] = React.useState(false)
 
-  const contract = toposCoreContract.connect(provider.getSigner())
+  const contract = toposMessagingContract.connect(provider.getSigner())
 
   const sendToken = React.useCallback(
     async (
