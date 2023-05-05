@@ -1,16 +1,16 @@
 import { FormInstance } from 'antd'
 import React from 'react'
 
-import { Subnet, Token } from '../types'
+import { SubnetWithId, Token } from '../types'
 
 interface MultiStepFormContext {
   amount?: number
   form0?: FormInstance<any>
   form1?: FormInstance<any>
-  receivingSubnet?: Subnet
+  receivingSubnet?: SubnetWithId
   recipientAddress?: string
   registeredTokens?: Token[]
-  sendingSubnet?: Subnet
+  sendingSubnet?: SubnetWithId
   token?: Token
 }
 

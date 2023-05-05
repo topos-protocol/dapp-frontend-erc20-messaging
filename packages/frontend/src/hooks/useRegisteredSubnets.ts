@@ -1,16 +1,17 @@
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import React from 'react'
 import { ErrorsContext } from '../contexts/errors'
 
 import { subnetRegistratorContract } from '../contracts'
-import { Subnet } from '../types'
+import { Subnet, SubnetWithId } from '../types'
 import useEthers from './useEthers'
 
 export default function useRegisteredSubnets() {
   const { setErrors } = React.useContext(ErrorsContext)
   const { provider } = useEthers()
   const [loading, setLoading] = React.useState(false)
-  const [registeredSubnets, setRegisteredSubnets] = React.useState<Subnet[]>()
+  const [registeredSubnets, setRegisteredSubnets] =
+    React.useState<SubnetWithId[]>()
 
   const contract = subnetRegistratorContract.connect(provider)
 
@@ -29,10 +30,10 @@ export default function useRegisteredSubnets() {
       })
 
     if (registeredSubnetsCount !== undefined) {
-      const promises: Promise<Subnet>[] = []
+      const promises = []
       let i = 0
       while (i < registeredSubnetsCount) {
-        const subnetId: ethers.BytesLike = await contract
+        const subnetId = await contract
           .getSubnetIdAtIndex(i)
           .catch((error: any) => {
             console.error(error)
@@ -48,7 +49,7 @@ export default function useRegisteredSubnets() {
               .subnets(subnetId)
               .then((subnet: Subnet) => ({
                 ...subnet,
-                subnetId,
+                id: subnetId,
               }))
               .catch((error: Error) => {
                 console.error(error)
@@ -62,8 +63,13 @@ export default function useRegisteredSubnets() {
         i++
       }
 
-      const subnets = await Promise.all(promises)
-      setRegisteredSubnets(subnets.filter((s) => s !== undefined))
+      const subnets = await Promise.allSettled(promises).then((values) =>
+        values
+          .filter((v) => v.status === 'fulfilled')
+          .map((v) => (v.status === 'fulfilled' ? v.value : undefined))
+          .filter((v) => v)
+      )
+      setRegisteredSubnets(subnets as SubnetWithId[])
     }
 
     setLoading(false)

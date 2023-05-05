@@ -82,26 +82,47 @@ const Step2 = ({ onFinish }: StepProps) => {
           submitSendTokenSpan
         )
 
-        await approveAllowance(token, parsedAmount)
-          .catch((error) => {
-            allowanceSpan.recordException(error)
-          })
-          .finally(() => {
-            allowanceSpan.end()
-          })
+        try {
+          await approveAllowance(token, parsedAmount)
+        } catch (error) {
+          if (typeof error === 'string') {
+            setErrors((e) => [...e, error as string])
+          }
+          allowanceSpan.recordException(error as string)
+          allowanceSpan.end()
+          return
+        }
+        allowanceSpan.end()
+
         setActiveProgressStep((s) => s + 1)
 
         const sendTokenSpan = useCreateTracingSpan(
           'send-token',
           submitSendTokenSpan
         )
-        const { sendTokenTx, sendTokenReceipt } = await sendToken(
-          receivingSubnet?.subnetId,
-          recipientAddress,
-          token?.symbol,
-          parsedAmount
-        )
+
+        let sendTokenTx
+        let sendTokenReceipt
+        try {
+          const data = await sendToken(
+            receivingSubnet?.id,
+            recipientAddress,
+            token?.addr,
+            parsedAmount
+          )
+
+          sendTokenTx = data.sendTokenTx
+          sendTokenReceipt = data.sendTokenReceipt
+        } catch (error) {
+          if (typeof error === 'string') {
+            setErrors((e) => [...e, error as string])
+          }
+          sendTokenSpan.recordException(error as string)
+          sendTokenSpan.end()
+          return
+        }
         sendTokenSpan.end()
+
         setActiveProgressStep((s) => s + 1)
 
         if (sendTokenReceipt) {
@@ -125,7 +146,7 @@ const Step2 = ({ onFinish }: StepProps) => {
             await sendToExecutorService({
               txRaw: sendTokenTxRaw,
               indexOfDataInTxRaw,
-              subnetId: receivingSubnet?.subnetId,
+              subnetId: receivingSubnet?.id,
               txTrieMerkleProof: proof,
               txTrieRoot: trieRoot,
             })

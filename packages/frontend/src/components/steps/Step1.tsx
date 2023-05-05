@@ -15,7 +15,7 @@ import { ethers } from 'ethers'
 import React from 'react'
 
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
-import { RegisteredSubnetsContext } from '../../contexts/registeredSubnets'
+import { SubnetsContext } from '../../contexts/subnets'
 import { TracingContext } from '../../contexts/tracing'
 import {
   StepProps,
@@ -35,7 +35,7 @@ const TransactionTypeSelector = styled(Segmented)`
 const { Option } = Select
 
 const Step1 = ({ onFinish, onPrev }: StepProps) => {
-  const { data: registeredSubnets } = React.useContext(RegisteredSubnetsContext)
+  const { data: registeredSubnets } = React.useContext(SubnetsContext)
   const {
     amount,
     form1,
@@ -48,7 +48,10 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
   const { checkTokenOnSubnet, loading: receivingSubnetLoading } =
     useCheckTokenOnSubnet()
   const { rootSpan } = React.useContext(TracingContext)
-  const stepSpan = React.useMemo(() => useCreateTracingSpan('step-1', rootSpan), [rootSpan])
+  const stepSpan = React.useMemo(
+    () => useCreateTracingSpan('step-1', rootSpan),
+    [rootSpan]
+  )
 
   const subnetsWithoutSendingOne = React.useMemo(
     () => registeredSubnets?.filter((s) => s.name !== sendingSubnet?.name),

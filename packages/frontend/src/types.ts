@@ -6,11 +6,14 @@ export interface Subnet {
   endpoint: string
   logoURL: string
   name: string
-  subnetId: string
+}
+
+export interface SubnetWithId extends Subnet {
+  id: string
 }
 
 export interface Token {
-  tokenAddress: string
+  addr: string
   symbol: string
 }
 

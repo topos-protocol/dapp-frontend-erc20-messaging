@@ -2,26 +2,26 @@ import { ethers } from 'ethers'
 import React from 'react'
 
 import { ErrorsContext } from '../contexts/errors'
-import { RegisteredSubnetsContext } from '../contexts/registeredSubnets'
+import { SubnetsContext } from '../contexts/subnets'
 import { toposMessagingContract } from '../contracts'
 import { Token } from '../types'
 
 export default function useCheckTokenOnSubnet() {
   const { setErrors } = React.useContext(ErrorsContext)
-  const { data: registeredSubnets } = React.useContext(RegisteredSubnetsContext)
+  const { data: subnets } = React.useContext(SubnetsContext)
   const [loading, setLoading] = React.useState(false)
 
   const checkTokenOnSubnet = React.useCallback(
     async (token?: Token, subnetId?: string) => {
       setLoading(true)
 
-      const subnet = registeredSubnets?.find((s) => s.subnetId === subnetId)
+      const subnet = subnets?.find((s) => s.id === subnetId)
 
-      const subnetProvider = new ethers.providers.JsonRpcProvider(
-        subnet?.endpoint
-      )
+      const subnetProvider = subnet?.endpoint
+        ? new ethers.providers.WebSocketProvider(`ws://${subnet?.endpoint}/ws`)
+        : null
 
-      if (subnet && token) {
+      if (subnet && subnetProvider && token) {
         if (
           (await subnetProvider.getCode(toposMessagingContract.address)) ===
           '0x'
@@ -34,7 +34,7 @@ export default function useCheckTokenOnSubnet() {
           const contract = toposMessagingContract.connect(subnetProvider)
 
           const onChainToken = await contract
-            .getTokenBySymbol(token.symbol)
+            .getTokenByAddress(token.addr)
             .finally(() => {
               setLoading(false)
             })
@@ -50,7 +50,7 @@ export default function useCheckTokenOnSubnet() {
 
       setLoading(false)
     },
-    [registeredSubnets]
+    [subnets]
   )
 
   return { checkTokenOnSubnet, loading }

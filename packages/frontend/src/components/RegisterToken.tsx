@@ -2,16 +2,13 @@ import { PlusOutlined } from '@ant-design/icons'
 import { Button, Form, Input, message, Modal } from 'antd'
 import React from 'react'
 
-import { MultiStepFormContext } from '../contexts/multiStepForm'
-import { toposMessagingContract } from '../contracts'
-import useEthers from '../hooks/useEthers'
 import useRegisterToken from '../hooks/useRegisterToken'
 
 export interface Values {
-  address: string
   cap: number
   dailyMintLimit: number
   name: string
+  supply: number
   symbol: string
 }
 
@@ -21,25 +18,13 @@ interface RegisterTokenFormProps {
 }
 
 const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
-  const { sendingSubnet } = React.useContext(MultiStepFormContext)
   const [loading, setLoading] = React.useState(false)
-  const { provider } = useEthers({ subnet: sendingSubnet, viaMetaMask: true })
   const [form] = Form.useForm()
   const { registerToken } = useRegisterToken()
-
-  const contract = toposMessagingContract.connect(provider.getSigner())
 
   const onCancel = React.useCallback(() => {
     setOpen(false)
   }, [setOpen])
-
-  const registrationSuccessCallback = React.useCallback(() => {
-    message.success('The token has been successfully registered!')
-  }, [])
-
-  const mintSuccessCallback = React.useCallback(() => {
-    message.success('The token has been successfully minted!')
-  }, [])
 
   return (
     <Modal
@@ -56,13 +41,11 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
           .then((values) => {
             setLoading(true)
 
-            registerToken(
-              values,
-              registrationSuccessCallback,
-              mintSuccessCallback
-            ).then(() => {
+            registerToken(values).then(() => {
+              message.success('The token has been successfully registered!')
               setLoading(false)
               form.resetFields()
+              setOpen(false)
             })
           })
           .catch((info) => {
@@ -95,8 +78,18 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
         >
           <Input />
         </Form.Item>
-        <Form.Item name="address" label="Address">
-          <Input disabled={loading} />
+        <Form.Item
+          name="supply"
+          initialValue={1_000}
+          label="Supply"
+          rules={[
+            {
+              required: true,
+              message: 'Please input the supply of the token!',
+            },
+          ]}
+        >
+          <Input disabled={loading} type="number" />
         </Form.Item>
         <Form.Item
           name="cap"

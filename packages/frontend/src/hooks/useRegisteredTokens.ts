@@ -1,3 +1,4 @@
+import { TokenDeployer } from '@topos-network/topos-smart-contracts/typechain-types'
 import { ethers } from 'ethers'
 import React from 'react'
 
@@ -9,7 +10,6 @@ import useEthers from './useEthers'
 export default function useRegisteredTokens(subnet?: Subnet) {
   const { provider } = useEthers({
     subnet,
-    viaMetaMask: true,
   })
   const { setErrors } = React.useContext(ErrorsContext)
   const [loading, setLoading] = React.useState(false)
@@ -36,10 +36,10 @@ export default function useRegisteredTokens(subnet?: Subnet) {
         })
 
       if (registeredTokensCount !== undefined) {
-        const promises: Promise<Token>[] = []
+        const promises = []
         let i = 0
         while (i < registeredTokensCount) {
-          const tokenKey: ethers.BytesLike = await contract
+          const tokenKey = await contract
             .getTokenKeyAtIndex(i)
             .catch((error: any) => {
               console.error(error)
@@ -49,20 +49,27 @@ export default function useRegisteredTokens(subnet?: Subnet) {
               ])
             })
 
-          promises.push(
-            contract.tokens(tokenKey).catch((error: any) => {
-              console.error(error)
-              setErrors((e) => [
-                ...e,
-                `Error fetching registered token with key ${tokenKey}.`,
-              ])
-            })
-          )
+          if (tokenKey !== undefined) {
+            promises.push(
+              contract.tokens(tokenKey).catch((error: any) => {
+                console.error(error)
+                setErrors((e) => [
+                  ...e,
+                  `Error fetching registered token with key ${tokenKey}.`,
+                ])
+              })
+            )
+          }
           i++
         }
 
-        const tokens = await Promise.all(promises)
-        setTokens(tokens.filter((t) => t !== undefined))
+        const tokens = await Promise.allSettled(promises).then((values) =>
+          values
+            .filter((v) => v.status === 'fulfilled')
+            .map((v) => (v.status === 'fulfilled' ? v.value : undefined))
+            .filter((v) => v)
+        )
+        setTokens(tokens as Token[])
       }
 
       setLoading(false)

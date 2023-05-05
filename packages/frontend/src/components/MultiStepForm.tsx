@@ -1,7 +1,7 @@
 import { Col, Form, Row, Space } from 'antd'
 import React from 'react'
 
-import { RegisteredSubnetsContext } from '../contexts/registeredSubnets'
+import { SubnetsContext } from '../contexts/subnets'
 import { MultiStepFormContext } from '../contexts/multiStepForm'
 import Step0 from './steps/Step0'
 import Step1 from './steps/Step1'
@@ -38,7 +38,7 @@ export const TransactionTypeContext =
   })
 
 const MultiStepForm = () => {
-  const { data: registeredSubnets } = React.useContext(RegisteredSubnetsContext)
+  const { data: registeredSubnets } = React.useContext(SubnetsContext)
   const [transactionType, setTransactionType] = React.useState<TransactionType>(
     TransactionType.ASSET_TRANSFER
   )
@@ -64,7 +64,7 @@ const MultiStepForm = () => {
     form0.getFieldValue('sendingSubnet')
 
   const sendingSubnet = React.useMemo(
-    () => registeredSubnets?.find((s) => s.subnetId === sendingSubnetId),
+    () => registeredSubnets?.find((s) => s.id === sendingSubnetId),
     [registeredSubnets, sendingSubnetId]
   )
 
@@ -73,7 +73,7 @@ const MultiStepForm = () => {
     form1.getFieldValue('receivingSubnet')
 
   const receivingSubnet = React.useMemo(
-    () => registeredSubnets?.find((s) => s.subnetId === receivingSubnetId),
+    () => registeredSubnets?.find((s) => s.id === receivingSubnetId),
     [registeredSubnets, receivingSubnetId]
   )
 

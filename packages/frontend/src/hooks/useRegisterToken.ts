@@ -1,88 +1,67 @@
-import { BigNumber, ethers } from 'ethers'
+import { ContractTransaction, ethers } from 'ethers'
 import React from 'react'
 
 import { Values } from '../components/RegisterToken'
 import { ErrorsContext } from '../contexts/errors'
 import { toposMessagingContract } from '../contracts'
-import { Subnet } from '../types'
 import useEthers from './useEthers'
 
-export default function useRegisterToken(subnet?: Subnet) {
+const zeroAddress = '0x0000000000000000000000000000000000000000'
+
+export default function useRegisterToken() {
   const { provider } = useEthers({
-    subnet,
     viaMetaMask: true,
   })
   const { setErrors } = React.useContext(ErrorsContext)
   const [loading, setLoading] = React.useState(false)
 
-  const contract = toposMessagingContract.connect(provider)
-
-  const mint = React.useCallback(
-    async (symbol: string, amount: BigNumber, successCallback: () => void) => {
-      const tx = await contract.giveToken(
-        symbol,
-        await provider.getSigner().getAddress(),
-        amount,
-        { gasLimit: 4_000_000 }
-      )
-
-      return tx
-        .wait()
-        .then(successCallback)
-        .catch((error: Error) => {
-          console.error(error)
-          setErrors((e) => [...e, `Error when minting token`])
-        })
-    },
-    [contract, provider]
+  const contract = React.useMemo(
+    () => toposMessagingContract.connect(provider.getSigner()),
+    [provider]
   )
 
   const registerToken = React.useCallback(
-    async (
-      {
-        address = '0x0000000000000000000000000000000000000000',
-        cap,
-        dailyMintLimit,
-        name,
-        symbol,
-      }: Values,
-      registrationSuccessCallback: () => void,
-      mintSuccessCallback: () => void
-    ) => {
+    async ({ cap, dailyMintLimit, name, symbol, supply }: Values) => {
       setLoading(true)
 
       const params = ethers.utils.defaultAbiCoder.encode(
-        ['string', 'string', 'uint256', 'address', 'uint256'],
+        ['string', 'string', 'uint256', 'address', 'uint256', 'uint256'],
         [
           name,
           symbol,
           ethers.utils.parseUnits(cap.toString()),
-          address,
+          zeroAddress,
           ethers.utils.parseUnits(dailyMintLimit.toString()),
+          ethers.utils.parseUnits(supply.toString()),
         ]
       )
 
-      const tx = await contract.deployToken(params)
-
-      return tx
-        .wait()
-        .then(async () => {
-          registrationSuccessCallback()
-          await mint(
-            symbol,
-            ethers.utils.parseUnits('1000'),
-            mintSuccessCallback
+      return new Promise((resolve, reject) => {
+        contract
+          .deployToken(params)
+          .then((tx: ContractTransaction) =>
+            tx
+              .wait()
+              .then((receipt) => {
+                resolve(receipt)
+              })
+              .catch((error: Error) => {
+                console.error(error)
+                setErrors((e) => [...e, `Error when registering the token`])
+                reject(error)
+              })
           )
-        })
-        .catch((error: Error) => {
-          console.error(error)
-          setErrors((e) => [...e, `Error when registering the token`])
-        })
-        .finally(() => {
-          setLoading(false)
-        })
+          .catch((error: Error) => {
+            console.error(error)
+            setErrors((e) => [...e, `Error when registering the token`])
+            reject(error)
+          })
+          .finally(() => {
+            setLoading(false)
+          })
+      })
     },
-    [contract, mint]
+    [contract]
   )
 
   return { loading, registerToken }
