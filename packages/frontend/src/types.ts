@@ -10,7 +10,7 @@ export interface Subnet {
 }
 
 export interface Token {
-  tokenAddress: string
+  addr: string
   symbol: string
 }
 

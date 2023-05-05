@@ -1,53 +1,67 @@
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber, ContractReceipt, ContractTransaction } from 'ethers'
 import React from 'react'
 
 import { toposMessagingContract } from '../contracts'
 import useEthers from './useEthers'
 
+interface Data {
+  sendTokenTx: ContractTransaction
+  sendTokenReceipt: ContractReceipt
+}
+
 export default function useSendToken() {
   const { provider } = useEthers({
     viaMetaMask: true,
   })
-  const [errors, setErrors] = React.useState<string[]>([])
   const [loading, setLoading] = React.useState(false)
 
-  const contract = toposMessagingContract.connect(provider.getSigner())
-
-  const sendToken = React.useCallback(
-    async (
-      receivingSubnetId: string,
-      recipientAddress: string,
-      tokenSymbol: string,
-      amount: BigNumber
-    ) => {
-      setLoading(true)
-
-      const sendTokenTx: ethers.ContractTransaction = await contract
-        .sendToken(receivingSubnetId, recipientAddress, tokenSymbol, amount, {
-          gasLimit: 4_000_000,
-        })
-        .catch((error: any) => {
-          console.error(error)
-          setErrors((e) => [...e, `Error when sending token`])
-        })
-
-      const sendTokenReceipt = await sendTokenTx
-        .wait()
-        .catch((error: any) => {
-          console.error(error)
-          setErrors((e) => [
-            ...e,
-            `Error when waiting for token sending tx inclusion`,
-          ])
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-
-      return { sendTokenTx, sendTokenReceipt }
-    },
-    [contract, provider]
+  const contract = React.useMemo(
+    () => toposMessagingContract.connect(provider.getSigner()),
+    [provider]
   )
 
-  return { errors, loading, sendToken }
+  const sendToken = React.useCallback(
+    (
+      receivingSubnetId: string,
+      recipientAddress: string,
+      tokenAddress: string,
+      amount: BigNumber
+    ) =>
+      new Promise<Data>((resolve, reject) => {
+        setLoading(true)
+
+        contract
+          .sendToken(
+            receivingSubnetId,
+            recipientAddress,
+            tokenAddress,
+            amount,
+            {
+              gasLimit: 4_000_000,
+            }
+          )
+          .then((tx: ContractTransaction) => {
+            tx.wait()
+              .then((receipt) => {
+                resolve({ sendTokenTx: tx, sendTokenReceipt: receipt })
+              })
+              .catch((error: any) => {
+                console.error(error)
+                reject(
+                  `Error when waiting for sendToken transaction inclusion!`
+                )
+              })
+          })
+          .catch((error: any) => {
+            console.error(error)
+            reject(`Error when sending sendToken transaction!`)
+          })
+          .finally(() => {
+            setLoading(false)
+          })
+      }),
+    [contract]
+  )
+
+  return { loading, sendToken }
 }

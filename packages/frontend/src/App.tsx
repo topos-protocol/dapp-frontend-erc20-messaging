@@ -16,6 +16,7 @@ const Errors = styled.div`
   margin: 1rem auto;
   width: 80%;
   max-width: 800px;
+  z-index: 99999;
 `
 
 const Layout = styled(_Layout)`

@@ -9,7 +9,6 @@ import useEthers from './useEthers'
 export default function useRegisteredTokens(subnet?: Subnet) {
   const { provider } = useEthers({
     subnet,
-    viaMetaMask: true,
   })
   const { setErrors } = React.useContext(ErrorsContext)
   const [loading, setLoading] = React.useState(false)

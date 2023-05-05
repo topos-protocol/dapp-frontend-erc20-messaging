@@ -22,7 +22,7 @@ export default function useTokenBalance(subnet?: Subnet, token?: Token) {
     () =>
       token
         ? new ethers.Contract(
-            token.tokenAddress,
+            token.addr,
             BurnableMintableCappedERC20JSON.abi,
             provider
           )

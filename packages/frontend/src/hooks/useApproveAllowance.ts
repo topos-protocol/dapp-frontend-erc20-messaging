@@ -1,5 +1,5 @@
 import * as BurnableMintableCappedERC20JSON from '@toposware/topos-smart-contracts/artifacts/contracts/topos-core/BurnableMintableCappedERC20.sol/BurnableMintableCappedERC20.json'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber, ContractTransaction, ethers } from 'ethers'
 import React from 'react'
 
 import { Token } from '../types'
@@ -9,54 +9,57 @@ export default function useApproveAllowance() {
   const { provider } = useEthers({
     viaMetaMask: true,
   })
-  const [errors, setErrors] = React.useState<string[]>([])
   const [loading, setLoading] = React.useState(false)
 
   const approveAllowance = React.useCallback(
-    async (token: Token, amount: BigNumber) => {
-      const toposCoreContractAddress = import.meta.env
-        .VITE_TOPOS_CORE_CONTRACT_ADDRESS
+    (token: Token, amount: BigNumber) =>
+      new Promise((resolve, reject) => {
+        const toposMessagingContractAddress = import.meta.env
+          .VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS
 
-      if (!toposCoreContractAddress) {
-        setErrors((e) => [
-          ...e,
-          `Error when looking for the address of the Topos Core contract to approve the allowance for`,
-        ])
-        return
-      }
+        if (!toposMessagingContractAddress) {
+          reject(
+            `Error when looking for the address of the Topos Messaging contract to approve the allowance for!`
+          )
+        }
 
-      if (token && token.tokenAddress) {
-        setLoading(true)
+        if (token && token.addr) {
+          setLoading(true)
 
-        const contract = new ethers.Contract(
-          token?.tokenAddress,
-          BurnableMintableCappedERC20JSON.abi,
-          provider.getSigner()
-        )
+          const contract = new ethers.Contract(
+            token?.addr,
+            BurnableMintableCappedERC20JSON.abi,
+            provider.getSigner()
+          )
 
-        const tx: ethers.ContractTransaction = await contract
-          .approve(import.meta.env.VITE_TOPOS_CORE_CONTRACT_ADDRESS, amount)
-          .catch((error: any) => {
-            console.error(error)
-            setErrors((e) => [...e, `Error when approving the allowance`])
-          })
-
-        return tx
-          .wait()
-          .catch((error: any) => {
-            console.error(error)
-            setErrors((e) => [
-              ...e,
-              `Error when waiting for the allowance approval tx inclusion`,
-            ])
-          })
-          .finally(() => {
-            setLoading(false)
-          })
-      }
-    },
+          contract
+            .approve(
+              import.meta.env.VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS,
+              amount
+            )
+            .then((tx: ContractTransaction) => {
+              tx.wait()
+                .then((receipt) => {
+                  resolve(receipt)
+                })
+                .catch((error: any) => {
+                  console.error(error)
+                  reject(
+                    `Error when waiting for the allowance approval tx inclusion!`
+                  )
+                })
+            })
+            .catch((error: any) => {
+              console.error(error)
+              reject(`Error when sending the allowance approval transaction!`)
+            })
+            .finally(() => {
+              setLoading(false)
+            })
+        }
+      }),
     [provider]
   )
 
-  return { errors, approveAllowance, loading }
+  return { approveAllowance, loading }
 }

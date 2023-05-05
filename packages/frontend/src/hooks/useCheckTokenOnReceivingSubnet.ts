@@ -34,7 +34,7 @@ export default function useCheckTokenOnSubnet() {
           const contract = toposMessagingContract.connect(subnetProvider)
 
           const onChainToken = await contract
-            .getTokenBySymbol(token.symbol)
+            .getTokenByAddress(token.addr)
             .finally(() => {
               setLoading(false)
             })

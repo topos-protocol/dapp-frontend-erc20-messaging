@@ -12,9 +12,9 @@
   "workspaces": [
     "packages/*"
   ],
-  "author": "Sébastien Dan sebastien.dan@toposware.com",
+  "author": "Sébastien Dan <sebastien.dan@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@toposware/topos-smart-contracts": "^1.0.0"
+    "@topos-network/topos-smart-contracts": "^1.0.1"
   }
 }

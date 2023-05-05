@@ -57,6 +57,7 @@ export default function useTransactionTrie() {
       ])
 
       const trieRoot = ethers.utils.hexlify(trie.root())
+      console.log(trieRoot)
       if (trieRoot !== rawBlock.transactionsRoot) {
         console.error(
           `Transaction trie root is not matching with the block header`
