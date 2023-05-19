@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "backend:build": "npm run build --workspace=backend",
     "backend:start": "npm run start --workspace=backend",
+    "backend:start:prod": "npm run start:prod --workspace=backend",
     "frontend:e2e": "npm run test:e2e --workspace=frontend",
     "frontend:build": "npm run build --workspace=frontend",
     "frontend:start": "npm run start --workspace=frontend",
