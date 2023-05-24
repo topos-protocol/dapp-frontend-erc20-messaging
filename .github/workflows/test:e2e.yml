@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: toposware/full-msg-protocol-infra
-          ref: 'main'
+          ref: '0.1.0-alpha'
           token: ${{ secrets.ROBOT_PAT_READ_FULL_MSG_PROTOCO_INFRA }}
           path: infra
 
@@ -29,12 +29,13 @@ jobs:
         run: >
           cd infra &&
           cat .env &&
-          docker compose up -d
+          docker compose --profile executor-service up -d
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           TOKEN_DEPLOYER_SALT: ${{ secrets.TOKEN_DEPLOYER_SALT }}
           TOPOS_CORE_SALT: ${{ secrets.TOPOS_CORE_SALT }}
           TOPOS_CORE_PROXY_SALT: ${{ secrets.TOPOS_CORE_PROXY_SALT }}
+          TOPOS_MESSAGING_SALT: ${{ secrets.TOPOS_MESSAGING_SALT }}
           SUBNET_REGISTRATOR_SALT: ${{ secrets.SUBNET_REGISTRATOR_SALT }}
 
       - name: Debug containers
@@ -71,6 +72,7 @@ jobs:
         env:
           VITE_EXECUTOR_SERVICE_ENDPOINT: ${{ vars.VITE_EXECUTOR_SERVICE_ENDPOINT }}
           VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS: ${{ vars.VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS }}
+          VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS: ${{ vars.VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS }}
           VITE_TOPOS_CORE_CONTRACT_ADDRESS: ${{ vars.VITE_TOPOS_CORE_CONTRACT_ADDRESS }}
           VITE_TOPOS_SUBNET_CHAIN_ID: ${{ vars.VITE_TOPOS_SUBNET_CHAIN_ID }}
           VITE_TOPOS_SUBNET_CURRENCY_SYMBOL: ${{ vars.VITE_TOPOS_SUBNET_CURRENCY_SYMBOL }}
