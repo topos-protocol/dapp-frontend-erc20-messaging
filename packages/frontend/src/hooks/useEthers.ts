@@ -48,7 +48,7 @@ export default function useEthers({ subnet, viaMetaMask }: Args = {}) {
                     symbol: subnet.currencySymbol,
                     decimals: 18,
                   },
-                  rpcUrls: [subnet.endpoint],
+                  rpcUrls: [`http://${subnet.endpoint}`],
                 })
               }
             }
