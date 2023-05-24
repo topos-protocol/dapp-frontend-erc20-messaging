@@ -1,5 +1,5 @@
 **/node_modules
 **/.env
 **/dist
-# **/cypress/screenshots
-# **/cypress/videos
+**/cypress/screenshots
+**/cypress/videos
