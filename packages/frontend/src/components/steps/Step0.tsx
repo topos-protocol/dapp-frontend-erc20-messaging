@@ -8,6 +8,7 @@ import { StepProps } from '../MultiStepForm'
 import SubnetSelect from '../SubnetSelect'
 import useEthers from '../../hooks/useEthers'
 import useCreateTracingSpan from '../../hooks/useCreateTracingSpan'
+import { ERROR, INFO } from '../../constants/wordings'
 
 const Step0 = ({ onFinish }: StepProps) => {
   const { rootSpan } = React.useContext(TracingContext)
@@ -20,7 +21,7 @@ const Step0 = ({ onFinish }: StepProps) => {
     React.useContext(SubnetsContext)
   const { form0, sendingSubnet } = React.useContext(MultiStepFormContext)
 
-  useEthers({
+  const { status } = useEthers({
     subnet: sendingSubnet,
     viaMetaMask: sendingSubnet !== undefined,
   })
@@ -55,21 +56,28 @@ const Step0 = ({ onFinish }: StepProps) => {
       <Form.Item
         label="Sending subnet"
         name="sendingSubnet"
+        tooltip={status == 'notConnected' && INFO.FIRST_CONNECT_METAMASK}
         rules={[
           {
             required: true,
-            message: 'Please select a sending subnet!',
+            message: ERROR.MISSING_SENDING_SUBNET,
           },
         ]}
       >
         <SubnetSelect
+          disabled={status !== 'connected'}
           loading={getRegisteredSubnetsLoading}
           size="large"
           subnets={registeredSubnets}
         />
       </Form.Item>
       <Form.Item>
-        <Button type="primary" htmlType="submit">
+        <Button
+          id="nextButton"
+          type="primary"
+          htmlType="submit"
+          disabled={status !== 'connected'}
+        >
           Next
         </Button>
       </Form.Item>

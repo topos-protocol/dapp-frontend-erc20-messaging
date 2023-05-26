@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber } from 'ethers'
 
 export interface Subnet {
   chainId: BigNumber

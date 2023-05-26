@@ -27,6 +27,7 @@ import SubnetSelect from '../SubnetSelect'
 import useCreateTracingSpan from '../../hooks/useCreateTracingSpan'
 import useCheckTokenOnSubnet from '../../hooks/useCheckTokenOnReceivingSubnet'
 import useTokenBalance from '../../hooks/useTokenBalance'
+import { ERROR } from '../../constants/wordings'
 
 const TransactionTypeSelector = styled(Segmented)`
   margin-bottom: 1rem;
@@ -126,181 +127,101 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
         value={transactionType}
       />
       <>
-        {transactionType === TransactionType.ASSET_TRANSFER ? (
-          <>
-            <Form.Item
-              label="Token"
-              name="token"
-              extra={
-                balance !== undefined ? `${balance} ${token?.symbol}` : null
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'Please select a token!',
-                },
-              ]}
-            >
-              <Select
-                size="large"
-                dropdownRender={(menu) => (
-                  <>
-                    {menu}
-                    <Divider style={{ margin: '8px 0' }} />
-                    <Space style={{ padding: '0 8px 4px' }}>
-                      <RegisterToken />
-                    </Space>
-                  </>
-                )}
-              >
-                {registeredTokens?.map((token) => (
-                  <Option key={token.symbol} value={token.symbol}>
-                    {token.symbol}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-            <Form.Item
-              name="receivingSubnet"
-              label="Receiving Subnet"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please select the receiving subnet!',
-                },
-                {
-                  validator: (_, value) => checkTokenOnSubnet(token, value),
-                },
-              ]}
-            >
-              <SubnetSelect
-                placeholder="Select a subnet"
-                loading={receivingSubnetLoading}
-                disabled={!token || receivingSubnetLoading}
-                subnets={subnetsWithoutSendingOne}
-              />
-            </Form.Item>
-            <Form.Item
-              label="Recipient address"
-              name="recipientAddress"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input the address of the recipient!',
-                },
-                {
-                  validator: async (_, value) => {
-                    if (ethers.utils.isAddress(value)) {
-                      return Promise.resolve()
-                    }
+        <Form.Item
+          label="Token"
+          name="token"
+          extra={balance !== undefined ? `${balance} ${token?.symbol}` : null}
+          rules={[
+            {
+              required: true,
+              message: ERROR.MISSING_TOKEN,
+            },
+          ]}
+        >
+          <Select
+            size="large"
+            dropdownRender={(menu) => (
+              <>
+                {menu}
+                <Divider style={{ margin: '8px 0' }} />
+                <Space style={{ padding: '0 8px 4px' }}>
+                  <RegisterToken />
+                </Space>
+              </>
+            )}
+          >
+            {registeredTokens?.map((token) => (
+              <Option key={token.symbol} value={token.symbol}>
+                {token.symbol}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          name="receivingSubnet"
+          label="Receiving Subnet"
+          rules={[
+            {
+              required: true,
+              message: ERROR.MISSING_RECEIVING_SUBNET,
+            },
+            {
+              validator: (_, value) => checkTokenOnSubnet(token, value),
+            },
+          ]}
+        >
+          <SubnetSelect
+            placeholder="Select a subnet"
+            loading={receivingSubnetLoading}
+            disabled={!token || receivingSubnetLoading}
+            subnets={subnetsWithoutSendingOne}
+          />
+        </Form.Item>
+        <Form.Item
+          label="Recipient address"
+          name="recipientAddress"
+          rules={[
+            {
+              required: true,
+              message: ERROR.MISSING_RECIPIENT_ADDRESS,
+            },
+            {
+              validator: async (_, value) => {
+                if (ethers.utils.isAddress(value) || !value) {
+                  return Promise.resolve()
+                }
 
-                    return Promise.reject(
-                      new Error('This address is not a valid address!')
-                    )
-                  },
-                },
-              ]}
-            >
-              <Input disabled={!token || receivingSubnetLoading} />
-            </Form.Item>
-            <Form.Item
-              label="Amount"
-              name="amount"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input an amount!',
-                },
-              ]}
-            >
-              <InputNumber
-                disabled={!token || receivingSubnetLoading}
-                addonAfter={token?.symbol}
-                max={balance}
-              />
-            </Form.Item>
-          </>
-        ) : (
-          <>
-            <Form.Item
-              name="receivingSubnet"
-              label="Receiving Subnet"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please select the receiving subnet!',
-                },
-              ]}
-            >
-              <SubnetSelect
-                placeholder="Select a subnet"
-                subnets={subnetsWithoutSendingOne}
-              />
-            </Form.Item>
-            <Form.Item
-              label="Contract Address"
-              name="contractAddress"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input the address of the contract!',
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label="Function"
-              name="function"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input the function to be called!',
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.List name="arguments" initialValue={[null]}>
-              {(fields, { add, remove }, { errors }) => (
-                <>
-                  {fields.map((field, index) => (
-                    <Form.Item
-                      label={index === 0 ? 'Arguments' : ''}
-                      key={field.key}
-                    >
-                      <Form.Item {...field} noStyle>
-                        <Input />
-                      </Form.Item>
-                      {fields.length > 1 ? (
-                        <MinusCircleOutlined
-                          className="dynamic-delete-button"
-                          onClick={() => remove(field.name)}
-                        />
-                      ) : null}
-                    </Form.Item>
-                  ))}
-                  <Form.Item>
-                    <Button
-                      type="dashed"
-                      onClick={() => add()}
-                      style={{ width: '60%' }}
-                      icon={<PlusOutlined />}
-                    >
-                      Add an argument
-                    </Button>
-                    <Form.ErrorList errors={errors} />
-                  </Form.Item>
-                </>
-              )}
-            </Form.List>
-          </>
-        )}
+                return Promise.reject(new Error(ERROR.INVALID_ADDRESS))
+              },
+            },
+          ]}
+        >
+          <Input disabled={!token || receivingSubnetLoading} />
+        </Form.Item>
+        <Form.Item
+          label="Amount"
+          name="amount"
+          rules={[
+            {
+              required: true,
+              message: ERROR.MISSING_AMOUNT,
+            },
+          ]}
+        >
+          <InputNumber
+            disabled={!token || receivingSubnetLoading}
+            addonAfter={token?.symbol}
+            max={balance}
+          />
+        </Form.Item>
       </>
       <Form.Item>
         <Space>
-          <Button onClick={onPrev}>Prev</Button>
+          <Button id="prevButton" onClick={onPrev}>
+            Prev
+          </Button>
           <Button
+            id="nextButton"
             type="primary"
             htmlType="submit"
             disabled={!token || receivingSubnetLoading}

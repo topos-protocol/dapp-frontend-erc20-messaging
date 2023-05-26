@@ -23,7 +23,7 @@ export interface StepProps {
 
 export enum TransactionType {
   ASSET_TRANSFER = 'Asset Transfer',
-  SMART_CONTRACT_CALL = 'Smart Contract Call',
+  // SMART_CONTRACT_CALL = 'Smart Contract Call',
 }
 
 interface ITransactionTypeContext {
