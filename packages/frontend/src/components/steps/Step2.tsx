@@ -10,7 +10,7 @@ import useEthers from '../../hooks/useEthers'
 import useApproveAllowance from '../../hooks/useAllowance'
 import useCreateTracingSpan from '../../hooks/useCreateTracingSpan'
 import useExecutorService from '../../hooks/useExecutorService'
-import useTransactionTrie from '../../hooks/useTransactionTrie'
+import useReceiptTrie from '../../hooks/useReceiptTrie'
 import useSendToken from '../../hooks/useSendToken'
 import { getRawTransaction } from '../../utils'
 import { StepProps } from '../MultiStepForm'
@@ -22,7 +22,7 @@ const Step2 = ({ onFinish }: StepProps) => {
   const { observeExecutorServiceJob, sendToExecutorService } =
     useExecutorService()
   const { sendToken } = useSendToken()
-  const { createMerkleProof } = useTransactionTrie()
+  const { createMerkleProof } = useReceiptTrie()
   const { amount, receivingSubnet, recipientAddress, sendingSubnet, token } =
     React.useContext(MultiStepFormContext)
   const [progress, setProgress] = React.useState(0)
