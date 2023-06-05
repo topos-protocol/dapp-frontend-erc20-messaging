@@ -186,13 +186,14 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
               message: ERROR.MISSING_RECIPIENT_ADDRESS,
             },
             {
-              validator: async (_, value) => {
-                if (ethers.utils.isAddress(value) || !value) {
-                  return Promise.resolve()
-                }
+              validator: (_, value) =>
+                new Promise<void>((resolve, reject) => {
+                  if (ethers.utils.isAddress(value) || !value) {
+                    resolve()
+                  }
 
-                return Promise.reject(new Error(ERROR.INVALID_ADDRESS))
-              },
+                  reject(new Error(ERROR.INVALID_ADDRESS))
+                }),
             },
           ]}
         >

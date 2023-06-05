@@ -24,12 +24,6 @@ describe('Multistep form step-1 with Topos', () => {
     cy.get('#nextButton').click()
   })
 
-  after(() => {
-    cy.disconnectMetamaskWalletFromAllDapps()
-    cy.resetMetamaskAccount()
-    cy.changeMetamaskNetwork('goerli')
-  })
-
   it('should have token field enabled and others disabled', () => {
     cy.get('#token').should('not.be.disabled')
     cy.get('#receivingSubnet').should('be.disabled')
@@ -185,6 +179,12 @@ describe('Multistep form step-1 with Incal', () => {
     cy.get('#nextButton').click()
   })
 
+  after(() => {
+    cy.disconnectMetamaskWalletFromAllDapps()
+    cy.resetMetamaskAccount()
+    cy.changeMetamaskNetwork('goerli')
+  })
+
   it('should be able to register a new token', () => {
     cy.get('#token').click()
     cy.get('#registerTokenButton').click()
@@ -282,13 +282,18 @@ describe('Multistep form step-1 with Incal', () => {
 
     it('should not be able to input a larger amount than current balance (default supply)', () => {
       cy.get('#amount')
-        .as('amount')
-        .type('' + DEFAULT_TOKEN_SUPPLY + 1)
-      cy.get('@amount').blur()
-      cy.get('@amount').should('have.value', DEFAULT_TOKEN_SUPPLY)
-      cy.get('@amount').type('' + (DEFAULT_TOKEN_SUPPLY - 1))
-      cy.get('@amount').blur()
-      cy.get('@amount').should('have.value', DEFAULT_TOKEN_SUPPLY - 1)
+        .type((DEFAULT_TOKEN_SUPPLY + 1).toString())
+        .wait(500)
+        .blur()
+      cy.get('#amount').should('have.value', DEFAULT_TOKEN_SUPPLY)
+      cy.get('#amount').clear()
+      cy.wait(500)
+      cy.get('#amount')
+        .type((DEFAULT_TOKEN_SUPPLY - 1).toString())
+        .wait(500)
+        .blur()
+      cy.get('#amount').should('have.value', DEFAULT_TOKEN_SUPPLY - 1)
+      cy.get('#amount').clear()
     })
   })
 })

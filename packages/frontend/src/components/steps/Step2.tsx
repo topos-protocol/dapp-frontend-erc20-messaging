@@ -230,7 +230,10 @@ const Step2 = ({ onFinish }: StepProps) => {
         itemLayout="horizontal"
         dataSource={progressSteps}
         renderItem={({ description, logo, title }, index) => (
-          <List.Item style={{ opacity: index > activeProgressStep ? 0.5 : 1 }}>
+          <List.Item
+            id={`executeStep${index}`}
+            style={{ opacity: index > activeProgressStep ? 0.5 : 1 }}
+          >
             <List.Item.Meta
               avatar={<Avatar src={logo} />}
               title={title}

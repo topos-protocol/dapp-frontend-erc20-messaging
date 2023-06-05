@@ -30,48 +30,25 @@ const Summary1 = () => {
         <Text strong>Receiving subnet</Text>
         <Space>
           <Avatar size="small" src={receivingSubnet?.logoURL} />
-          <Text>{receivingSubnet?.name}</Text>
+          <Text id="summary1ReceivingSubnet">{receivingSubnet?.name}</Text>
         </Space>
       </Space>
-      {transactionType === TransactionType.ASSET_TRANSFER ? (
-        <>
-          <Space direction="vertical" size={4}>
-            <Text strong>Token</Text>
-            <Tag color="green">{token!.symbol}</Tag>
-          </Space>
-          <Space direction="vertical" size={4}>
-            <Text strong>Recipient Address</Text>
-            <Text>{shortenAddress(recipientAddress || '')}</Text>
-          </Space>
-          <Space direction="vertical" size={4}>
-            <Text strong>Amount</Text>
-            <Text>{amount}</Text>
-          </Space>
-        </>
-      ) : (
-        <>
-          <Space direction="vertical" size={4}>
-            <Text strong>Contract Address</Text>
-            <Text>
-              {shortenAddress(form1?.getFieldValue('contractAddress'))}
-            </Text>
-          </Space>
-          <Space direction="vertical" size={4}>
-            <Text strong>Function</Text>
-            <Text>{form1?.getFieldValue('function')}</Text>
-          </Space>
-          <Space direction="vertical" size={4}>
-            <Text strong>Arguments</Text>
-            {form1
-              ?.getFieldValue('arguments')
-              .map((argument: string, index: number) => (
-                <Space direction="vertical" size={2} key={index}>
-                  <Text>{argument}</Text>
-                </Space>
-              ))}
-          </Space>
-        </>
-      )}
+      <Space direction="vertical" size={4}>
+        <Text strong>Token</Text>
+        <Tag id="summary1Token" color="green">
+          {token!.symbol}
+        </Tag>
+      </Space>
+      <Space direction="vertical" size={4}>
+        <Text strong>Recipient Address</Text>
+        <Text id="summary1RecipientAddress">
+          {shortenAddress(recipientAddress || '')}
+        </Text>
+      </Space>
+      <Space direction="vertical" size={4}>
+        <Text strong>Amount</Text>
+        <Text id="summary1Amount">{amount}</Text>
+      </Space>
     </Space>
   )
 }
