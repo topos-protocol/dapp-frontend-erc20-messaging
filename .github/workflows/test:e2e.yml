@@ -56,13 +56,6 @@ jobs:
           fluxbox \
           xvfb
 
-      - name: Run xvfb and fluxbox
-        run: |
-          Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
-          fluxbox &
-        env:
-          DISPLAY: :0.0
-
       - name: Build frontend
         run: npm run frontend:build
         env:
@@ -78,7 +71,10 @@ jobs:
           VITE_TRACING_SERVICE_VERSION: ${{ vars.VITE_TRACING_SERVICE_VERSION }}
 
       - name: Run E2E tests
-        run: npm run test:e2e
+        run: |
+          Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
+          fluxbox &
+          npm run test:e2e
         env:
           AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
           AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
