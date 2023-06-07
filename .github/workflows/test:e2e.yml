@@ -39,9 +39,6 @@ jobs:
           SUBNET_REGISTRATOR_SALT: ${{ secrets.SUBNET_REGISTRATOR_SALT }}
 
       - name: Debug containers
-        run: curl localhost:3000/api/v1
-
-      - name: Debug containers
         if: failure()
         run: docker inspect contracts-edena | grep Image && docker logs contracts-edena
 
@@ -89,6 +86,10 @@ jobs:
           RPC_URL: ${{ vars.VITE_TOPOS_SUBNET_ENDPOINT }}
           SYMBOL: ${{ vars.VITE_TOPOS_SUBNET_CURRENCY_SYMBOL }}
           DISPLAY: :0.0
+
+      - name: Debug executor service
+        if: failure()
+        run: docker logs executor-service
 
       - name: Archive e2e artifacts
         uses: actions/upload-artifact@v3
