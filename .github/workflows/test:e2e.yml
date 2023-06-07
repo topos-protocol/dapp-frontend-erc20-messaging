@@ -39,7 +39,7 @@ jobs:
           SUBNET_REGISTRATOR_SALT: ${{ secrets.SUBNET_REGISTRATOR_SALT }}
 
       - name: Debug containers
-        run: docker logs executor-service
+        run: curl localhost:3000/api/v1
 
       - name: Debug containers
         if: failure()
