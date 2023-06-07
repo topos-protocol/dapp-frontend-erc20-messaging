@@ -7,13 +7,11 @@ import { ERROR, SUCCESS } from '../../src/constants/wordings'
 
 describe('Multistep form step-1 with Topos', () => {
   before(() => {
-    cy.changeMetamaskNetwork('goerli')
     cy.visit('/')
     cy.get('#connectButton').click()
     cy.acceptMetamaskAccess()
     cy.get('#sendingSubnet').click()
     cy.get('.ant-select-item-option-content').contains('Topos').click()
-    cy.allowMetamaskToSwitchNetwork()
     cy.get('#nextButton').click()
   })
 
@@ -182,7 +180,6 @@ describe('Multistep form step-1 with Incal', () => {
   after(() => {
     cy.disconnectMetamaskWalletFromAllDapps()
     cy.resetMetamaskAccount()
-    cy.changeMetamaskNetwork('goerli')
   })
 
   it('should be able to register a new token', () => {

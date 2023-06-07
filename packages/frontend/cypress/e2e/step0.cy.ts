@@ -25,7 +25,6 @@ describe('Multistep form step-0 after MetaMask connect', () => {
   after(() => {
     cy.disconnectMetamaskWalletFromAllDapps()
     cy.resetMetamaskAccount()
-    cy.changeMetamaskNetwork('goerli')
   })
 
   it('should have form field enabled', () => {

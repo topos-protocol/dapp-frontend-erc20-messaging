@@ -2,7 +2,6 @@ import { shortenAddress } from '../../src/util'
 
 describe('Multistep form step-2', () => {
   before(() => {
-    cy.changeMetamaskNetwork('goerli')
     cy.visit('/')
     cy.get('#connectButton').click()
     cy.acceptMetamaskAccess()
