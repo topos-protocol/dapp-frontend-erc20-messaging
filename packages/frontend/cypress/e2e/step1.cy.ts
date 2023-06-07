@@ -13,7 +13,7 @@ describe('Multistep form step-1 with Topos', () => {
     cy.acceptMetamaskAccess()
     cy.get('#sendingSubnet').click()
     cy.get('.ant-select-item-option-content').contains('Topos').click()
-    cy.allowMetamaskToAddAndSwitchNetwork()
+    cy.allowMetamaskToSwitchNetwork()
     cy.get('#nextButton').click()
   })
 
