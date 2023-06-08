@@ -6,10 +6,10 @@
     "backend:build": "npm run build --workspace=backend",
     "backend:start": "npm run start --workspace=backend",
     "backend:start:prod": "npm run start:prod --workspace=backend",
-    "frontend:e2e": "npm run test:e2e --workspace=frontend",
     "frontend:build": "npm run build --workspace=frontend",
     "frontend:start": "npm run start --workspace=frontend",
-    "test:e2e": "start-server-and-test 'npm run backend:start' http-get://localhost:3001 'npm run frontend:e2e'"
+    "frontend:test:e2e": "npm run test:e2e --workspace=frontend",
+    "test:e2e": "start-server-and-test 'npm run backend:start' http-get://localhost:3001 'npm run frontend:test:e2e'"
   },
   "workspaces": [
     "packages/*"

@@ -12,44 +12,46 @@ export default function useCheckTokenOnSubnet() {
   const [loading, setLoading] = React.useState(false)
 
   const checkTokenOnSubnet = React.useCallback(
-    async (token?: Token, subnetId?: string) => {
-      setLoading(true)
+    (token?: Token, subnetId?: string) =>
+      new Promise<void>(async (resolve, reject) => {
+        setLoading(true)
 
-      const subnet = subnets?.find((s) => s.id === subnetId)
+        const subnet = subnets?.find((s) => s.id === subnetId)
 
-      const subnetProvider = subnet?.endpoint
-        ? new ethers.providers.WebSocketProvider(`ws://${subnet?.endpoint}/ws`)
-        : null
+        const subnetProvider = subnet?.endpoint
+          ? new ethers.providers.WebSocketProvider(
+              `ws://${subnet?.endpoint}/ws`
+            )
+          : null
 
-      if (subnet && subnetProvider && token) {
-        if (
-          (await subnetProvider.getCode(toposMessagingContract.address)) ===
-          '0x'
-        ) {
-          setLoading(false)
-          return Promise.reject(
-            `ToposCore contract could not be found on ${subnet.name}!`
-          )
-        } else {
-          const contract = toposMessagingContract.connect(subnetProvider)
-
-          const onChainToken = await contract
-            .getTokenByAddress(token.addr)
-            .finally(() => {
-              setLoading(false)
-            })
-
-          if (!onChainToken.symbol) {
+        if (subnet && subnetProvider && token) {
+          if (
+            (await subnetProvider.getCode(toposMessagingContract.address)) ===
+            '0x'
+          ) {
             setLoading(false)
             return Promise.reject(
-              `${token.symbol} is not registered on ${subnet.name}!`
+              `ToposCore contract could not be found on ${subnet.name}!`
             )
+          } else {
+            const contract = toposMessagingContract.connect(subnetProvider)
+
+            const onChainToken = await contract
+              .getTokenByAddress(token.addr)
+              .finally(() => {
+                setLoading(false)
+              })
+
+            if (!onChainToken.symbol) {
+              setLoading(false)
+              reject(`${token.symbol} is not registered on ${subnet.name}!`)
+            }
           }
         }
-      }
 
-      setLoading(false)
-    },
+        setLoading(false)
+        resolve()
+      }),
     [subnets]
   )
 

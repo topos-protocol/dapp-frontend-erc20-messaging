@@ -2,6 +2,13 @@ import { PlusOutlined } from '@ant-design/icons'
 import { Button, Form, Input, message, Modal } from 'antd'
 import React from 'react'
 
+import {
+  DEFAULT_TOKEN_CAP,
+  DEFAULT_TOKEN_DAILY_MINT_LIMIT,
+  DEFAULT_TOKEN_SUPPLY,
+} from '../constants/defaults'
+import { ERROR, SUCCESS } from '../constants/wordings'
+import { MultiStepFormContext } from '../contexts/multiStepForm'
 import useRegisterToken from '../hooks/useRegisterToken'
 
 export interface Values {
@@ -19,6 +26,7 @@ interface RegisterTokenFormProps {
 
 const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
   const [loading, setLoading] = React.useState(false)
+  const { registeredTokens } = React.useContext(MultiStepFormContext)
   const [form] = Form.useForm()
   const { registerToken } = useRegisterToken()
 
@@ -31,6 +39,8 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
       open={open}
       title="Register a token"
       okText="Register"
+      okButtonProps={{ id: 'registerButton' }}
+      cancelButtonProps={{ id: 'cancelButton' }}
       confirmLoading={loading}
       zIndex={9999}
       cancelText="Cancel"
@@ -42,7 +52,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
             setLoading(true)
 
             registerToken(values).then(() => {
-              message.success('The token has been successfully registered!')
+              message.success(SUCCESS.REGISTERED_TOKEN)
               setLoading(false)
               form.resetFields()
               setOpen(false)
@@ -60,7 +70,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
           rules={[
             {
               required: true,
-              message: 'Please input the name of the token!',
+              message: ERROR.MISSING_TOKEN_NAME_FOR_REGISTER,
             },
           ]}
         >
@@ -72,7 +82,17 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
           rules={[
             {
               required: true,
-              message: 'Please input the symbol of the token!',
+              message: ERROR.MISSING_TOKEN_SYMBOL_FOR_REGISTER,
+            },
+            {
+              validator: (_, value) => {
+                const alreadyExistingTokenWithSymbol = registeredTokens?.find(
+                  (t) => t.symbol === value
+                )
+                return alreadyExistingTokenWithSymbol
+                  ? Promise.reject(ERROR.TOKEN_WITH_SYMBOL_ALREADY_EXIST)
+                  : Promise.resolve()
+              },
             },
           ]}
         >
@@ -80,12 +100,12 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
         </Form.Item>
         <Form.Item
           name="supply"
-          initialValue={1_000}
+          initialValue={DEFAULT_TOKEN_SUPPLY}
           label="Supply"
           rules={[
             {
               required: true,
-              message: 'Please input the supply of the token!',
+              message: ERROR.MISSING_TOKEN_SUPPLY_FOR_REGISTER,
             },
           ]}
         >
@@ -93,12 +113,12 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
         </Form.Item>
         <Form.Item
           name="cap"
-          initialValue={100_000}
+          initialValue={DEFAULT_TOKEN_CAP}
           label="Cap"
           rules={[
             {
               required: true,
-              message: 'Please input the cap of the token!',
+              message: ERROR.MISSING_TOKEN_CAP_FOR_REGISTER,
             },
           ]}
         >
@@ -107,11 +127,11 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
         <Form.Item
           name="dailyMintLimit"
           label="Daily mint limit"
-          initialValue={10_000}
+          initialValue={DEFAULT_TOKEN_DAILY_MINT_LIMIT}
           rules={[
             {
               required: true,
-              message: 'Please input the daily mint limit of the token!',
+              message: ERROR.MISSING_TOKEN_DAILY_MINT_FOR_REGISTER,
             },
           ]}
         >
@@ -128,6 +148,7 @@ const RegisterToken = () => {
   return (
     <div>
       <Button
+        id="registerTokenButton"
         icon={<PlusOutlined />}
         type="text"
         onClick={() => {

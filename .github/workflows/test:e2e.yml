@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: toposware/full-msg-protocol-infra
-          ref: 'main'
+          ref: '0.1.0-alpha2'
           token: ${{ secrets.ROBOT_PAT_READ_FULL_MSG_PROTOCO_INFRA }}
           path: infra
 
@@ -29,12 +29,13 @@ jobs:
         run: >
           cd infra &&
           cat .env &&
-          docker compose up -d
+          docker compose --profile executor-service up -d
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           TOKEN_DEPLOYER_SALT: ${{ secrets.TOKEN_DEPLOYER_SALT }}
           TOPOS_CORE_SALT: ${{ secrets.TOPOS_CORE_SALT }}
           TOPOS_CORE_PROXY_SALT: ${{ secrets.TOPOS_CORE_PROXY_SALT }}
+          TOPOS_MESSAGING_SALT: ${{ secrets.TOPOS_MESSAGING_SALT }}
           SUBNET_REGISTRATOR_SALT: ${{ secrets.SUBNET_REGISTRATOR_SALT }}
 
       - name: Debug containers
@@ -47,11 +48,7 @@ jobs:
           cache: 'npm'
 
       - name: Install npm packages
-        run: >
-          npm set //npm.pkg.github.com/:_authToken $NPM_TOKEN &&
-          npm ci
-        env:
-          NPM_TOKEN: ${{ secrets.ROBOT_TOPOSWARE_GH_PACKAGE_TOKEN }}
+        run: npm ci
 
       - name: Install linux deps
         run: |
@@ -59,28 +56,23 @@ jobs:
           fluxbox \
           xvfb
 
-      - name: Run xvfb and fluxbox
-        run: |
-          Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
-          fluxbox &
-        env:
-          DISPLAY: :0.0
-
       - name: Build frontend
         run: npm run frontend:build
         env:
           VITE_EXECUTOR_SERVICE_ENDPOINT: ${{ vars.VITE_EXECUTOR_SERVICE_ENDPOINT }}
           VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS: ${{ vars.VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS }}
+          VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS: ${{ vars.VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS }}
           VITE_TOPOS_CORE_CONTRACT_ADDRESS: ${{ vars.VITE_TOPOS_CORE_CONTRACT_ADDRESS }}
-          VITE_TOPOS_SUBNET_CHAIN_ID: ${{ vars.VITE_TOPOS_SUBNET_CHAIN_ID }}
-          VITE_TOPOS_SUBNET_CURRENCY_SYMBOL: ${{ vars.VITE_TOPOS_SUBNET_CURRENCY_SYMBOL }}
           VITE_TOPOS_SUBNET_ENDPOINT: ${{ vars.VITE_TOPOS_SUBNET_ENDPOINT }}
           VITE_TRACING_OTEL_COLLECTOR_ENDPOINT: ${{ vars.VITE_TRACING_OTEL_COLLECTOR_ENDPOINT }}
           VITE_TRACING_SERVICE_NAME: ${{ vars.VITE_TRACING_SERVICE_NAME }}
           VITE_TRACING_SERVICE_VERSION: ${{ vars.VITE_TRACING_SERVICE_VERSION }}
 
       - name: Run E2E tests
-        run: npm run test:e2e
+        run: |
+          Xvfb :0 -screen 0 1024x768x24 -listen tcp -ac &
+          fluxbox &
+          npm run test:e2e
         env:
           AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
           AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
@@ -94,6 +86,10 @@ jobs:
           RPC_URL: ${{ vars.VITE_TOPOS_SUBNET_ENDPOINT }}
           SYMBOL: ${{ vars.VITE_TOPOS_SUBNET_CURRENCY_SYMBOL }}
           DISPLAY: :0.0
+
+      - name: Debug executor service
+        if: failure()
+        run: docker logs executor-service
 
       - name: Archive e2e artifacts
         uses: actions/upload-artifact@v3

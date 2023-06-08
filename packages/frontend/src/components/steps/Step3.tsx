@@ -14,7 +14,10 @@ const Step3 = ({ onFinish }: StepProps) => {
     React.useContext(MultiStepFormContext)
 
   const { rootSpan } = React.useContext(TracingContext)
-  const stepSpan = React.useMemo(() => useCreateTracingSpan('step-3', rootSpan), [rootSpan])
+  const stepSpan = React.useMemo(
+    () => useCreateTracingSpan('step-3', rootSpan),
+    [rootSpan]
+  )
 
   const reset = React.useCallback(() => {
     stepSpan?.end()
@@ -34,7 +37,7 @@ const Step3 = ({ onFinish }: StepProps) => {
       }
       subTitle={`Transaction was submitted on ${receivingSubnet?.name}`}
       extra={[
-        <Button type="primary" key="transact" onClick={reset}>
+        <Button id="resetButton" type="primary" key="transact" onClick={reset}>
           Transact again
         </Button>,
       ]}

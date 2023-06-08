@@ -13,7 +13,7 @@ export default function Summary0() {
       <Text strong>Sending subnet</Text>
       <Space>
         <Avatar size="small" src={sendingSubnet?.logoURL} />
-        <Text>{sendingSubnet?.name}</Text>
+        <Text id="summary0SendingSubnet">{sendingSubnet?.name}</Text>
       </Space>
     </Space>
   )
