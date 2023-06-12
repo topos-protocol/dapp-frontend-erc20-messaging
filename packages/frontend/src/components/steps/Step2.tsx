@@ -183,6 +183,7 @@ const Step2 = ({ onFinish }: StepProps) => {
                   `Error when calling the Executor Service`,
                 ])
                 sendExecutorServiceSpan.recordException(error)
+                sendExecutorServiceSpan.end()
                 console.error(error)
               })
           }

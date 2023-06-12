@@ -27,6 +27,7 @@ describe('Multistep form step-2', () => {
       .find('.ant-select-item-option-content')
       .contains('Incal')
       .click()
+    cy.get('#recipientAddress').should('not.be.disabled')
     cy.get('#recipientAddress').type('4aab25b4fad0beaac466050f3a7142a502f4cf0a')
     cy.get('#amount').type('1')
     cy.get('#nextButton').click()
