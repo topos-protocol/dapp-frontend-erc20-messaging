@@ -1,9 +1,8 @@
-import { TokenDeployer } from '@topos-network/topos-smart-contracts/typechain-types'
 import { ethers } from 'ethers'
 import React from 'react'
 
 import { ErrorsContext } from '../contexts/errors'
-import { toposMessagingContract } from '../contracts'
+import { erc20MessagingContract } from '../contracts'
 import { Subnet, Token } from '../types'
 import useEthers from './useEthers'
 
@@ -16,7 +15,7 @@ export default function useRegisteredTokens(subnet?: Subnet) {
   const [tokens, setTokens] = React.useState<Token[]>()
 
   const contract = React.useMemo(
-    () => (subnet ? toposMessagingContract.connect(provider) : undefined),
+    () => (subnet ? erc20MessagingContract.connect(provider) : undefined),
     [subnet, provider]
   )
 
