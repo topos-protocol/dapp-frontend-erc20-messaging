@@ -1,8 +1,13 @@
 name: Run e2e tests
+
 on:
   pull_request:
     branches:
       - main
+
+env:
+  FULL_MSG_PROTOCOL_INFRA_VERSION: v0.1.0-alpha3
+
 jobs:
   e2e:
     runs-on: ubuntu-latest
@@ -27,7 +32,7 @@ jobs:
           TOKEN_DEPLOYER_SALT: ${{ secrets.TOKEN_DEPLOYER_SALT }}
           TOPOS_CORE_SALT: ${{ secrets.TOPOS_CORE_SALT }}
           TOPOS_CORE_PROXY_SALT: ${{ secrets.TOPOS_CORE_PROXY_SALT }}
-          TOPOS_MESSAGING_SALT: ${{ secrets.TOPOS_MESSAGING_SALT }}
+          ERC20_MESSAGING_SALT: ${{ secrets.ERC20_MESSAGING_SALT }}
           SUBNET_REGISTRATOR_SALT: ${{ secrets.SUBNET_REGISTRATOR_SALT }}
 
       - name: Debug containers
@@ -51,9 +56,9 @@ jobs:
       - name: Build frontend
         run: npm run frontend:build
         env:
+          VITE_ERC20_MESSAGING_CONTRACT_ADDRESS: ${{ vars.VITE_ERC20_MESSAGING_CONTRACT_ADDRESS }}
           VITE_EXECUTOR_SERVICE_ENDPOINT: ${{ vars.VITE_EXECUTOR_SERVICE_ENDPOINT }}
           VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS: ${{ vars.VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS }}
-          VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS: ${{ vars.VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS }}
           VITE_TOPOS_CORE_CONTRACT_ADDRESS: ${{ vars.VITE_TOPOS_CORE_CONTRACT_ADDRESS }}
           VITE_TOPOS_SUBNET_ENDPOINT: ${{ vars.VITE_TOPOS_SUBNET_ENDPOINT }}
           VITE_TRACING_OTEL_COLLECTOR_ENDPOINT: ${{ vars.VITE_TRACING_OTEL_COLLECTOR_ENDPOINT }}
@@ -71,12 +76,8 @@ jobs:
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
           AUTH0_ISSUER_URL: ${{ secrets.AUTH0_ISSUER_URL }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          CHAIN_ID: ${{ vars.VITE_TOPOS_SUBNET_CHAIN_ID }}
           CYPRESS_REMOTE_DEBUGGING_PORT: ${{ vars.CYPRESS_REMOTE_DEBUGGING_PORT }}
           PORT: 3001
-          NETWORK_NAME: ${{ vars.NETWORK_NAME }}
-          RPC_URL: ${{ vars.VITE_TOPOS_SUBNET_ENDPOINT }}
-          SYMBOL: ${{ vars.VITE_TOPOS_SUBNET_CURRENCY_SYMBOL }}
           DISPLAY: :0.0
 
       - name: Debug executor service

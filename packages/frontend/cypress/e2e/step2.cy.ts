@@ -3,6 +3,7 @@ import { shortenAddress } from '../../src/util'
 describe('Multistep form step-2', () => {
   before(() => {
     cy.visit('/')
+    cy.wait(500)
     cy.get('#connectButton').click()
     cy.acceptMetamaskAccess()
     cy.get('#sendingSubnet').click()
@@ -12,16 +13,19 @@ describe('Multistep form step-2', () => {
 
   beforeEach(() => {
     cy.visit('/')
+    cy.wait(500)
     cy.get('#sendingSubnet').click()
     cy.get('.ant-select-item-option-content').contains('Topos').click()
     cy.get('#nextButton').click()
     cy.get('#token').click()
+    cy.wait(500)
     cy.get('#token_list')
       .parent()
       .find('.ant-select-item-option-content')
       .contains('TST')
       .click()
     cy.get('#receivingSubnet').click()
+    cy.wait(500)
     cy.get('#receivingSubnet_list')
       .parent()
       .find('.ant-select-item-option-content')

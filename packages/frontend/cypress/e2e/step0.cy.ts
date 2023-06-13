@@ -3,6 +3,7 @@ import { ERROR, INFO } from '../../src/constants/wordings'
 describe('Multistep form step-0 without MetaMask connect', () => {
   beforeEach(() => {
     cy.visit('/')
+    cy.wait(500)
   })
 
   it('should have form field disabled with helper message', () => {
@@ -14,12 +15,14 @@ describe('Multistep form step-0 without MetaMask connect', () => {
 describe('Multistep form step-0 after MetaMask connect', () => {
   before(() => {
     cy.visit('/')
+    cy.wait(500)
     cy.get('#connectButton').click()
     cy.acceptMetamaskAccess()
   })
 
   beforeEach(() => {
     cy.visit('/')
+    cy.wait(500)
   })
 
   after(() => {
