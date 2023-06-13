@@ -1,0 +1,49 @@
+version: '3.9'
+services:
+  synpress:
+    container_name: synpress
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+      args:
+        - VITE_EXECUTOR_SERVICE_ENDPOINT=${VITE_EXECUTOR_SERVICE_ENDPOINT}
+        - VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS=${VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS}
+        - VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS=${VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS}
+        - VITE_TOPOS_CORE_CONTRACT_ADDRESS=${VITE_TOPOS_CORE_CONTRACT_ADDRESS}
+        - VITE_TOPOS_SUBNET_ENDPOINT=${VITE_TOPOS_SUBNET_ENDPOINT}
+        - VITE_TRACING_OTEL_COLLECTOR_ENDPOINT=${VITE_TRACING_OTEL_COLLECTOR_ENDPOINT}
+        - VITE_TRACING_SERVICE_NAME=${VITE_TRACING_SERVICE_NAME}
+        - VITE_TRACING_SERVICE_VERSION=${VITE_TRACING_SERVICE_VERSION}
+    environment:
+      - DISPLAY=display:0.0
+      - CYPRESS_DOCKER_RUN=true
+      - CI=true
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
+      - AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
+      - AUTH0_ISSUER_URL=${AUTH0_ISSUER_URL}
+      - PORT=${PORT}
+      - PRIVATE_KEY=${PRIVATE_KEY}
+    entrypoint: []
+    working_dir: /app
+    command: >
+      npm run test:e2e
+    depends_on:
+      - display
+    networks:
+      - x11
+
+  display:
+    container_name: display
+    image: synthetixio/display:016121eafdfff448414894d0ca5a50b1d72b62eb-base
+    environment:
+      - RUN_XTERM=no
+      - DISPLAY_WIDTH=800
+      - DISPLAY_HEIGHT=600
+    ports:
+      - '8080:8080'
+    networks:
+      - x11
+
+networks:
+  x11:
