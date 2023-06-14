@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Checkout full-msg-protocol-infra repo
+      - name: Checkout local-erc20-messaging-infra repo
         uses: actions/checkout@v3
         with:
           repository: topos-network/local-erc20-messaging-infra
