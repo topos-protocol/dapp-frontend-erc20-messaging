@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  LOCAL_ERC20_MESSAGING_INFRA_VERSION: v0.1.0-alpha3
+  LOCAL_ERC20_MESSAGING_INFRA_VERSION: v0.1.0-alpha
 
 jobs:
   e2e:
