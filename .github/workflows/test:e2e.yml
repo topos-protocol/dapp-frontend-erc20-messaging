@@ -5,7 +5,7 @@ on:
       - main
 jobs:
   e2e:
-    runs-on: ubuntu-latest-16-cores
+    runs-on: ubuntu-latest
     environment: devnet-1
     steps:
       - uses: actions/checkout@v3
