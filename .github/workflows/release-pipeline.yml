@@ -14,7 +14,7 @@ jobs:
           payload: |
             {
               "repository": "${{ github.repository }}",
-              "version": "${{ github.ref }}",
+              "version": "${{ github.ref }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ vars.RELEASE_PIPELINE_SLACK_WEBHOOK_URL }}
