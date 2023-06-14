@@ -67,6 +67,38 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
+      - name: Checkout full-msg-protocol-infra repo
+        uses: actions/checkout@v3
+        with:
+          repository: toposware/full-msg-protocol-infra
+          ref: '0.1.0-alpha2'
+          token: ${{ secrets.ROBOT_PAT_READ_FULL_MSG_PROTOCO_INFRA }}
+          path: infra
+
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: robot-toposware
+          password: ${{ secrets.ROBOT_TOPOSWARE_GH_PACKAGE_TOKEN }}
+
+      - name: Start containers
+        run: >
+          cd infra &&
+          cat .env &&
+          docker compose --profile executor-service up -d
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          TOKEN_DEPLOYER_SALT: ${{ secrets.TOKEN_DEPLOYER_SALT }}
+          TOPOS_CORE_SALT: ${{ secrets.TOPOS_CORE_SALT }}
+          TOPOS_CORE_PROXY_SALT: ${{ secrets.TOPOS_CORE_PROXY_SALT }}
+          TOPOS_MESSAGING_SALT: ${{ secrets.TOPOS_MESSAGING_SALT }}
+          SUBNET_REGISTRATOR_SALT: ${{ secrets.SUBNET_REGISTRATOR_SALT }}
+
+      - name: Debug containers
+        if: failure()
+        run: docker inspect contracts-edena | grep Image && docker logs contracts-edena
+
       - name: Run e2e tests
         run: |
           docker compose -f docker-compose.ci.yml up synpress
