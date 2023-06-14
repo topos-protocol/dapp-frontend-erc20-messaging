@@ -71,8 +71,8 @@ services:
       - ./docker/videos-ci:/videos
     environment:
       - FILE_NAME=CI-full-video.mp4
-      - SE_SCREEN_WIDTH=${SE_SCREEN_WIDTH}
-      - SE_SCREEN_HEIGHT=${SE_SCREEN_HEIGHT}
+      - SE_SCREEN_WIDTH=800
+      - SE_SCREEN_HEIGHT=600
     depends_on:
       - display
     networks:

@@ -60,7 +60,7 @@ jobs:
 
       - name: Run e2e tests
         run: |
-          docker compose -f docker-compose.ci.yml up synpress
+          docker compose -f docker-compose.ci.yml up
         env:
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
@@ -80,3 +80,15 @@ jobs:
           VITE_TRACING_OTEL_COLLECTOR_ENDPOINT: ${{ vars.VITE_TRACING_OTEL_COLLECTOR_ENDPOINT }}
           VITE_TRACING_SERVICE_NAME: ${{ vars.VITE_TRACING_SERVICE_NAME }}
           VITE_TRACING_SERVICE_VERSION: ${{ vars.VITE_TRACING_SERVICE_VERSION }}
+
+      - name: Debug synpress
+        run: docker logs synpress
+
+      - name: Debug video
+        run: docker logs video
+
+      - name: Debug display
+        run: docker logs display
+
+      - name: Debug ngrok
+        run: docker logs ngrok
