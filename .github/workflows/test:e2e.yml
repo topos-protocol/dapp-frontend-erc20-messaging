@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  FULL_MSG_PROTOCOL_INFRA_VERSION: v0.1.0-alpha3
+  LOCAL_ERC20_MESSAGING_INFRA_VERSION: v0.1.0-alpha3
 
 jobs:
   e2e:
@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: topos-network/local-erc20-messaging-infra
-          ref: '0.1.0-alpha2'
+          ref: ${{ env.LOCAL_ERC20_MESSAGING_INFRA_VERSION }}
           path: infra
 
       - name: Start containers
