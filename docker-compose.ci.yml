@@ -30,6 +30,10 @@ services:
       npm run test:e2e
     depends_on:
       - display
+      - video
+    volumes:
+      - ./docker/videos:/app/tests/e2e/videos
+      - ./docker/screenshots:/app/tests/e2e/screenshots
     networks:
       - x11
 
@@ -44,6 +48,20 @@ services:
       - '8080:8080'
     networks:
       - x11
+
+  # ngrok:
+  #   container_name: ngrok
+  #   image: synthetixio/ngrok:016121eafdfff448414894d0ca5a50b1d72b62eb-base
+  #   ports:
+  #     - '4040:4040'
+  #   command: ['ngrok', 'http', 'display:8080', '--authtoken', '${NGROK_AUTH}']
+  #   environment:
+  #     - NGROK_AUTH=${NGROK_AUTH}
+  #     - NGROK_BASIC_AUTH=${NGROK_BASIC_AUTH}
+  #   depends_on:
+  #     - display
+  #   networks:
+  #     - x11
 
   video:
     container_name: video
