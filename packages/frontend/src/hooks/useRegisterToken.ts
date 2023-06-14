@@ -3,7 +3,7 @@ import React from 'react'
 
 import { Values } from '../components/RegisterToken'
 import { ErrorsContext } from '../contexts/errors'
-import { toposMessagingContract } from '../contracts'
+import { erc20MessagingContract } from '../contracts'
 import useEthers from './useEthers'
 
 const zeroAddress = '0x0000000000000000000000000000000000000000'
@@ -16,7 +16,7 @@ export default function useRegisterToken() {
   const [loading, setLoading] = React.useState(false)
 
   const contract = React.useMemo(
-    () => toposMessagingContract.connect(provider.getSigner()),
+    () => erc20MessagingContract.connect(provider.getSigner()),
     [provider]
   )
 

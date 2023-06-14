@@ -1,7 +1,7 @@
 import { BigNumber, ContractReceipt, ContractTransaction } from 'ethers'
 import React from 'react'
 
-import { toposMessagingContract } from '../contracts'
+import { erc20MessagingContract } from '../contracts'
 import useEthers from './useEthers'
 
 interface Data {
@@ -16,7 +16,7 @@ export default function useSendToken() {
   const [loading, setLoading] = React.useState(false)
 
   const contract = React.useMemo(
-    () => toposMessagingContract.connect(provider.getSigner()),
+    () => erc20MessagingContract.connect(provider.getSigner()),
     [provider]
   )
 

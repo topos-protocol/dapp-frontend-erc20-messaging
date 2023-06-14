@@ -14,12 +14,12 @@ export default function useApproveAllowance() {
   const approveAllowance = React.useCallback(
     (token: Token, amount: BigNumber) =>
       new Promise((resolve, reject) => {
-        const toposMessagingContractAddress = import.meta.env
-          .VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS
+        const erc20MessagingContractAddress = import.meta.env
+          .VITE_ERC20_MESSAGING_CONTRACT_ADDRESS
 
-        if (!toposMessagingContractAddress) {
+        if (!erc20MessagingContractAddress) {
           reject(
-            `Error when looking for the address of the Topos Messaging contract to approve the allowance for!`
+            `Error when looking for the address of the ERC20Messaging contract to approve the allowance for!`
           )
         }
 
@@ -33,10 +33,7 @@ export default function useApproveAllowance() {
           )
 
           contract
-            .approve(
-              import.meta.env.VITE_TOPOS_MESSAGING_CONTRACT_ADDRESS,
-              amount
-            )
+            .approve(erc20MessagingContractAddress, amount)
             .then((tx: ContractTransaction) => {
               tx.wait()
                 .then((receipt) => {

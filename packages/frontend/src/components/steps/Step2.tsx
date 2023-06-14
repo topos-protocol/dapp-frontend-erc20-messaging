@@ -144,9 +144,11 @@ const Step2 = ({ onFinish }: StepProps) => {
               submitSendTokenSpan
             )
             await sendToExecutorService({
-              txRaw: sendTokenTxRaw,
               indexOfDataInTxRaw,
+              messagingContractAddress: import.meta.env
+                .VITE_ERC20_MESSAGING_CONTRACT_ADDRESS,
               subnetId: receivingSubnet?.id,
+              txRaw: sendTokenTxRaw,
               txTrieMerkleProof: proof,
               txTrieRoot: trieRoot,
             })

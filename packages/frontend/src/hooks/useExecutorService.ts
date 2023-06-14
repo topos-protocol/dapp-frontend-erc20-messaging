@@ -8,9 +8,10 @@ import { OAuthResponse } from 'common'
 import { ErrorsContext } from '../contexts/errors'
 
 interface ExecuteDto {
-  txRaw: string
   indexOfDataInTxRaw: number
+  messagingContractAddress: string
   subnetId: string
+  txRaw: string
   txTrieMerkleProof: string
   txTrieRoot: string
 }

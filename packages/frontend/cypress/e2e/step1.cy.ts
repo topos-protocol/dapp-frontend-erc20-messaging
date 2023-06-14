@@ -8,6 +8,7 @@ import { ERROR, SUCCESS } from '../../src/constants/wordings'
 describe('Multistep form step-1 with Topos', () => {
   before(() => {
     cy.visit('/')
+    cy.wait(500)
     cy.get('#connectButton').click()
     cy.acceptMetamaskAccess()
     cy.get('#sendingSubnet').click()
@@ -17,6 +18,7 @@ describe('Multistep form step-1 with Topos', () => {
 
   beforeEach(() => {
     cy.visit('/')
+    cy.wait(500)
     cy.get('#sendingSubnet').click()
     cy.get('.ant-select-item-option-content').contains('Topos').click()
     cy.get('#nextButton').click()
@@ -52,6 +54,7 @@ describe('Multistep form step-1 with Topos', () => {
 
   it('should show token registration form when click on registration button', () => {
     cy.get('#token').click()
+    cy.wait(500)
     cy.get('#registerTokenButton').click()
     cy.get('#form_in_modal_name').should('be.visible').and('not.be.disabled')
     cy.get('#form_in_modal_symbol').should('be.visible').and('not.be.disabled')
@@ -73,14 +76,18 @@ describe('Multistep form step-1 with Topos', () => {
 
   it('should hide token registration form when click on cancel', () => {
     cy.get('#token').click()
+    cy.wait(500)
     cy.get('#registerTokenButton').click()
+    cy.wait(500)
     cy.get('#cancelButton').click()
     cy.get('#form_in_modal_name').should('not.exist')
   })
 
   it('should invalidate the token registration form when missing required fields', () => {
     cy.get('#token').click()
+    cy.wait(500)
     cy.get('#registerTokenButton').click()
+    cy.wait(500)
     cy.get('#registerButton').click()
     cy.get('#form_in_modal_name')
       .parents('.ant-form-item')
@@ -124,9 +131,12 @@ describe('Multistep form step-1 with Topos', () => {
 
   it('should be able to register a new token', () => {
     cy.get('#token').click()
+    cy.wait(500)
     cy.get('#registerTokenButton').click()
+    cy.wait(500)
     cy.get('#form_in_modal_name').type('Test')
     cy.get('#form_in_modal_symbol').type('TST')
+    cy.wait(500)
     cy.get('#registerButton').click()
     cy.confirmMetamaskTransaction()
     cy.get('.ant-message-notice-success')
@@ -136,7 +146,9 @@ describe('Multistep form step-1 with Topos', () => {
 
   it('should not be able to register a new token with the same symbol', () => {
     cy.get('#token').click()
+    cy.wait(500)
     cy.get('#registerTokenButton').click()
+    cy.wait(500)
     cy.get('#form_in_modal_name').type('Test2')
     cy.get('#form_in_modal_symbol').type('TST')
     cy.get('#form_in_modal_symbol')
@@ -150,7 +162,9 @@ describe('Multistep form step-1 with Topos', () => {
 
   it('should be able to register a new token with a different symbol but the same name', () => {
     cy.get('#token').click()
+    cy.wait(500)
     cy.get('#registerTokenButton').click()
+    cy.wait(500)
     cy.get('#form_in_modal_name').type('Test')
     cy.get('#form_in_modal_symbol').type('TST2')
     cy.get('#registerButton').click()
@@ -164,6 +178,7 @@ describe('Multistep form step-1 with Topos', () => {
 describe('Multistep form step-1 with Incal', () => {
   before(() => {
     cy.visit('/')
+    cy.wait(500)
     cy.get('#sendingSubnet').click()
     cy.get('.ant-select-item-option-content').contains('Incal').click()
     cy.allowMetamaskToSwitchNetwork()
@@ -172,6 +187,7 @@ describe('Multistep form step-1 with Incal', () => {
 
   beforeEach(() => {
     cy.visit('/')
+    cy.wait(500)
     cy.get('#sendingSubnet').click()
     cy.get('.ant-select-item-option-content').contains('Incal').click()
     cy.get('#nextButton').click()
@@ -184,7 +200,9 @@ describe('Multistep form step-1 with Incal', () => {
 
   it('should be able to register a new token', () => {
     cy.get('#token').click()
+    cy.wait(500)
     cy.get('#registerTokenButton').click()
+    cy.wait(500)
     cy.get('#form_in_modal_name').type('Test')
     cy.get('#form_in_modal_symbol').type('TST')
     cy.get('#registerButton').click()
@@ -197,6 +215,7 @@ describe('Multistep form step-1 with Incal', () => {
   describe('with TST as selected token', () => {
     beforeEach(() => {
       cy.get('#token').click()
+      cy.wait(500)
       cy.get('#token_list')
         .parent()
         .find('.ant-select-item-option-content')
@@ -234,6 +253,7 @@ describe('Multistep form step-1 with Incal', () => {
 
     it('should invalidate form if token not registered on selected receiving subnet', () => {
       cy.get('#receivingSubnet').click()
+      cy.wait(500)
       cy.get('#receivingSubnet_list')
         .parent()
         .find('.ant-select-item-option-content')
