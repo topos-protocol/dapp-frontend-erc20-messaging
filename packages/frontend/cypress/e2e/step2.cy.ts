@@ -74,7 +74,7 @@ describe('Multistep form step-2', () => {
     cy.get('#executeStep2').find('.ant-spin').should('be.visible')
     cy.get('#executeStep0').find('.ant-spin').should('not.exist')
     cy.get('#executeStep1').find('.ant-spin').should('not.exist')
-    cy.get('.ant-result-success')
+    cy.get('.ant-result-success', { timeout: 60000 })
       .find('.ant-result-subtitle')
       .should('be.visible')
       .and('have.text', 'Transaction was submitted on Incal')

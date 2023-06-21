@@ -17,4 +17,4 @@ jobs:
           workflow_file_name: frontend:erc20-messaging.yml
           ref: main
           wait_interval: 60
-          client_payload: '{ "dapp-frontend-erc20-messaging-version": "${{ github.head_ref }}" }'
+          client_payload: '{ "dapp-frontend-erc20-messaging-ref": "${{ github.head_ref }}" }'
