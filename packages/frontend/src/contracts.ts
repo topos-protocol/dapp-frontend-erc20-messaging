@@ -1,11 +1,11 @@
-import * as SubnetRegistratorJSON from '@topos-network/topos-smart-contracts/artifacts/contracts/topos-core/SubnetRegistrator.sol/SubnetRegistrator.json'
-import * as ERC20MessagingJSON from '@topos-network/topos-smart-contracts/artifacts/contracts/examples/ERC20Messaging.sol/ERC20Messaging.json'
-import * as ToposCoreJSON from '@topos-network/topos-smart-contracts/artifacts/contracts/topos-core/ToposCore.sol/ToposCore.json'
+import * as SubnetRegistratorJSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/topos-core/SubnetRegistrator.sol/SubnetRegistrator.json'
+import * as ERC20MessagingJSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/examples/ERC20Messaging.sol/ERC20Messaging.json'
+import * as ToposCoreJSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/topos-core/ToposCore.sol/ToposCore.json'
 import {
   SubnetRegistrator,
   ToposCore,
-} from '@topos-network/topos-smart-contracts/typechain-types/contracts/topos-core'
-import { ERC20Messaging } from '@topos-network/topos-smart-contracts/typechain-types/contracts/examples'
+} from '@topos-protocol/topos-smart-contracts/typechain-types/contracts/topos-core'
+import { ERC20Messaging } from '@topos-protocol/topos-smart-contracts/typechain-types/contracts/examples'
 import { ethers } from 'ethers'
 
 export const subnetRegistratorContract = new ethers.Contract(

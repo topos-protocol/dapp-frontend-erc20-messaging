@@ -16,8 +16,8 @@ dApp Frontend ERC20 Messaging is the web app to transfer ERC20 tokens across any
 
 </div>
 
-[![codecov](https://codecov.io/gh/topos-network/dapp-frontend-erc20-messaging/branch/main/graph/badge.svg?token=FOH2B2GRL9&style=flat)](https://codecov.io/gh/topos-network/dapp-frontend-erc20-messaging)
-![example workflow](https://github.com/topos-network/dapp-frontend-erc20-messaging/actions/workflows/test:e2e.yml/badge.svg)
+[![codecov](https://codecov.io/gh/topos-protocol/dapp-frontend-erc20-messaging/branch/main/graph/badge.svg?token=FOH2B2GRL9&style=flat)](https://codecov.io/gh/topos-protocol/dapp-frontend-erc20-messaging)
+![example workflow](https://github.com/topos-protocol/dapp-frontend-erc20-messaging/actions/workflows/test:e2e.yml/badge.svg)
 [![](https://dcbadge.vercel.app/api/server/7HZ8F8ykBT?style=flat)](https://discord.gg/7HZ8F8ykBT)
 
 ## Getting Started
@@ -50,7 +50,7 @@ Contributions are very welcomed, the guidelines are outlined in [`CONTRIBUTING.m
 
 ## Support
 
-Feel free to [open an issue](https://github.com/topos-network/dapp-frontend-erc20-messaging/issues/new) if you have any feature request or bug report.<br />
+Feel free to [open an issue](https://github.com/topos-protocol/dapp-frontend-erc20-messaging/issues/new) if you have any feature request or bug report.<br />
 If you have any questions, do not hesitate to reach us on [Discord](https://discord.gg/7HZ8F8ykBT)!
 
 ## Resources
