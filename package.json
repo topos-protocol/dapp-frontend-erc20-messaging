@@ -1,5 +1,5 @@
 {
-  "name": "@topos-network/dapp-frontend-erc20-messaging",
+  "name": "@topos-protocol/dapp-frontend-erc20-messaging",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -16,11 +16,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/topos-network/dapp-frontend-erc20-messaging.git"
+    "url": "git+https://github.com/topos-protocol/dapp-frontend-erc20-messaging.git"
   },
   "author": "Sébastien Dan <sebastien.dan@gmail.com>",
-  "license": "MIT",
-  "dependencies": {
-    "@topos-network/topos-smart-contracts": "^1.0.1"
-  }
+  "license": "MIT"
 }
