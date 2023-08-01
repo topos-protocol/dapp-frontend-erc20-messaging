@@ -6,7 +6,7 @@ import { ErrorsContext } from '../contexts/errors'
 import { erc20MessagingContract } from '../contracts'
 import useEthers from './useEthers'
 
-const zeroAddress = '0x0000000000000000000000000000000000000000'
+export const zeroAddress = '0x0000000000000000000000000000000000000000'
 
 export default function useRegisterToken() {
   const { provider } = useEthers({
