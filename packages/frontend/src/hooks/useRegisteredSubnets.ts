@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers'
+import { ethers } from 'ethers'
 import React from 'react'
 import { ErrorsContext } from '../contexts/errors'
 
