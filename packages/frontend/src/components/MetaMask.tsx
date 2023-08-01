@@ -2,7 +2,7 @@ import { Button, Spin } from 'antd'
 import { useMetaMask } from 'metamask-react'
 import React from 'react'
 
-import { shortenAddress } from '../util'
+import TestId from '../util/testId'
 
 const MetaMask = () => {
   const { status, connect, account } = useMetaMask()
@@ -39,7 +39,11 @@ const MetaMask = () => {
 
       case 'notConnected':
         return (
-          <Button onClick={connect} id="connectButton">
+          <Button
+            onClick={connect}
+            id="connectButton"
+            data-testid={TestId.METAMASK_CONNECT_BUTTON}
+          >
             Connect to MetaMask
           </Button>
         )
@@ -48,7 +52,11 @@ const MetaMask = () => {
         return <div>Connecting...</div>
 
       case 'connected':
-        return <div id="account">{account}</div>
+        return (
+          <div id="account" data-testid={TestId.METAMASK_CONNECTED}>
+            {account}
+          </div>
+        )
 
       default:
         return null

@@ -1,41 +1,18 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// allows you to do things like:
-// expect(element).toHaveTextContent(/react/i)
-// learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
+// window.matchMedia classic issue
+// https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: (query: any) => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  }),
-})
-
-const mockResponse = jest.fn()
-Object.defineProperty(window, 'location', {
-  value: {
-    ...window.location,
-    hash: {
-      endsWith: mockResponse,
-      includes: mockResponse,
-    },
-    assign: mockResponse,
-    navigate: mockResponse,
-    replace: mockResponse,
-  },
-  writable: true,
-})
-
-Object.defineProperty(window, 'navigation', {
-  value: {
-    navigate: mockResponse,
-  },
-  writable: true,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
 })

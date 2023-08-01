@@ -7,7 +7,7 @@ import { Observable } from 'rxjs'
 import { OAuthResponse } from 'common'
 import { ErrorsContext } from '../contexts/errors'
 
-interface ExecuteDto {
+export interface ExecuteDto {
   indexOfDataInTxRaw: number
   messagingContractAddress: string
   subnetId: string
