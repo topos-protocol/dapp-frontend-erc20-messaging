@@ -4,6 +4,7 @@ import { BlockWithTransactions } from '@ethersproject/abstract-provider'
 import { Buffer } from 'buffer'
 import { ethers } from 'ethers'
 import React from 'react'
+
 import useEthers from './useEthers'
 
 export default function useTransactionTrie() {
@@ -49,7 +50,7 @@ export default function useTransactionTrie() {
   const createMerkleProof = React.useCallback(
     async (block: BlockWithTransactions, transaction: ethers.Transaction) => {
       const trie = await createTransactionTrie(block)
-      let proof = ''
+      let proof
 
       const rawBlock = await provider.send('eth_getBlockByHash', [
         ethers.utils.hexValue(block.hash),
@@ -64,9 +65,8 @@ export default function useTransactionTrie() {
         )
         console.error(`local trie root`, trieRoot)
         console.error(`trie root in block header`, rawBlock.transactionsRoot)
-      }
-
-      if (trie) {
+        setErrors((e) => [...e, `Error when recomputing the transaction trie`])
+      } else {
         try {
           const indexOfTx = block.transactions.findIndex(
             (tx) => tx.hash === transaction.hash

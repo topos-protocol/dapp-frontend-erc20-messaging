@@ -37,11 +37,10 @@ describe('useExecutorService', () => {
 
     await waitFor(() => {
       expect(axiosGetSpy).toHaveBeenCalledWith('api/auth')
+      expect(result.current.sendToExecutorService).toBeTruthy()
+      expect(axiosCreateSpy).toHaveBeenCalled()
+      expect(result.current.observeExecutorServiceJob).toBeTruthy()
     })
-
-    expect(result.current.sendToExecutorService).toBeTruthy()
-    expect(axiosCreateSpy).toHaveBeenCalled()
-    expect(result.current.observeExecutorServiceJob).toBeTruthy()
   })
 
   it('should not create apis if auth token was not resolved', async () => {
