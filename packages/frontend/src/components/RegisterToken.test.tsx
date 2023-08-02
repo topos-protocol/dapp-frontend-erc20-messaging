@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 
 import RegisterToken from './RegisterToken'
-import TestId from '../util/testId'
-import { userEvent } from '../util/tests'
+import TestId from '../utils/testId'
+import { userEvent } from '../utils/tests'
 
 vi.mock('../hooks/useRegisterToken', () => ({
   default: vi.fn().mockReturnValue(''),

@@ -3,7 +3,7 @@ import * as MetaMaskReactExports from 'metamask-react'
 import { describe, it, expect, vi } from 'vitest'
 
 import MetaMask from './MetaMask'
-import TestId from '../util/testId'
+import TestId from '../utils/testId'
 
 vi.mock('metamask-react', () => ({
   useMetaMask: vi.fn().mockReturnValue({}),

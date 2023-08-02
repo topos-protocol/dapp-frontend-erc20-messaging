@@ -2,7 +2,7 @@ import { Avatar, Select, SelectProps, Space, Typography } from 'antd'
 import React from 'react'
 
 import { SubnetWithId } from '../types'
-import TestId from '../util/testId'
+import TestId from '../utils/testId'
 
 const { Option } = Select
 const { Text } = Typography

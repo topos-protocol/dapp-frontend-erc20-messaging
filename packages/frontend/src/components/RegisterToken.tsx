@@ -10,7 +10,7 @@ import {
 import { ERROR, SUCCESS } from '../constants/wordings'
 import { MultiStepFormContext } from '../contexts/multiStepForm'
 import useRegisterToken from '../hooks/useRegisterToken'
-import TestId from '../util/testId'
+import TestId from '../utils/testId'
 
 export interface Values {
   cap: number

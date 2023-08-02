@@ -2,7 +2,7 @@ import { Button, Spin } from 'antd'
 import { useMetaMask } from 'metamask-react'
 import React from 'react'
 
-import TestId from '../util/testId'
+import TestId from '../utils/testId'
 
 const MetaMask = () => {
   const { status, connect, account } = useMetaMask()

@@ -12,7 +12,7 @@ import useCreateTracingSpan from '../../hooks/useCreateTracingSpan'
 import useExecutorService from '../../hooks/useExecutorService'
 import useTransactionTrie from '../../hooks/useTransactionTrie'
 import useSendToken from '../../hooks/useSendToken'
-import { getRawTransaction } from '../../util'
+import { getRawTransaction } from '../../utils'
 import { StepProps } from '../MultiStepForm'
 import Progress from '../Progress'
 
