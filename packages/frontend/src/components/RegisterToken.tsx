@@ -10,6 +10,7 @@ import {
 import { ERROR, SUCCESS } from '../constants/wordings'
 import { MultiStepFormContext } from '../contexts/multiStepForm'
 import useRegisterToken from '../hooks/useRegisterToken'
+import TestId from '../utils/testId'
 
 export interface Values {
   cap: number
@@ -37,6 +38,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
   return (
     <Modal
       open={open}
+      data-testid={TestId.REGISTER_TOKEN_MODAL}
       title="Register a token"
       okText="Register"
       okButtonProps={{ id: 'registerButton' }}
@@ -66,6 +68,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
       <Form form={form} layout="vertical" name="form_in_modal">
         <Form.Item
           name="name"
+          data-testid={TestId.REGISTER_TOKEN_FORM_FIELD_NAME}
           label="Name"
           rules={[
             {
@@ -78,6 +81,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
         </Form.Item>
         <Form.Item
           name="symbol"
+          data-testid={TestId.REGISTER_TOKEN_FORM_FIELD_SYMBOL}
           label="Symbol"
           rules={[
             {
@@ -100,6 +104,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
         </Form.Item>
         <Form.Item
           name="supply"
+          data-testid={TestId.REGISTER_TOKEN_FORM_FIELD_SUPPLY}
           initialValue={DEFAULT_TOKEN_SUPPLY}
           label="Supply"
           rules={[
@@ -113,6 +118,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
         </Form.Item>
         <Form.Item
           name="cap"
+          data-testid={TestId.REGISTER_TOKEN_FORM_FIELD_CAP}
           initialValue={DEFAULT_TOKEN_CAP}
           label="Cap"
           rules={[
@@ -126,6 +132,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
         </Form.Item>
         <Form.Item
           name="dailyMintLimit"
+          data-testid={TestId.REGISTER_TOKEN_FORM_FIELD_DAILY_MINT_LIMIT}
           label="Daily mint limit"
           initialValue={DEFAULT_TOKEN_DAILY_MINT_LIMIT}
           rules={[
@@ -149,6 +156,7 @@ const RegisterToken = () => {
     <div>
       <Button
         id="registerTokenButton"
+        data-testid={TestId.REGISTER_TOKEN_BUTTON}
         icon={<PlusOutlined />}
         type="text"
         onClick={() => {

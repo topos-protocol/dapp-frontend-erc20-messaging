@@ -33,15 +33,23 @@ In all `packages/*` workspaces, create an `.env` file, at the root of the worksp
 To installation `npm` dependencies, run the following command:
 
 ```
-npm i
+npm install
 ```
 
 ### Run the Application
 
-To start an instance of the application, run the following command:
+To start an instance of the application, you need to 1. build the Frontend and 2. run the Backend:
+
+#### Build the Frontend
 
 ```
-npm start
+npm run frontend:build
+```
+
+#### Run the Backend
+
+```
+npm run backend:start
 ```
 
 ## Development

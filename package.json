@@ -6,8 +6,12 @@
     "backend:build": "npm run build --workspace=backend",
     "backend:start": "npm run start --workspace=backend",
     "backend:start:prod": "npm run start:prod --workspace=backend",
+    "backend:test": "npm run test --workspace=backend",
+    "backend:test:watch": "npm run test:watch --workspace=backend",
     "frontend:build": "npm run build --workspace=frontend",
     "frontend:start": "npm run start --workspace=frontend",
+    "frontend:test": "npm run test --workspace=frontend",
+    "frontend:test:coverage": "npm run test:coverage --workspace=frontend",
     "frontend:test:e2e": "npm run test:e2e --workspace=frontend",
     "test:e2e": "start-server-and-test 'npm run backend:start' http-get://localhost:3001 'npm run frontend:test:e2e'"
   },

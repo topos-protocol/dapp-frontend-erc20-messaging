@@ -10,7 +10,8 @@ interface Args {
 }
 
 export default function useEthers({ subnet, viaMetaMask }: Args = {}) {
-  const { account, addChain, connect, ethereum, status, switchChain } = useMetaMask()
+  const { account, addChain, connect, ethereum, status, switchChain } =
+    useMetaMask()
 
   const provider = React.useMemo<
     ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider

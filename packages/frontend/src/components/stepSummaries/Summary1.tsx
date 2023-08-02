@@ -2,7 +2,7 @@ import { Avatar, Space, Tag, Typography } from 'antd'
 import React from 'react'
 
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
-import { shortenAddress } from '../../util'
+import { shortenAddress } from '../../utils'
 import { TransactionType, TransactionTypeContext } from '../MultiStepForm'
 
 const { Text } = Typography

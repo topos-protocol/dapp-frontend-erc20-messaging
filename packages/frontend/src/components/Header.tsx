@@ -14,7 +14,7 @@ const Header = () => {
           <Space align="start">
             <img src={logo} width={40} alt="logo" />
             <h3 style={{ color: '#fff', fontWeight: 'bold' }}>
-              Cross-subnet messages
+              ERC20 Messaging
             </h3>
           </Space>
         </Col>
