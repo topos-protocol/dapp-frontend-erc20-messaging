@@ -9,6 +9,7 @@ jobs:
   unit-frontend:
     name: Test/Unit/Frontend
     runs-on: ubuntu-latest-16-core
+    environment: devnet-1
     steps:
       - name: Checkout
         uses: actions/checkout@v3
