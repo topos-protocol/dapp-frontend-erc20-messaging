@@ -17,6 +17,7 @@ services:
     environment:
       - DISPLAY=display:0.0
       - CYPRESS_DOCKER_RUN=true
+      - CYPRESS_REMOTE_DEBUGGING_PORT=${CYPRESS_REMOTE_DEBUGGING_PORT}
       - CI=true
       - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
       - AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
@@ -39,7 +40,7 @@ services:
 
   display:
     container_name: display
-    image: synthetixio/display:016121eafdfff448414894d0ca5a50b1d72b62eb-base
+    image: synthetixio/display:41158a4bf17aca53222e6b101633ddfa5af7724c-base
     environment:
       - RUN_XTERM=no
       - DISPLAY_WIDTH=800
