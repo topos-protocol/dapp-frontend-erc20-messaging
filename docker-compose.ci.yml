@@ -25,18 +25,15 @@ services:
       - PORT=${PORT}
       - PRIVATE_KEY=${PRIVATE_KEY}
     entrypoint: []
-    working_dir:
-      /app
-      # bash -c 'echo -n "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true " && npx wait-on http://display:8080 && echo -n "======> remote noVNC URL: " && curl -s ngrok:4040/api/tunnels | jq -r .tunnels[0].public_url && npm run test:e2e'
+    working_dir: /app
     command: >
       bash -c 'echo -n "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true " && npx wait-on http://display:8080 && echo -n "======> remote noVNC URL: " && npm run test:e2e'
     depends_on:
       - display
       - video
-      # - ngrok
     volumes:
-      - ./docker/videos:/app/tests/e2e/videos
-      - ./docker/screenshots:/app/tests/e2e/screenshots
+      - ./docker/videos:/app/packages/frontend/cypress/videos
+      - ./docker/screenshots:/app/packages/frontend/cypress/screenshots
     networks:
       - x11
 
@@ -51,20 +48,6 @@ services:
       - '8080:8080'
     networks:
       - x11
-
-  # ngrok:
-  #   container_name: ngrok
-  #   image: synthetixio/ngrok:016121eafdfff448414894d0ca5a50b1d72b62eb-base
-  #   ports:
-  #     - '4040:4040'
-  #   command: ['ngrok', 'http', 'display:8080', '--authtoken', '${NGROK_AUTH}']
-  #   environment:
-  #     - NGROK_AUTH=${NGROK_AUTH}
-  #     # - NGROK_BASIC_AUTH=${NGROK_BASIC_AUTH}
-  #   depends_on:
-  #     - display
-  #   networks:
-  #     - x11
 
   video:
     container_name: video
