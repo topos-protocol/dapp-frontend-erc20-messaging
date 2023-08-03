@@ -14,7 +14,7 @@ export const subnetRegistratorContract = new ethers.Contract(
 ) as SubnetRegistrator
 
 export const toposCoreContract = new ethers.Contract(
-  import.meta.env.VITE_TOPOS_CORE_CONTRACT_ADDRESS || '',
+  import.meta.env.VITE_TOPOS_CORE_PROXY_CONTRACT_ADDRESS || '',
   ToposCoreJSON.abi
 ) as ToposCore
 
