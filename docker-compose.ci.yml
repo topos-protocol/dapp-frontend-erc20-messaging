@@ -35,8 +35,7 @@ services:
     volumes:
       - ./docker/videos:/app/packages/frontend/cypress/videos
       - ./docker/screenshots:/app/packages/frontend/cypress/screenshots
-    networks:
-      - x11
+    network_mode: 'host'
 
   display:
     container_name: display
@@ -47,8 +46,7 @@ services:
       - DISPLAY_HEIGHT=600
     ports:
       - '8080:8080'
-    networks:
-      - x11
+    network_mode: 'host'
 
   video:
     container_name: video
@@ -61,8 +59,4 @@ services:
       - SE_SCREEN_HEIGHT=600
     depends_on:
       - display
-    networks:
-      - x11
-
-networks:
-  x11:
+    network_mode: 'host'
