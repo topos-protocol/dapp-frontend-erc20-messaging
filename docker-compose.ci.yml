@@ -56,6 +56,7 @@ services:
     volumes:
       - ./docker/videos-ci:/videos
     environment:
+      - DISPLAY_CONTAINER_NAME=localhost
       - FILE_NAME=CI-full-video.mp4
       - SE_SCREEN_WIDTH=800
       - SE_SCREEN_HEIGHT=600
