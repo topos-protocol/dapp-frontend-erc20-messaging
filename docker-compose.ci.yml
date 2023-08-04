@@ -26,9 +26,7 @@ services:
       - PORT=${PORT}
       - PRIVATE_KEY=${PRIVATE_KEY}
     entrypoint: []
-    working_dir:
-      /app
-      # bash -c 'echo -n "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true " && npx wait-on localhost:8080 && echo -n "======> remote noVNC URL: " && npm run test:e2e'
+    working_dir: /app
     command: >
       bash -c 'echo -n "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true " && echo -n "======> remote noVNC URL: " && npm run test:e2e'
     depends_on:
@@ -46,8 +44,6 @@ services:
       - RUN_XTERM=no
       - DISPLAY_WIDTH=800
       - DISPLAY_HEIGHT=600
-    # ports:
-    #   - '8080:8080'
     network_mode: 'host'
 
   video:
