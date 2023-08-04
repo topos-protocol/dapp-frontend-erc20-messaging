@@ -1,0 +1,61 @@
+version: '3.9'
+services:
+  synpress:
+    container_name: synpress
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+      args:
+        - VITE_EXECUTOR_SERVICE_ENDPOINT=${VITE_EXECUTOR_SERVICE_ENDPOINT}
+        - VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS=${VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS}
+        - VITE_ERC20_MESSAGING_CONTRACT_ADDRESS=${VITE_ERC20_MESSAGING_CONTRACT_ADDRESS}
+        - VITE_TOPOS_CORE_PROXY_CONTRACT_ADDRESS=${VITE_TOPOS_CORE_PROXY_CONTRACT_ADDRESS}
+        - VITE_TOPOS_SUBNET_ENDPOINT=${VITE_TOPOS_SUBNET_ENDPOINT}
+        - VITE_TRACING_OTEL_COLLECTOR_ENDPOINT=${VITE_TRACING_OTEL_COLLECTOR_ENDPOINT}
+        - VITE_TRACING_SERVICE_NAME=${VITE_TRACING_SERVICE_NAME}
+        - VITE_TRACING_SERVICE_VERSION=${VITE_TRACING_SERVICE_VERSION}
+    environment:
+      - DISPLAY=localhost:0.0
+      - CYPRESS_DOCKER_RUN=true
+      - CYPRESS_REMOTE_DEBUGGING_PORT=${CYPRESS_REMOTE_DEBUGGING_PORT}
+      - CI=true
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
+      - AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
+      - AUTH0_ISSUER_URL=${AUTH0_ISSUER_URL}
+      - PORT=${PORT}
+      - PRIVATE_KEY=${PRIVATE_KEY}
+    entrypoint: []
+    working_dir: /app
+    command: >
+      bash -c 'echo -n "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true " && echo -n "======> remote noVNC URL: " && npm run test:e2e'
+    depends_on:
+      - display
+      - video
+    volumes:
+      - ./docker/videos:/app/packages/frontend/cypress/videos
+      - ./docker/screenshots:/app/packages/frontend/cypress/screenshots
+    network_mode: 'host'
+
+  display:
+    container_name: display
+    image: synthetixio/display:41158a4bf17aca53222e6b101633ddfa5af7724c-base
+    environment:
+      - RUN_XTERM=no
+      - DISPLAY_WIDTH=800
+      - DISPLAY_HEIGHT=600
+    network_mode: 'host'
+
+  video:
+    container_name: video
+    image: synthetixio/video:457bb48776c3b14de232d9dda620ba9188dc40ac-base
+    volumes:
+      - ./docker/videos-ci:/videos
+    environment:
+      - DISPLAY_CONTAINER_NAME=localhost
+      - FILE_NAME=CI-full-video.mp4
+      - SE_SCREEN_WIDTH=800
+      - SE_SCREEN_HEIGHT=600
+    depends_on:
+      - display
+    network_mode: 'host'
