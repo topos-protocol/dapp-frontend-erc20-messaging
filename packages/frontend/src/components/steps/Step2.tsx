@@ -7,7 +7,7 @@ import { ErrorsContext } from '../../contexts/errors'
 import { TracingContext } from '../../contexts/tracing'
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
 import useEthers from '../../hooks/useEthers'
-import useApproveAllowance from '../../hooks/useApproveAllowance'
+import useApproveAllowance from '../../hooks/useAllowance'
 import useCreateTracingSpan from '../../hooks/useCreateTracingSpan'
 import useExecutorService from '../../hooks/useExecutorService'
 import useTransactionTrie from '../../hooks/useTransactionTrie'
@@ -18,7 +18,7 @@ import Progress from '../Progress'
 
 const Step2 = ({ onFinish }: StepProps) => {
   const { setErrors } = React.useContext(ErrorsContext)
-  const { approveAllowance } = useApproveAllowance()
+  const { approveAllowance, getCurrentAllowance } = useApproveAllowance()
   const { observeExecutorServiceJob, sendToExecutorService } =
     useExecutorService()
   const { sendToken } = useSendToken()
@@ -83,7 +83,11 @@ const Step2 = ({ onFinish }: StepProps) => {
         )
 
         try {
-          await approveAllowance(token, parsedAmount)
+          const currentAllowance = await getCurrentAllowance(token)
+
+          if (currentAllowance.lt(parsedAmount)) {
+            await approveAllowance(token, parsedAmount)
+          }
         } catch (error) {
           if (typeof error === 'string') {
             setErrors((e) => [...e, error as string])
