@@ -5,19 +5,28 @@ import {
   WebTracerProvider,
 } from '@opentelemetry/sdk-trace-web'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
+import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web'
+
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto'
 import { ZoneContextManager } from '@opentelemetry/context-zone'
 
 export const SERVICE_NAME =
-  import.meta.env.VITE_TRACING_SERVICE_NAME || 'cross-subnet-message'
+  import.meta.env.VITE_TRACING_SERVICE_NAME ||
+  'dapp-frontend-erc20-messaging-web'
 export const SERVICE_VERSION =
   import.meta.env.VITE_TRACING_SERVICE_VERSION || 'unknown'
 export const OTEL_COLLECTOR_ENDPOINT =
   import.meta.env.VITE_TRACING_OTEL_COLLECTOR_ENDPOINT || ''
 
-// Optionally register instrumentation libraries
 registerInstrumentations({
-  instrumentations: [],
+  instrumentations: [
+    // getWebAutoInstrumentations({
+    //   // load custom configuration for xml-http-request instrumentation
+    //   '@opentelemetry/instrumentation-xml-http-request': {
+    //     // clearTimingResources: true,
+    //   },
+    // }),
+  ],
 })
 
 const resource = Resource.default().merge(
