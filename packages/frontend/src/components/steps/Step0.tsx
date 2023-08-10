@@ -28,8 +28,9 @@ const Step0 = ({ onFinish }: StepProps) => {
 
   const nextStep = React.useCallback(() => {
     stepSpan?.end()
+    rootSpan?.end()
     onFinish()
-  }, [stepSpan])
+  }, [rootSpan, stepSpan])
 
   React.useEffect(
     function traceFetchRegisteredSubnets() {

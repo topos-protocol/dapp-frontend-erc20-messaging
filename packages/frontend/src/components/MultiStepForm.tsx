@@ -3,16 +3,15 @@ import React from 'react'
 
 import { SubnetsContext } from '../contexts/subnets'
 import { MultiStepFormContext } from '../contexts/multiStepForm'
+import { TracingContext } from '../contexts/tracing'
+import useCreateTracingSpan from '../hooks/useCreateTracingSpan'
+import useRegisteredTokens from '../hooks/useRegisteredTokens'
 import Step0 from './steps/Step0'
 import Step1 from './steps/Step1'
 import Step2 from './steps/Step2'
 import Step3 from './steps/Step3'
 import Summary0 from './stepSummaries/Summary0'
 import Summary1 from './stepSummaries/Summary1'
-import useRegisteredTokens from '../hooks/useRegisteredTokens'
-import { SERVICE_NAME } from '../tracing'
-import { trace } from '@opentelemetry/api'
-import { TracingContext } from '../contexts/tracing'
 
 const NUMBER_OF_STEPS = 4
 
@@ -93,10 +92,10 @@ const MultiStepForm = () => {
 
   const amount = Form.useWatch('amount', form1) || form1.getFieldValue('amount')
 
-  const rootSpan = React.useMemo(() => {
-    const tracer = trace.getTracer(SERVICE_NAME)
-    return tracer.startSpan('root')
-  }, [])
+  const rootSpan = React.useMemo(
+    () => useCreateTracingSpan('multi-step-form'),
+    []
+  )
 
   return (
     <Row justify="center">

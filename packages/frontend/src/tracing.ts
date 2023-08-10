@@ -2,6 +2,8 @@ import { Resource } from '@opentelemetry/resources'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 import {
   BatchSpanProcessor,
+  ConsoleSpanExporter,
+  SimpleSpanProcessor,
   WebTracerProvider,
 } from '@opentelemetry/sdk-trace-web'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
@@ -46,8 +48,9 @@ const exporter = new OTLPTraceExporter({
   // optional - collection of custom headers to be sent with each request, empty by default
   headers: {},
 })
-const processor = new BatchSpanProcessor(exporter)
-provider.addSpanProcessor(processor)
+
+provider.addSpanProcessor(new BatchSpanProcessor(exporter))
+provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()))
 
 provider.register({
   contextManager: new ZoneContextManager(),

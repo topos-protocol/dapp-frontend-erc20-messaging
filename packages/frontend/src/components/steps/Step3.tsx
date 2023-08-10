@@ -23,7 +23,7 @@ const Step3 = ({ onFinish }: StepProps) => {
     stepSpan?.end()
     rootSpan?.end()
     onFinish()
-  }, [stepSpan])
+  }, [stepSpan, rootSpan])
 
   return (
     <Result

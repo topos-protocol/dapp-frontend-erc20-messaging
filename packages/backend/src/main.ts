@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 
 import { AppModule } from './app/app.module'
-import { otelSDK } from './tracing'
+// import { otelSDK } from './tracing'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
