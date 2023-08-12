@@ -42,8 +42,8 @@ services:
     image: synthetixio/display:41158a4bf17aca53222e6b101633ddfa5af7724c-base
     environment:
       - RUN_XTERM=no
-      - DISPLAY_WIDTH=800
-      - DISPLAY_HEIGHT=600
+      - DISPLAY_WIDTH=1920
+      - DISPLAY_HEIGHT=1080
     network_mode: 'host'
 
   video:
@@ -54,8 +54,8 @@ services:
     environment:
       - DISPLAY_CONTAINER_NAME=localhost
       - FILE_NAME=CI-full-video.mp4
-      - SE_SCREEN_WIDTH=800
-      - SE_SCREEN_HEIGHT=600
+      - SE_SCREEN_WIDTH=1920
+      - SE_SCREEN_HEIGHT=1080
     depends_on:
       - display
     network_mode: 'host'
