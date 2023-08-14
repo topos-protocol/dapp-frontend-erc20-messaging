@@ -38,3 +38,9 @@ export function getRawTransaction(tx: Transaction) {
 
   return raw
 }
+
+export function sanitizeURLProtocol(protocol: 'ws' | 'http', endpoint: string) {
+  return location.protocol.startsWith('https')
+    ? `${protocol}s://${endpoint}`
+    : `${protocol}://${endpoint}`
+}

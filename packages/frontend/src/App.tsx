@@ -12,6 +12,7 @@ import 'antd/dist/reset.css'
 import useRegisteredSubnets from './hooks/useRegisteredSubnets'
 import { toposCoreContract } from './contracts'
 import { SubnetWithId } from './types'
+import { sanitizeURLProtocol } from './utils'
 
 const { Content: _Content } = _Layout
 
@@ -43,7 +44,7 @@ const App = () => {
 
         if (toposSubnetEndpoint) {
           const provider = new ethers.providers.JsonRpcProvider(
-            `http://${toposSubnetEndpoint}`
+            sanitizeURLProtocol('http', toposSubnetEndpoint)
           )
           const network = await provider.getNetwork()
           const chainId = network.chainId
