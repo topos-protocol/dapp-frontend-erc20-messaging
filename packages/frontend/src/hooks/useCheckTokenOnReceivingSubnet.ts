@@ -5,6 +5,7 @@ import { ErrorsContext } from '../contexts/errors'
 import { SubnetsContext } from '../contexts/subnets'
 import { erc20MessagingContract } from '../contracts'
 import { Token } from '../types'
+import { sanitizeURLProtocol } from '../utils'
 
 export default function useCheckTokenOnSubnet() {
   const { setErrors } = React.useContext(ErrorsContext)
@@ -20,7 +21,7 @@ export default function useCheckTokenOnSubnet() {
 
         const subnetProvider = subnet?.endpoint
           ? new ethers.providers.WebSocketProvider(
-              `ws://${subnet?.endpoint}/ws`
+              sanitizeURLProtocol('ws', `${subnet?.endpoint}/ws`)
             )
           : null
 

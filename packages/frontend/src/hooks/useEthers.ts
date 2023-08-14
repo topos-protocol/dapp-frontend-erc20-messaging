@@ -3,6 +3,7 @@ import React from 'react'
 import { useMetaMask } from 'metamask-react'
 
 import { Subnet } from '../types'
+import { sanitizeURLProtocol } from '../utils'
 
 interface Args {
   subnet?: Subnet
@@ -20,9 +21,12 @@ export default function useEthers({ subnet, viaMetaMask }: Args = {}) {
       viaMetaMask && ethereum
         ? new ethers.providers.Web3Provider(ethereum)
         : new ethers.providers.WebSocketProvider(
-            `ws://${
-              subnet?.endpoint || import.meta.env.VITE_TOPOS_SUBNET_ENDPOINT
-            }/ws`
+            sanitizeURLProtocol(
+              'ws',
+              `${
+                subnet?.endpoint || import.meta.env.VITE_TOPOS_SUBNET_ENDPOINT
+              }/ws`
+            )
           ),
     [subnet, viaMetaMask, ethereum]
   )
@@ -49,7 +53,7 @@ export default function useEthers({ subnet, viaMetaMask }: Args = {}) {
                     symbol: subnet.currencySymbol,
                     decimals: 18,
                   },
-                  rpcUrls: [`http://${subnet.endpoint}`],
+                  rpcUrls: [sanitizeURLProtocol('http', subnet.endpoint)],
                 })
               }
             }
