@@ -39,34 +39,36 @@ const App = () => {
   useEffect(
     function onRegisteredSubnetsChange() {
       async function _() {
-        const toposSubnetEndpoint = import.meta.env.VITE_TOPOS_SUBNET_ENDPOINT
-        let toposSubnet: SubnetWithId | undefined
+        if (registeredSubnets) {
+          const toposSubnetEndpoint = import.meta.env.VITE_TOPOS_SUBNET_ENDPOINT
+          let toposSubnet: SubnetWithId | undefined
 
-        if (toposSubnetEndpoint) {
-          const provider = new ethers.providers.JsonRpcProvider(
-            sanitizeURLProtocol('http', toposSubnetEndpoint)
-          )
-          const network = await provider.getNetwork()
-          const chainId = network.chainId
+          if (toposSubnetEndpoint) {
+            const provider = new ethers.providers.JsonRpcProvider(
+              sanitizeURLProtocol('http', toposSubnetEndpoint)
+            )
+            const network = await provider.getNetwork()
+            const chainId = network.chainId
 
-          const contract = toposCoreContract.connect(provider)
-          const subnetId = await contract.networkSubnetId()
+            const contract = toposCoreContract.connect(provider)
+            const subnetId = await contract.networkSubnetId()
 
-          toposSubnet = {
-            chainId: BigNumber.from(chainId.toString()),
-            endpoint: toposSubnetEndpoint,
-            currencySymbol: 'TOPOS',
-            id: subnetId,
-            logoURL: '/logo.svg',
-            name: 'Topos',
+            toposSubnet = {
+              chainId: BigNumber.from(chainId.toString()),
+              endpoint: toposSubnetEndpoint,
+              currencySymbol: 'TOPOS',
+              id: subnetId,
+              logoURL: '/logo.svg',
+              name: 'Topos',
+            }
           }
-        }
 
-        setSubnets(
-          toposSubnet
-            ? [toposSubnet, ...(registeredSubnets || [])]
-            : registeredSubnets
-        )
+          setSubnets(
+            toposSubnet
+              ? [toposSubnet, ...(registeredSubnets || [])]
+              : registeredSubnets
+          )
+        }
       }
 
       _()

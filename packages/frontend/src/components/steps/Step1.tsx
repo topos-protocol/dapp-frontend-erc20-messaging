@@ -139,7 +139,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
           ]}
         >
           <Select
-            size="large"
+            size="middle"
             dropdownRender={(menu) => (
               <>
                 {menu}

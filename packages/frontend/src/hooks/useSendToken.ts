@@ -23,8 +23,8 @@ export default function useSendToken() {
   const sendToken = React.useCallback(
     (
       receivingSubnetId: string,
-      recipientAddress: string,
       tokenAddress: string,
+      recipientAddress: string,
       amount: BigNumber
     ) =>
       new Promise<Data>((resolve, reject) => {
@@ -33,8 +33,8 @@ export default function useSendToken() {
         contract
           .sendToken(
             receivingSubnetId,
-            recipientAddress,
             tokenAddress,
+            recipientAddress,
             amount,
             {
               gasLimit: 4_000_000,

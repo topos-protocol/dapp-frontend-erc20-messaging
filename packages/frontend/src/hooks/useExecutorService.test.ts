@@ -6,12 +6,11 @@ import useExecutorService, { ExecuteDto } from './useExecutorService'
 import axios from 'axios'
 
 const validExecuteDtoMock: ExecuteDto = {
-  indexOfDataInTxRaw: 1,
+  logIndexes: [],
   messagingContractAddress: '',
+  receiptTrieMerkleProof: '',
+  receiptTrieRoot: '',
   subnetId: '1',
-  txRaw: '',
-  txTrieMerkleProof: '',
-  txTrieRoot: '',
 }
 
 const axiosPostMock = vi.fn().mockResolvedValue({})
