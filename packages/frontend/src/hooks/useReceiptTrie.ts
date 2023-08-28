@@ -13,26 +13,22 @@ export default function useTransactionTrie() {
   })
   const [errors, setErrors] = React.useState<string[]>([])
 
-  const createTransactionTrie = React.useCallback(
+  const createReceiptTrie = React.useCallback(
     async (block: BlockWithTransactions) => {
       const trie = new Trie()
 
       await Promise.all(
-        block.transactions.map((tx, index) => {
-          const { nonce, gasPrice, gasLimit, to, value, data, v, r, s } = tx
+        block.transactions.map(async (tx, index) => {
+          const { cumulativeGasUsed, logs, logsBloom, status } = await tx.wait()
+
           return trie.put(
             Buffer.from(RLP.encode(index)),
             Buffer.from(
               RLP.encode([
-                nonce,
-                gasPrice?.toNumber(),
-                gasLimit.toNumber(),
-                to,
-                value.toNumber(),
-                data,
-                v,
-                r,
-                s,
+                status,
+                cumulativeGasUsed.toNumber(),
+                logsBloom,
+                logs.map((l) => [l.address, l.topics, l.data]),
               ])
             )
           )
@@ -49,7 +45,7 @@ export default function useTransactionTrie() {
 
   const createMerkleProof = React.useCallback(
     async (block: BlockWithTransactions, transaction: ethers.Transaction) => {
-      const trie = await createTransactionTrie(block)
+      const trie = await createReceiptTrie(block)
       let proof
 
       const rawBlock = await provider.send('eth_getBlockByHash', [
@@ -58,35 +54,37 @@ export default function useTransactionTrie() {
       ])
 
       const trieRoot = ethers.utils.hexlify(trie.root())
-      console.log(trieRoot)
-      if (trieRoot !== rawBlock.transactionsRoot) {
-        console.error(
-          `Transaction trie root is not matching with the block header`
-        )
+
+      if (trieRoot !== rawBlock.receiptsRoot) {
+        const errorMessage =
+          'Receipt trie root does not match with the block header'
+        console.error(errorMessage)
+        setErrors((e) => [...e, errorMessage])
         console.error(`local trie root`, trieRoot)
-        console.error(`trie root in block header`, rawBlock.transactionsRoot)
-        setErrors((e) => [...e, `Error when recomputing the transaction trie`])
+        console.error(`trie root in block header`, rawBlock.receiptsRoot)
       } else {
-        try {
-          const indexOfTx = block.transactions.findIndex(
-            (tx) => tx.hash === transaction.hash
-          )
+        if (trie) {
+          try {
+            const indexOfTx = block.transactions.findIndex(
+              (tx) => tx.hash === transaction.hash
+            )
 
-          const key = Buffer.from(RLP.encode(indexOfTx))
+            const key = Buffer.from(RLP.encode(indexOfTx))
 
-          const { stack: _stack } = await trie.findPath(key)
-          const stack = _stack.map((node) => node.raw())
+            const { stack: _stack } = await trie.findPath(key)
+            const stack = _stack.map((node) => node.raw())
 
-          proof = ethers.utils.hexlify(RLP.encode([1, indexOfTx, stack]))
-        } catch (error) {
-          console.error(error)
-          setErrors((e) => [...e, `Error when creating the merkle proof`])
+            proof = ethers.utils.hexlify(RLP.encode([1, indexOfTx, stack]))
+          } catch (error) {
+            console.error(error)
+            setErrors((e) => [...e, `Error when creating the merkle proof`])
+          }
         }
       }
 
       return { proof, trie }
     },
-    [createTransactionTrie]
+    [createReceiptTrie]
   )
 
   return { errors, createMerkleProof }

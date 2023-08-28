@@ -34,19 +34,19 @@ describe('sendToken', () => {
     const { result } = renderHook(() => useSendToken())
 
     const receivingSubnetId = 'receiving'
-    const recipientAddress = 'receivingAddr'
     const tokenAddress = 'tokenAddr'
+    const recipientAddress = 'receivingAddr'
     const amount = BigNumber.from(1)
 
     await act(() => {
       result.current
-        .sendToken(receivingSubnetId, recipientAddress, tokenAddress, amount)
+        .sendToken(receivingSubnetId, tokenAddress, recipientAddress, amount)
         .then(() => {
           expect(result.current.loading).toBe(true)
           expect(sendTokenMock).toHaveBeenCalledWith(
             receivingSubnetId,
-            recipientAddress,
             tokenAddress,
+            recipientAddress,
             amount,
             { gasLimit: 4_000_000 }
           )

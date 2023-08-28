@@ -12,7 +12,7 @@ interface Props extends SelectProps {
 }
 
 export default ({ subnets, ...selectProps }: Props) => (
-  <Select {...selectProps}>
+  <Select {...selectProps} size="middle">
     {subnets?.map((subnet) => (
       <Option key={subnet.name} value={subnet.id}>
         <Space>

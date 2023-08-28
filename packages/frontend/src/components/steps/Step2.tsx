@@ -1,6 +1,7 @@
 import { CheckCircleFilled } from '@ant-design/icons'
+import * as ERC20MessagingJSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/examples/ERC20Messaging.sol/ERC20Messaging.json'
 import { Avatar, List, Spin } from 'antd'
-import { ethers } from 'ethers'
+import { ethers, providers } from 'ethers'
 import React from 'react'
 
 import { ErrorsContext } from '../../contexts/errors'
@@ -10,9 +11,8 @@ import useEthers from '../../hooks/useEthers'
 import useApproveAllowance from '../../hooks/useAllowance'
 import useCreateTracingSpan from '../../hooks/useCreateTracingSpan'
 import useExecutorService from '../../hooks/useExecutorService'
-import useTransactionTrie from '../../hooks/useTransactionTrie'
+import useReceiptTrie from '../../hooks/useReceiptTrie'
 import useSendToken from '../../hooks/useSendToken'
-import { getRawTransaction } from '../../utils'
 import { StepProps } from '../MultiStepForm'
 import Progress from '../Progress'
 
@@ -22,7 +22,7 @@ const Step2 = ({ onFinish }: StepProps) => {
   const { observeExecutorServiceJob, sendToExecutorService } =
     useExecutorService()
   const { sendToken } = useSendToken()
-  const { createMerkleProof } = useTransactionTrie()
+  const { createMerkleProof } = useReceiptTrie()
   const { amount, receivingSubnet, recipientAddress, sendingSubnet, token } =
     React.useContext(MultiStepFormContext)
   const [progress, setProgress] = React.useState(0)
@@ -110,8 +110,8 @@ const Step2 = ({ onFinish }: StepProps) => {
         try {
           const data = await sendToken(
             receivingSubnet?.id,
-            recipientAddress,
             token?.addr,
+            recipientAddress,
             parsedAmount
           )
 
@@ -134,11 +134,6 @@ const Step2 = ({ onFinish }: StepProps) => {
             sendTokenReceipt.blockHash
           )
 
-          const sendTokenTxRaw = getRawTransaction(sendTokenTx)
-          const indexOfDataInTxRaw =
-            sendTokenTxRaw.substring(2).indexOf(sendTokenTx.data.substring(2)) /
-            2
-
           const { proof, trie } = await createMerkleProof(block, sendTokenTx)
           const trieRoot = ethers.utils.hexlify(trie.root())
 
@@ -147,14 +142,41 @@ const Step2 = ({ onFinish }: StepProps) => {
               'send-request-to-executor-service',
               submitSendTokenSpan
             )
+
+            const iface = new ethers.utils.Interface(ERC20MessagingJSON.abi)
+            let tokenSentLogIndex: number | undefined = undefined
+
+            for (let log of sendTokenReceipt.logs) {
+              try {
+                const logDescription = iface.parseLog(log)
+
+                if (logDescription.name === 'TokenSent') {
+                  tokenSentLogIndex = log.logIndex
+                  break
+                }
+              } catch (error) {
+                setErrors((e) => [
+                  ...e,
+                  `Error when parsing receipt logs to find TokenSent event!`,
+                ])
+              }
+            }
+
+            if (tokenSentLogIndex == undefined) {
+              setErrors((e) => [
+                ...e,
+                `TokenSent event was not found in receipt logs!`,
+              ])
+              return
+            }
+
             await sendToExecutorService({
-              indexOfDataInTxRaw,
+              logIndexes: [tokenSentLogIndex],
               messagingContractAddress: import.meta.env
                 .VITE_ERC20_MESSAGING_CONTRACT_ADDRESS,
+              receiptTrieMerkleProof: proof,
+              receiptTrieRoot: trieRoot,
               subnetId: receivingSubnet?.id,
-              txRaw: sendTokenTxRaw,
-              txTrieMerkleProof: proof,
-              txTrieRoot: trieRoot,
             })
               .then((job) => {
                 sendExecutorServiceSpan.end()
@@ -170,8 +192,13 @@ const Step2 = ({ onFinish }: StepProps) => {
                       progress,
                     })
                   },
-                  error: (error) => {
-                    setErrors((e) => [...e, error])
+                  error: (error: string) => {
+                    setErrors((e) => [
+                      ...e,
+                      `Error when watching the Executor Service's job: ${
+                        error.length < 300 ? error : '(details in console)'
+                      }`,
+                    ])
                     observeExecutorJobSpan.recordException(error)
                     observeExecutorJobSpan.end()
                     submitSendTokenSpan.end()

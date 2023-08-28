@@ -8,12 +8,11 @@ import { OAuthResponse } from 'common'
 import { ErrorsContext } from '../contexts/errors'
 
 export interface ExecuteDto {
-  indexOfDataInTxRaw: number
+  logIndexes: number[]
   messagingContractAddress: string
+  receiptTrieMerkleProof: string
+  receiptTrieRoot: string
   subnetId: string
-  txRaw: string
-  txTrieMerkleProof: string
-  txTrieRoot: string
 }
 
 export default function useExecutorService() {
@@ -60,7 +59,10 @@ export default function useExecutorService() {
             `${
               import.meta.env.VITE_EXECUTOR_SERVICE_ENDPOINT
             }/v1/job/subscribe/${jobId.toString()}`,
-            { headers: { Authorization: `Bearer ${authToken}` } }
+            {
+              headers: { Authorization: `Bearer ${authToken}` },
+              heartbeatTimeout: 200000,
+            }
           )
 
           eventSource.onmessage = ({ data }) => {
@@ -77,10 +79,11 @@ export default function useExecutorService() {
             }
           }
 
-          eventSource.onerror = (error) => {
-            console.error(error)
+          eventSource.onerror = (error: any) => {
+            const message = error.data || JSON.stringify(error)
+            console.error(message)
             eventSource.close()
-            subscriber.error(error)
+            subscriber.error(message)
           }
         })
       }
