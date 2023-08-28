@@ -4,6 +4,7 @@ import { BlockWithTransactions } from '@ethersproject/abstract-provider'
 import { Buffer } from 'buffer'
 import { ethers } from 'ethers'
 import React from 'react'
+
 import useEthers from './useEthers'
 
 export default function useTransactionTrie() {
@@ -45,7 +46,7 @@ export default function useTransactionTrie() {
   const createMerkleProof = React.useCallback(
     async (block: BlockWithTransactions, transaction: ethers.Transaction) => {
       const trie = await createReceiptTrie(block)
-      let proof = ''
+      let proof
 
       const rawBlock = await provider.send('eth_getBlockByHash', [
         ethers.utils.hexValue(block.hash),
@@ -53,28 +54,31 @@ export default function useTransactionTrie() {
       ])
 
       const trieRoot = ethers.utils.hexlify(trie.root())
-      console.log(trieRoot, rawBlock.receiptsRoot)
+
       if (trieRoot !== rawBlock.receiptsRoot) {
-        console.error(`Receipt trie root is not matching with the block header`)
+        const errorMessage =
+          'Receipt trie root does not match with the block header'
+        console.error(errorMessage)
+        setErrors((e) => [...e, errorMessage])
         console.error(`local trie root`, trieRoot)
         console.error(`trie root in block header`, rawBlock.receiptsRoot)
-      }
+      } else {
+        if (trie) {
+          try {
+            const indexOfTx = block.transactions.findIndex(
+              (tx) => tx.hash === transaction.hash
+            )
 
-      if (trie) {
-        try {
-          const indexOfTx = block.transactions.findIndex(
-            (tx) => tx.hash === transaction.hash
-          )
+            const key = Buffer.from(RLP.encode(indexOfTx))
 
-          const key = Buffer.from(RLP.encode(indexOfTx))
+            const { stack: _stack } = await trie.findPath(key)
+            const stack = _stack.map((node) => node.raw())
 
-          const { stack: _stack } = await trie.findPath(key)
-          const stack = _stack.map((node) => node.raw())
-
-          proof = ethers.utils.hexlify(RLP.encode([1, indexOfTx, stack]))
-        } catch (error) {
-          console.error(error)
-          setErrors((e) => [...e, `Error when creating the merkle proof`])
+            proof = ethers.utils.hexlify(RLP.encode([1, indexOfTx, stack]))
+          } catch (error) {
+            console.error(error)
+            setErrors((e) => [...e, `Error when creating the merkle proof`])
+          }
         }
       }
 

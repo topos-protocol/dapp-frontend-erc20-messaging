@@ -142,7 +142,7 @@ const Step2 = ({ onFinish }: StepProps) => {
               'send-request-to-executor-service',
               submitSendTokenSpan
             )
-            console.log(sendTokenReceipt)
+
             const iface = new ethers.utils.Interface(ERC20MessagingJSON.abi)
             let tokenSentLogIndex: number | undefined = undefined
 
@@ -154,7 +154,12 @@ const Step2 = ({ onFinish }: StepProps) => {
                   tokenSentLogIndex = log.logIndex
                   break
                 }
-              } catch (error) {}
+              } catch (error) {
+                setErrors((e) => [
+                  ...e,
+                  `Error when parsing receipt logs to find TokenSent event!`,
+                ])
+              }
             }
 
             if (tokenSentLogIndex == undefined) {
