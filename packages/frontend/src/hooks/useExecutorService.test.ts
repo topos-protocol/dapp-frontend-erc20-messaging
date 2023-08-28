@@ -130,7 +130,7 @@ describe('observeExecutorServiceJob', () => {
       const observable = result.current.observeExecutorServiceJob(1)
       observable.subscribe({
         error: (error) => {
-          expect(error).toEqual('any error')
+          expect(error).toBe('"any error"')
         },
       })
 
