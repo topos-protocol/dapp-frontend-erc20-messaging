@@ -22,7 +22,7 @@ export interface StepProps {
 }
 
 export enum TransactionType {
-  ASSET_TRANSFER = 'Asset Transfer',
+  ASSET_TRANSFER = 'ERC20 Token Transfer',
   // SMART_CONTRACT_CALL = 'Smart Contract Call',
 }
 
