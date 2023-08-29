@@ -175,6 +175,13 @@ describe('Multistep form step-1 with Topos', () => {
   })
 
   it('should invalidate form if token not registered on selected receiving subnet', () => {
+    cy.get('#token').click()
+    cy.wait(500)
+    cy.get('#token_list')
+      .parent()
+      .find('.ant-select-item-option-content')
+      .contains('TST')
+      .click()
     cy.get('#receivingSubnet').click()
     cy.wait(500)
     cy.get('#receivingSubnet_list')
