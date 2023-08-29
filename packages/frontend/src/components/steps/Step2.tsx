@@ -154,12 +154,7 @@ const Step2 = ({ onFinish }: StepProps) => {
                   tokenSentLogIndex = log.logIndex
                   break
                 }
-              } catch (error) {
-                setErrors((e) => [
-                  ...e,
-                  `Error when parsing receipt logs to find TokenSent event!`,
-                ])
-              }
+              } catch {}
             }
 
             if (tokenSentLogIndex == undefined) {
