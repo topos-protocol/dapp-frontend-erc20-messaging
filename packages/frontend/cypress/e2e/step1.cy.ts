@@ -173,6 +173,23 @@ describe('Multistep form step-1 with Topos', () => {
       .contains(SUCCESS.REGISTERED_TOKEN)
       .should('be.visible')
   })
+
+  it('should invalidate form if token not registered on selected receiving subnet', () => {
+    cy.get('#receivingSubnet').click()
+    cy.wait(500)
+    cy.get('#receivingSubnet_list')
+      .parent()
+      .find('.ant-select-item-option-content')
+      .contains('Incal')
+      .click()
+    cy.get('#receivingSubnet')
+      .parents('.ant-form-item')
+      .should('have.class', 'ant-form-item-has-error')
+    cy.get('#receivingSubnet_help').should(
+      'have.text',
+      `TST is not registered on Incal!`
+    )
+  })
 })
 
 describe('Multistep form step-1 with Incal', () => {
@@ -249,23 +266,6 @@ describe('Multistep form step-1 with Incal', () => {
         .parents('.ant-form-item')
         .should('have.class', 'ant-form-item-has-error')
       cy.get('#amount_help').should('have.text', ERROR.MISSING_AMOUNT)
-    })
-
-    it('should invalidate form if token not registered on selected receiving subnet', () => {
-      cy.get('#receivingSubnet').click()
-      cy.wait(500)
-      cy.get('#receivingSubnet_list')
-        .parent()
-        .find('.ant-select-item-option-content')
-        .contains('Edena')
-        .click()
-      cy.get('#receivingSubnet')
-        .parents('.ant-form-item')
-        .should('have.class', 'ant-form-item-has-error')
-      cy.get('#receivingSubnet_help').should(
-        'have.text',
-        `TST is not registered on Edena!`
-      )
     })
 
     it('should invalidate form if address is invalid', () => {

@@ -45,16 +45,13 @@ describe('Multistep form step-0 after MetaMask connect', () => {
     )
   })
 
-  it('should list Topos, Incal, and Edena', () => {
+  it('should list Topos, and Incal', () => {
     cy.get('#sendingSubnet').click()
     cy.get('.ant-select-item-option-content')
       .contains('Topos')
       .and('be.visible')
     cy.get('.ant-select-item-option-content')
       .contains('Incal')
-      .should('be.visible')
-    cy.get('.ant-select-item-option-content')
-      .contains('Edena')
       .should('be.visible')
   })
 
@@ -72,13 +69,6 @@ describe('Multistep form step-0 after MetaMask connect', () => {
     cy.allowMetamaskToAddAndSwitchNetwork()
   })
 
-  it('should open MetaMask to add Edena network when click on Edena', () => {
-    cy.get('#sendingSubnet').click()
-    cy.get('.ant-select-item-option-content').contains('Edena').click()
-    cy.get('.ant-select-selection-item').should('have.text', 'Edena')
-    cy.allowMetamaskToAddAndSwitchNetwork()
-  })
-
   it('should not ask to add networks when switching back to them', () => {
     cy.get('#sendingSubnet').click()
     cy.get('.ant-select-item-option-content').contains('Topos').click()
@@ -86,10 +76,6 @@ describe('Multistep form step-0 after MetaMask connect', () => {
 
     cy.get('#sendingSubnet').click({ force: true })
     cy.get('.ant-select-item-option-content').contains('Incal').click()
-    cy.allowMetamaskToSwitchNetwork()
-
-    cy.get('#sendingSubnet').click({ force: true })
-    cy.get('.ant-select-item-option-content').contains('Edena').click()
     cy.allowMetamaskToSwitchNetwork()
   })
 
