@@ -1,20 +1,22 @@
+import { ThemeProvider } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Alert, ConfigProvider, Layout as _Layout, theme } from 'antd'
+import { Alert, Layout as _Layout } from 'antd'
 import { BigNumber, ethers } from 'ethers'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import Header from './components/Header'
 import MultiStepForm from './components/MultiStepForm'
 import { ErrorsContext } from './contexts/errors'
 import { SubnetsContext } from './contexts/subnets'
-
-import 'antd/dist/reset.css'
 import useRegisteredSubnets from './hooks/useRegisteredSubnets'
+import useTheme from './hooks/useTheme'
 import { toposCoreContract } from './contracts'
 import { SubnetWithId } from './types'
 import { sanitizeURLProtocol } from './utils'
 
 const { Content: _Content } = _Layout
+
+import 'antd/dist/reset.css'
 
 const Errors = styled.div`
   margin: 1rem auto;
@@ -32,6 +34,7 @@ const Content = styled(_Content)`
 `
 
 const App = () => {
+  const theme = useTheme()
   const [errors, setErrors] = useState<string[]>([])
   const [subnets, setSubnets] = useState<SubnetWithId[]>()
   const { loading, registeredSubnets } = useRegisteredSubnets()
@@ -77,16 +80,7 @@ const App = () => {
   )
 
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: theme.darkAlgorithm,
-        components: {
-          Layout: {
-            colorBgHeader: 'transparent',
-          },
-        },
-      }}
-    >
+    <ThemeProvider theme={theme}>
       <ErrorsContext.Provider value={{ setErrors }}>
         <SubnetsContext.Provider
           value={{
@@ -107,7 +101,7 @@ const App = () => {
           </Layout>
         </SubnetsContext.Provider>
       </ErrorsContext.Provider>
-    </ConfigProvider>
+    </ThemeProvider>
   )
 }
 

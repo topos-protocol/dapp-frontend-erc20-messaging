@@ -1,4 +1,5 @@
-import React from 'react'
+import { css, Global } from '@emotion/react'
+import { ConfigProvider, theme } from 'antd'
 import { MetaMaskProvider } from 'metamask-react'
 import ReactDOM from 'react-dom/client'
 
@@ -10,7 +11,25 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
   // <React.StrictMode>
   <MetaMaskProvider>
-    <App />
+    <ConfigProvider
+      theme={{
+        algorithm: theme.darkAlgorithm,
+        components: {
+          Layout: {
+            colorBgHeader: 'transparent',
+          },
+        },
+      }}
+    >
+      <Global
+        styles={css`
+          html {
+            background-color: black;
+          }
+        `}
+      />
+      <App />
+    </ConfigProvider>
   </MetaMaskProvider>
   // </React.StrictMode>
 )
