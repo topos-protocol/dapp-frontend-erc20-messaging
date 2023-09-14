@@ -1,8 +1,8 @@
-import { Span } from '@opentelemetry/api'
+import { Transaction } from '@elastic/apm-rum'
 import React from 'react'
 
 interface TracingContext {
-  rootSpan?: Span
+  transaction?: Transaction
 }
 
 export const TracingContext = React.createContext<TracingContext>({})

@@ -1,5 +1,5 @@
 import { ContractTransaction, ethers } from 'ethers'
-import React from 'react'
+import { useCallback, useContext, useMemo, useState } from 'react'
 
 import { Values } from '../components/RegisterToken'
 import { ErrorsContext } from '../contexts/errors'
@@ -12,15 +12,15 @@ export default function useRegisterToken() {
   const { provider } = useEthers({
     viaMetaMask: true,
   })
-  const { setErrors } = React.useContext(ErrorsContext)
-  const [loading, setLoading] = React.useState(false)
+  const { setErrors } = useContext(ErrorsContext)
+  const [loading, setLoading] = useState(false)
 
-  const contract = React.useMemo(
+  const contract = useMemo(
     () => erc20MessagingContract.connect(provider.getSigner()),
     [provider]
   )
 
-  const registerToken = React.useCallback(
+  const registerToken = useCallback(
     async ({ cap, dailyMintLimit, name, symbol, supply }: Values) => {
       setLoading(true)
 

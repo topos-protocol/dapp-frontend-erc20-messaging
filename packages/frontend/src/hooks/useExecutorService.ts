@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Job, JobId } from 'bull'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import React from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Observable } from 'rxjs'
 
 import { OAuthResponse } from 'common'
@@ -15,11 +15,15 @@ export interface ExecuteDto {
   subnetId: string
 }
 
-export default function useExecutorService() {
-  const { setErrors } = React.useContext(ErrorsContext)
-  const [authToken, setAuthToken] = React.useState<string>()
+export interface TracingOptions {
+  traceparent: string
+}
 
-  React.useEffect(function getAuthToken() {
+export default function useExecutorService() {
+  const { setErrors } = useContext(ErrorsContext)
+  const [authToken, setAuthToken] = useState<string>()
+
+  useEffect(function getAuthToken() {
     axios
       .get<OAuthResponse>('api/auth')
       .then(({ data }) => {
@@ -34,7 +38,7 @@ export default function useExecutorService() {
       })
   }, [])
 
-  const sendToExecutorService = React.useMemo(() => {
+  const sendToExecutorService = useMemo(() => {
     if (authToken) {
       const api = axios.create({
         baseURL: import.meta.env.VITE_EXECUTOR_SERVICE_ENDPOINT,
@@ -43,24 +47,33 @@ export default function useExecutorService() {
         },
       })
 
-      return (executeDto: ExecuteDto) => {
-        return api.post<Job>('v1/execute', executeDto).then(({ data }) => data)
+      return (executeDto: ExecuteDto, { traceparent }: TracingOptions) => {
+        return api
+          .post<Job>('v1/execute', executeDto, {
+            headers: {
+              traceparent,
+            },
+          })
+          .then(({ data }) => data)
       }
     } else {
       return null
     }
   }, [authToken])
 
-  const observeExecutorServiceJob = React.useMemo(() => {
+  const observeExecutorServiceJob = useMemo(() => {
     if (authToken) {
-      return (jobId: JobId) => {
+      return (jobId: JobId, tracingOptions?: TracingOptions) => {
         return new Observable<number>((subscriber) => {
           const eventSource = new EventSourcePolyfill(
             `${
               import.meta.env.VITE_EXECUTOR_SERVICE_ENDPOINT
             }/v1/job/subscribe/${jobId.toString()}`,
             {
-              headers: { Authorization: `Bearer ${authToken}` },
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                traceparent: tracingOptions?.traceparent || '',
+              },
               heartbeatTimeout: 200000,
             }
           )

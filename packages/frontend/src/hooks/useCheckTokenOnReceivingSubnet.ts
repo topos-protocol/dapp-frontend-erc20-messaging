@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import React from 'react'
+import { useCallback, useContext, useState } from 'react'
 
 import { ErrorsContext } from '../contexts/errors'
 import { SubnetsContext } from '../contexts/subnets'
@@ -8,11 +8,11 @@ import { Token } from '../types'
 import { sanitizeURLProtocol } from '../utils'
 
 export default function useCheckTokenOnSubnet() {
-  const { setErrors } = React.useContext(ErrorsContext)
-  const { data: subnets } = React.useContext(SubnetsContext)
-  const [loading, setLoading] = React.useState(false)
+  const { setErrors } = useContext(ErrorsContext)
+  const { data: subnets } = useContext(SubnetsContext)
+  const [loading, setLoading] = useState(false)
 
-  const checkTokenOnSubnet = React.useCallback(
+  const checkTokenOnSubnet = useCallback(
     (token?: Token, subnetId?: string) =>
       new Promise<void>(async (resolve, reject) => {
         setLoading(true)

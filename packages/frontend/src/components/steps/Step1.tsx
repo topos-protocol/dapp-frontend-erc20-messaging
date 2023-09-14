@@ -1,4 +1,3 @@
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import {
   Button,
@@ -12,7 +11,7 @@ import {
 } from 'antd'
 import { SegmentedValue } from 'antd/lib/segmented'
 import { ethers } from 'ethers'
-import React from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
 import { SubnetsContext } from '../../contexts/subnets'
@@ -24,7 +23,6 @@ import {
 } from '../MultiStepForm'
 import RegisterToken from '../RegisterToken'
 import SubnetSelect from '../SubnetSelect'
-import useCreateTracingSpan from '../../hooks/useCreateTracingSpan'
 import useCheckTokenOnSubnet from '../../hooks/useCheckTokenOnReceivingSubnet'
 import useTokenBalance from '../../hooks/useTokenBalance'
 import { ERROR } from '../../constants/wordings'
@@ -36,7 +34,7 @@ const TransactionTypeSelector = styled(Segmented)`
 const { Option } = Select
 
 const Step1 = ({ onFinish, onPrev }: StepProps) => {
-  const { data: registeredSubnets } = React.useContext(SubnetsContext)
+  const { data: registeredSubnets } = useContext(SubnetsContext)
   const {
     amount,
     form1,
@@ -45,25 +43,25 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
     registeredTokens,
     sendingSubnet,
     token,
-  } = React.useContext(MultiStepFormContext)
+  } = useContext(MultiStepFormContext)
   const { checkTokenOnSubnet, loading: receivingSubnetLoading } =
     useCheckTokenOnSubnet()
-  const { rootSpan } = React.useContext(TracingContext)
-  const stepSpan = React.useMemo(
-    () => useCreateTracingSpan('step-1', rootSpan),
-    [rootSpan]
+  const { transaction: apmTransaction } = useContext(TracingContext)
+  const stepSpan = useMemo(
+    () => apmTransaction?.startSpan('multi-step-form-step-1', 'app'),
+    [apmTransaction]
   )
 
-  const subnetsWithoutSendingOne = React.useMemo(
+  const subnetsWithoutSendingOne = useMemo(
     () => registeredSubnets?.filter((s) => s.name !== sendingSubnet?.name),
     [registeredSubnets, sendingSubnet]
   )
 
-  const { transactionType, setTransactionType } = React.useContext(
+  const { transactionType, setTransactionType } = useContext(
     TransactionTypeContext
   )
 
-  const onTransactionTypeChange = React.useCallback(
+  const onTransactionTypeChange = useCallback(
     (value: SegmentedValue) => {
       setTransactionType(value.toString() as TransactionType)
     },
@@ -72,49 +70,49 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
 
   const { balance } = useTokenBalance(sendingSubnet, token)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (receivingSubnet) {
       form1?.validateFields(['receivingSubnet'])
     }
   }, [form1, token])
 
-  React.useEffect(
+  useEffect(
     function traceSelectToken() {
-      stepSpan?.addEvent('select token', {
+      stepSpan?.addLabels({
         token: JSON.stringify(token),
       })
     },
     [token]
   )
 
-  React.useEffect(
+  useEffect(
     function traceSelectReceivingSubnet() {
-      stepSpan?.addEvent('select receiving subnet', {
+      stepSpan?.addLabels({
         receivingSubnet: JSON.stringify(receivingSubnet),
       })
     },
     [receivingSubnet]
   )
 
-  React.useEffect(
+  useEffect(
     function traceSelectRecipientAddress() {
-      stepSpan?.addEvent('select recipient address', {
+      stepSpan?.addLabels({
         recipientAddress: JSON.stringify(recipientAddress),
       })
     },
     [recipientAddress]
   )
 
-  React.useEffect(
+  useEffect(
     function traceSelectAmount() {
-      stepSpan?.addEvent('select amount', {
+      stepSpan?.addLabels({
         amount: JSON.stringify(amount),
       })
     },
     [amount]
   )
 
-  const nextStep = React.useCallback(() => {
+  const nextStep = useCallback(() => {
     stepSpan?.end()
     onFinish()
   }, [stepSpan])

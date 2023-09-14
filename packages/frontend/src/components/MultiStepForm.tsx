@@ -1,18 +1,25 @@
+import { apm } from '@elastic/apm-rum'
 import { Col, Form, Row, Space } from 'antd'
-import React from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react'
 
-import { SubnetsContext } from '../contexts/subnets'
 import { MultiStepFormContext } from '../contexts/multiStepForm'
+import { SubnetsContext } from '../contexts/subnets'
+import { TracingContext } from '../contexts/tracing'
+import useRegisteredTokens from '../hooks/useRegisteredTokens'
 import Step0 from './steps/Step0'
 import Step1 from './steps/Step1'
 import Step2 from './steps/Step2'
 import Step3 from './steps/Step3'
 import Summary0 from './stepSummaries/Summary0'
 import Summary1 from './stepSummaries/Summary1'
-import useRegisteredTokens from '../hooks/useRegisteredTokens'
-import { SERVICE_NAME } from '../tracing'
-import { trace } from '@opentelemetry/api'
-import { TracingContext } from '../contexts/tracing'
 
 const NUMBER_OF_STEPS = 4
 
@@ -23,37 +30,35 @@ export interface StepProps {
 
 export enum TransactionType {
   ASSET_TRANSFER = 'ERC20 Token Transfer',
-  // SMART_CONTRACT_CALL = 'Smart Contract Call',
 }
 
 interface ITransactionTypeContext {
   transactionType: TransactionType
-  setTransactionType: React.Dispatch<React.SetStateAction<TransactionType>>
+  setTransactionType: Dispatch<SetStateAction<TransactionType>>
 }
 
-export const TransactionTypeContext =
-  React.createContext<ITransactionTypeContext>({
-    transactionType: TransactionType.ASSET_TRANSFER,
-    setTransactionType: () => {},
-  })
+export const TransactionTypeContext = createContext<ITransactionTypeContext>({
+  transactionType: TransactionType.ASSET_TRANSFER,
+  setTransactionType: () => {},
+})
 
 const MultiStepForm = () => {
-  const { data: registeredSubnets } = React.useContext(SubnetsContext)
-  const [transactionType, setTransactionType] = React.useState<TransactionType>(
+  const { data: registeredSubnets } = useContext(SubnetsContext)
+  const [transactionType, setTransactionType] = useState<TransactionType>(
     TransactionType.ASSET_TRANSFER
   )
-  const [currentStep, setCurrentStep] = React.useState(0)
+  const [currentStep, setCurrentStep] = useState(0)
   const [[form0], [form1]] = [Form.useForm(), Form.useForm()]
 
-  const nextStep = React.useCallback(() => {
+  const nextStep = useCallback(() => {
     setCurrentStep((currentStep) => Math.min(NUMBER_OF_STEPS, currentStep + 1))
   }, [])
 
-  const prevStep = React.useCallback(() => {
+  const prevStep = useCallback(() => {
     setCurrentStep((currentStep) => Math.max(0, currentStep - 1))
   }, [])
 
-  const reset = React.useCallback(() => {
+  const reset = useCallback(() => {
     setCurrentStep(0)
     form0.resetFields()
     form1.resetFields()
@@ -63,7 +68,7 @@ const MultiStepForm = () => {
     Form.useWatch('sendingSubnet', form0) ||
     form0.getFieldValue('sendingSubnet')
 
-  const sendingSubnet = React.useMemo(
+  const sendingSubnet = useMemo(
     () => registeredSubnets?.find((s) => s.id === sendingSubnetId),
     [registeredSubnets, sendingSubnetId]
   )
@@ -72,7 +77,7 @@ const MultiStepForm = () => {
     Form.useWatch('receivingSubnet', form1) ||
     form1.getFieldValue('receivingSubnet')
 
-  const receivingSubnet = React.useMemo(
+  const receivingSubnet = useMemo(
     () => registeredSubnets?.find((s) => s.id === receivingSubnetId),
     [registeredSubnets, receivingSubnetId]
   )
@@ -82,7 +87,7 @@ const MultiStepForm = () => {
   const tokenSymbol =
     Form.useWatch('token', form1) || form1.getFieldValue('token')
 
-  const token = React.useMemo(
+  const token = useMemo(
     () => registeredTokens?.find((t) => t.symbol === tokenSymbol),
     [registeredTokens, tokenSymbol]
   )
@@ -93,10 +98,10 @@ const MultiStepForm = () => {
 
   const amount = Form.useWatch('amount', form1) || form1.getFieldValue('amount')
 
-  const rootSpan = React.useMemo(() => {
-    const tracer = trace.getTracer(SERVICE_NAME)
-    return tracer.startSpan('root')
-  }, [])
+  const apmTransaction = useMemo(
+    () => apm.startTransaction('root', 'app', { managed: true }),
+    []
+  )
 
   return (
     <Row justify="center">
@@ -133,7 +138,7 @@ const MultiStepForm = () => {
               transition: 'all 0.4s ease 0.1s',
             }}
           >
-            <TracingContext.Provider value={{ rootSpan }}>
+            <TracingContext.Provider value={{ transaction: apmTransaction }}>
               {currentStep === 0 && <Step0 onFinish={nextStep} />}
               {currentStep === 1 && (
                 <Step1 onFinish={nextStep} onPrev={prevStep} />
