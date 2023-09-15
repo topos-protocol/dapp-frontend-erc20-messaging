@@ -171,7 +171,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
           <SubnetSelect
             placeholder="Select a subnet"
             loading={receivingSubnetLoading}
-            disabled={!token || receivingSubnetLoading}
+            disabled={!token || receivingSubnetLoading || balance === '0.0'}
             subnets={subnetsWithoutSendingOne}
           />
         </Form.Item>
@@ -195,7 +195,9 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
             },
           ]}
         >
-          <Input disabled={!token || receivingSubnetLoading} />
+          <Input
+            disabled={!token || receivingSubnetLoading || balance === '0.0'}
+          />
         </Form.Item>
         <Form.Item
           label="Amount"
@@ -208,7 +210,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
           ]}
         >
           <InputNumber
-            disabled={!token || receivingSubnetLoading}
+            disabled={!token || receivingSubnetLoading || balance === '0.0'}
             addonAfter={token?.symbol}
             max={balance}
           />
@@ -223,7 +225,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
             id="nextButton"
             type="primary"
             htmlType="submit"
-            disabled={!token || receivingSubnetLoading}
+            disabled={!token || receivingSubnetLoading || balance === '0.0'}
           >
             Next
           </Button>
