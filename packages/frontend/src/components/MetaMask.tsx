@@ -1,15 +1,15 @@
 import { Button, Spin } from 'antd'
 import { useMetaMask } from 'metamask-react'
-import React from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import TestId from '../utils/testId'
 
 const MetaMask = () => {
   const { status, connect, account } = useMetaMask()
-  const [loading, setLoading] = React.useState(true)
-  const [savedAccount, setSavedAccount] = React.useState<string>()
+  const [loading, setLoading] = useState(true)
+  const [savedAccount, setSavedAccount] = useState<string>()
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (account) {
       if (!savedAccount) {
         setSavedAccount(account)
@@ -19,7 +19,7 @@ const MetaMask = () => {
     }
   }, [account, savedAccount])
 
-  React.useEffect(function initLoad() {
+  useEffect(function initLoad() {
     const id = setTimeout(() => {
       setLoading(false)
     }, 1000)
@@ -29,7 +29,7 @@ const MetaMask = () => {
     }
   }, [])
 
-  const renderedStatus = React.useMemo(() => {
+  const renderedStatus = useMemo(() => {
     switch (status) {
       case 'initializing':
         return <div>Synchronisation with MetaMask ongoing...</div>

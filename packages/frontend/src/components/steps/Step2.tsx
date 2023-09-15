@@ -1,15 +1,15 @@
 import { CheckCircleFilled } from '@ant-design/icons'
+import { apm } from '@elastic/apm-rum'
 import * as ERC20MessagingJSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/examples/ERC20Messaging.sol/ERC20Messaging.json'
 import { Avatar, List, Spin } from 'antd'
-import { ethers, providers } from 'ethers'
-import React from 'react'
+import { ethers } from 'ethers'
+import { useContext, useEffect, useMemo, useState } from 'react'
 
 import { ErrorsContext } from '../../contexts/errors'
 import { TracingContext } from '../../contexts/tracing'
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
 import useEthers from '../../hooks/useEthers'
 import useApproveAllowance from '../../hooks/useAllowance'
-import useCreateTracingSpan from '../../hooks/useCreateTracingSpan'
 import useExecutorService from '../../hooks/useExecutorService'
 import useReceiptTrie from '../../hooks/useReceiptTrie'
 import useSendToken from '../../hooks/useSendToken'
@@ -17,19 +17,22 @@ import { StepProps } from '../MultiStepForm'
 import Progress from '../Progress'
 
 const Step2 = ({ onFinish }: StepProps) => {
-  const { setErrors } = React.useContext(ErrorsContext)
+  const { setErrors } = useContext(ErrorsContext)
   const { approveAllowance, getCurrentAllowance } = useApproveAllowance()
   const { observeExecutorServiceJob, sendToExecutorService } =
     useExecutorService()
   const { sendToken } = useSendToken()
   const { createMerkleProof } = useReceiptTrie()
   const { amount, receivingSubnet, recipientAddress, sendingSubnet, token } =
-    React.useContext(MultiStepFormContext)
-  const [progress, setProgress] = React.useState(0)
-  const { rootSpan } = React.useContext(TracingContext)
-  const stepSpan = React.useMemo(
-    () => useCreateTracingSpan('step-2', rootSpan),
-    [rootSpan]
+    useContext(MultiStepFormContext)
+  const [progress, setProgress] = useState(0)
+  const { transaction: apmTransaction } = useContext(TracingContext)
+  const stepSpan = useMemo(
+    () =>
+      apmTransaction?.startSpan('multi-step-form-step-2', 'app', {
+        blocking: false,
+      }),
+    [apmTransaction]
   )
 
   const { provider } = useEthers({
@@ -37,7 +40,7 @@ const Step2 = ({ onFinish }: StepProps) => {
     viaMetaMask: true,
   })
 
-  const progressSteps = React.useMemo(
+  const progressSteps = useMemo(
     () => [
       {
         description: `Requesting ${token?.symbol} allowance approval`,
@@ -58,9 +61,9 @@ const Step2 = ({ onFinish }: StepProps) => {
     []
   )
 
-  const [activeProgressStep, setActiveProgressStep] = React.useState(0)
+  const [activeProgressStep, setActiveProgressStep] = useState(0)
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function submitSendToken() {
       if (
         receivingSubnet &&
@@ -69,41 +72,39 @@ const Step2 = ({ onFinish }: StepProps) => {
         amount &&
         observeExecutorServiceJob &&
         sendToExecutorService &&
-        stepSpan
+        apmTransaction
       ) {
-        const submitSendTokenSpan = useCreateTracingSpan(
+        const submitSendTokenSpan = apmTransaction?.startSpan(
           'submit-send-token',
-          stepSpan
+          'app'
         )
-        const parsedAmount = ethers.utils.parseUnits(amount.toString())
+        let allowanceSpan
 
-        const allowanceSpan = useCreateTracingSpan(
-          'approve-allowance',
-          submitSendTokenSpan
-        )
+        const parsedAmount = ethers.utils.parseUnits(amount.toString())
 
         try {
           const currentAllowance = await getCurrentAllowance(token)
 
           if (currentAllowance.lt(parsedAmount)) {
+            allowanceSpan = apmTransaction?.startSpan(
+              'approve-allowance',
+              'app'
+            )
             await approveAllowance(token, parsedAmount)
           }
         } catch (error) {
           if (typeof error === 'string') {
             setErrors((e) => [...e, error as string])
           }
-          allowanceSpan.recordException(error as string)
-          allowanceSpan.end()
+          apm.captureError(error as string)
+          allowanceSpan?.end()
           return
         }
-        allowanceSpan.end()
+        allowanceSpan?.end()
 
         setActiveProgressStep((s) => s + 1)
 
-        const sendTokenSpan = useCreateTracingSpan(
-          'send-token',
-          submitSendTokenSpan
-        )
+        const sendTokenSpan = apmTransaction?.startSpan('send-token', 'app')
 
         let sendTokenTx
         let sendTokenReceipt
@@ -121,11 +122,11 @@ const Step2 = ({ onFinish }: StepProps) => {
           if (typeof error === 'string') {
             setErrors((e) => [...e, error as string])
           }
-          sendTokenSpan.recordException(error as string)
-          sendTokenSpan.end()
+          apm.captureError(error as string)
+          sendTokenSpan?.end()
           return
         }
-        sendTokenSpan.end()
+        sendTokenSpan?.end()
 
         setActiveProgressStep((s) => s + 1)
 
@@ -138,10 +139,14 @@ const Step2 = ({ onFinish }: StepProps) => {
           const trieRoot = ethers.utils.hexlify(trie.root())
 
           if (proof && trie) {
-            const sendExecutorServiceSpan = useCreateTracingSpan(
+            const sendExecutorServiceSpan = apmTransaction?.startSpan(
               'send-request-to-executor-service',
-              submitSendTokenSpan
+              'app'
             )
+
+            const traceparent = `00-${
+              (sendExecutorServiceSpan as any).traceId
+            }-${(sendExecutorServiceSpan as any).id}-01`
 
             const iface = new ethers.utils.Interface(ERC20MessagingJSON.abi)
             let tokenSentLogIndex: number | undefined = undefined
@@ -165,25 +170,32 @@ const Step2 = ({ onFinish }: StepProps) => {
               return
             }
 
-            await sendToExecutorService({
-              logIndexes: [tokenSentLogIndex],
-              messagingContractAddress: import.meta.env
-                .VITE_ERC20_MESSAGING_CONTRACT_ADDRESS,
-              receiptTrieMerkleProof: proof,
-              receiptTrieRoot: trieRoot,
-              subnetId: receivingSubnet?.id,
-            })
+            await sendToExecutorService(
+              {
+                logIndexes: [tokenSentLogIndex],
+                messagingContractAddress: import.meta.env
+                  .VITE_ERC20_MESSAGING_CONTRACT_ADDRESS,
+                receiptTrieMerkleProof: proof,
+                receiptTrieRoot: trieRoot,
+                subnetId: receivingSubnet?.id,
+              },
+              { traceparent }
+            )
               .then((job) => {
-                sendExecutorServiceSpan.end()
-
-                const observeExecutorJobSpan = useCreateTracingSpan(
+                sendExecutorServiceSpan?.end()
+                const observeExecutorJobSpan = apmTransaction?.startSpan(
                   'wait-for-executor-service-job-execution',
-                  submitSendTokenSpan
+                  'app'
                 )
-                observeExecutorServiceJob(job.id).subscribe({
+
+                const traceparent = `00-${
+                  (observeExecutorJobSpan as any).traceId
+                }-${(observeExecutorJobSpan as any).id}-01`
+
+                observeExecutorServiceJob(job.id, { traceparent }).subscribe({
                   next: (progress: number) => {
                     setProgress(progress)
-                    observeExecutorJobSpan.addEvent('progress', {
+                    observeExecutorJobSpan?.addLabels({
                       progress,
                     })
                   },
@@ -194,14 +206,14 @@ const Step2 = ({ onFinish }: StepProps) => {
                         error.length < 300 ? error : '(details in console)'
                       }`,
                     ])
-                    observeExecutorJobSpan.recordException(error)
-                    observeExecutorJobSpan.end()
-                    submitSendTokenSpan.end()
+                    apm.captureError(error as string)
+                    observeExecutorJobSpan?.end()
+                    submitSendTokenSpan?.end()
                   },
                   complete: () => {
                     setActiveProgressStep((s) => s + 1)
-                    observeExecutorJobSpan.end()
-                    submitSendTokenSpan.end()
+                    observeExecutorJobSpan?.end()
+                    submitSendTokenSpan?.end()
                   },
                 })
               })
@@ -210,7 +222,7 @@ const Step2 = ({ onFinish }: StepProps) => {
                   ...e,
                   `Error when calling the Executor Service`,
                 ])
-                sendExecutorServiceSpan.recordException(error)
+                apm.captureError(error as string)
                 console.error(error)
               })
           }
@@ -229,14 +241,14 @@ const Step2 = ({ onFinish }: StepProps) => {
     recipientAddress,
     sendToExecutorService,
     token,
-    stepSpan,
+    apmTransaction,
   ])
 
-  React.useEffect(
+  useEffect(
     function onCompletion() {
       if (onFinish && activeProgressStep === progressSteps.length) {
         setTimeout(() => {
-          stepSpan.end()
+          stepSpan?.end()
           onFinish()
         }, 1000)
       }

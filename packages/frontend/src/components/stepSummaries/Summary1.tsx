@@ -1,5 +1,5 @@
 import { Avatar, Space, Tag, Typography } from 'antd'
-import React from 'react'
+import { useContext } from 'react'
 
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
 import { shortenAddress } from '../../utils'
@@ -8,9 +8,9 @@ import { TransactionType, TransactionTypeContext } from '../MultiStepForm'
 const { Text } = Typography
 
 const Summary1 = () => {
-  const { amount, form1, receivingSubnet, recipientAddress, token } =
-    React.useContext(MultiStepFormContext)
-  const { transactionType } = React.useContext(TransactionTypeContext)
+  const { amount, receivingSubnet, recipientAddress, token } =
+    useContext(MultiStepFormContext)
+  const { transactionType } = useContext(TransactionTypeContext)
 
   return (
     <Space direction="vertical" size={12}>

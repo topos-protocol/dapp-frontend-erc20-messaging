@@ -2,7 +2,10 @@ import { renderHook, waitFor } from '@testing-library/react'
 import EventSourceMock, { sources } from 'eventsourcemock'
 import { vi } from 'vitest'
 
-import useExecutorService, { ExecuteDto } from './useExecutorService'
+import useExecutorService, {
+  ExecuteDto,
+  TracingOptions,
+} from './useExecutorService'
 import axios from 'axios'
 
 const validExecuteDtoMock: ExecuteDto = {
@@ -11,6 +14,10 @@ const validExecuteDtoMock: ExecuteDto = {
   receiptTrieMerkleProof: '',
   receiptTrieRoot: '',
   subnetId: '1',
+}
+
+const tracingOptionsMock: TracingOptions = {
+  traceparent: '',
 }
 
 const axiosPostMock = vi.fn().mockResolvedValue({})
@@ -67,8 +74,13 @@ describe('sendToExecutorService', () => {
     })
 
     if (result.current.sendToExecutorService) {
-      result.current.sendToExecutorService(validExecuteDtoMock)
-      expect(axiosPostMock).toBeCalledWith('v1/execute', validExecuteDtoMock)
+      result.current.sendToExecutorService(
+        validExecuteDtoMock,
+        tracingOptionsMock
+      )
+      expect(axiosPostMock).toBeCalledWith('v1/execute', validExecuteDtoMock, {
+        headers: { traceparent: tracingOptionsMock.traceparent },
+      })
     }
   })
 })
@@ -82,7 +94,10 @@ describe('observeExecutorServiceJob', () => {
     })
 
     if (result.current.observeExecutorServiceJob) {
-      const observable = result.current.observeExecutorServiceJob(1)
+      const observable = result.current.observeExecutorServiceJob(
+        1,
+        tracingOptionsMock
+      )
       observable.subscribe({
         next: (data) => {
           expect(data).toEqual(50)
@@ -103,7 +118,10 @@ describe('observeExecutorServiceJob', () => {
     })
 
     if (result.current.observeExecutorServiceJob) {
-      const observable = result.current.observeExecutorServiceJob(1)
+      const observable = result.current.observeExecutorServiceJob(
+        1,
+        tracingOptionsMock
+      )
       observable.subscribe({
         complete: () => {
           expect(1).toEqual(1)
@@ -127,7 +145,10 @@ describe('observeExecutorServiceJob', () => {
     })
 
     if (result.current.observeExecutorServiceJob) {
-      const observable = result.current.observeExecutorServiceJob(1)
+      const observable = result.current.observeExecutorServiceJob(
+        1,
+        tracingOptionsMock
+      )
       observable.subscribe({
         error: (error) => {
           expect(error).toBe('"any error"')

@@ -1,6 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, Form, Input, message, Modal } from 'antd'
-import React from 'react'
+import { useCallback, useContext, useState } from 'react'
 
 import {
   DEFAULT_TOKEN_CAP,
@@ -26,12 +26,12 @@ interface RegisterTokenFormProps {
 }
 
 const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
-  const [loading, setLoading] = React.useState(false)
-  const { registeredTokens } = React.useContext(MultiStepFormContext)
+  const [loading, setLoading] = useState(false)
+  const { registeredTokens } = useContext(MultiStepFormContext)
   const [form] = Form.useForm()
   const { registerToken } = useRegisterToken()
 
-  const onCancel = React.useCallback(() => {
+  const onCancel = useCallback(() => {
     setOpen(false)
   }, [setOpen])
 
@@ -150,7 +150,7 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
 }
 
 const RegisterToken = () => {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
 
   return (
     <div>

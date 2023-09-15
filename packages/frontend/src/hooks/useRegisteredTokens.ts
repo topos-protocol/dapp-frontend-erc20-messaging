@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import React from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 import { ErrorsContext } from '../contexts/errors'
 import { erc20MessagingContract } from '../contracts'
@@ -10,16 +10,16 @@ export default function useRegisteredTokens(subnet?: Subnet) {
   const { provider } = useEthers({
     subnet,
   })
-  const { setErrors } = React.useContext(ErrorsContext)
-  const [loading, setLoading] = React.useState(false)
-  const [tokens, setTokens] = React.useState<Token[]>()
+  const { setErrors } = useContext(ErrorsContext)
+  const [loading, setLoading] = useState(false)
+  const [tokens, setTokens] = useState<Token[]>()
 
-  const contract = React.useMemo(
+  const contract = useMemo(
     () => (subnet ? erc20MessagingContract.connect(provider) : undefined),
     [subnet, provider]
   )
 
-  const getRegisteredTokens = React.useCallback(async () => {
+  const getRegisteredTokens = useCallback(async () => {
     if (contract) {
       setLoading(true)
 
@@ -75,7 +75,7 @@ export default function useRegisteredTokens(subnet?: Subnet) {
     }
   }, [contract])
 
-  React.useEffect(
+  useEffect(
     function onSubnetChange() {
       if (subnet) {
         getRegisteredTokens()
@@ -84,7 +84,7 @@ export default function useRegisteredTokens(subnet?: Subnet) {
     [subnet]
   )
 
-  React.useEffect(
+  useEffect(
     function watchTokenDeployed() {
       if (contract && getRegisteredTokens) {
         contract.on('TokenDeployed', getRegisteredTokens)

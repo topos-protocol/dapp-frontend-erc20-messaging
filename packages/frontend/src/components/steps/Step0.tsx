@@ -1,5 +1,5 @@
 import { Button, Form } from 'antd'
-import React from 'react'
+import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
 import { SubnetsContext } from '../../contexts/subnets'
@@ -7,34 +7,33 @@ import { TracingContext } from '../../contexts/tracing'
 import { StepProps } from '../MultiStepForm'
 import SubnetSelect from '../SubnetSelect'
 import useEthers from '../../hooks/useEthers'
-import useCreateTracingSpan from '../../hooks/useCreateTracingSpan'
 import { ERROR, INFO } from '../../constants/wordings'
 
 const Step0 = ({ onFinish }: StepProps) => {
-  const { rootSpan } = React.useContext(TracingContext)
-  const stepSpan = React.useMemo(
-    () => useCreateTracingSpan('step-0', rootSpan),
-    [rootSpan]
+  const { transaction: apmTransaction } = useContext(TracingContext)
+  const stepSpan = useMemo(
+    () => apmTransaction?.startSpan('multi-step-form-step-0', 'app'),
+    [apmTransaction]
   )
 
   const { data: registeredSubnets, loading: getRegisteredSubnetsLoading } =
-    React.useContext(SubnetsContext)
-  const { form0, sendingSubnet } = React.useContext(MultiStepFormContext)
+    useContext(SubnetsContext)
+  const { form0, sendingSubnet } = useContext(MultiStepFormContext)
 
   const { status } = useEthers({
     subnet: sendingSubnet,
     viaMetaMask: sendingSubnet !== undefined,
   })
 
-  const nextStep = React.useCallback(() => {
+  const nextStep = useCallback(() => {
     stepSpan?.end()
     onFinish()
   }, [stepSpan])
 
-  React.useEffect(
+  useEffect(
     function traceFetchRegisteredSubnets() {
       if (registeredSubnets) {
-        stepSpan?.addEvent('fetch registered subnets', {
+        stepSpan?.addLabels({
           registeredSubnets: JSON.stringify(registeredSubnets),
         })
       }
@@ -42,9 +41,9 @@ const Step0 = ({ onFinish }: StepProps) => {
     [registeredSubnets]
   )
 
-  React.useEffect(
+  useEffect(
     function traceSelectSendingSubnet() {
-      stepSpan?.addEvent('select sending subnet', {
+      stepSpan?.addLabels({
         sendingSubnet: JSON.stringify(sendingSubnet),
       })
     },

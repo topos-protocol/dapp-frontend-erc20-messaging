@@ -1,6 +1,6 @@
 import * as BurnableMintableCappedERC20JSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/topos-core/BurnableMintableCappedERC20.sol/BurnableMintableCappedERC20.json'
 import { ethers } from 'ethers'
-import React from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Subnet, Token } from '../types'
 import useEthers from './useEthers'
@@ -10,15 +10,15 @@ export default function useTokenBalance(subnet?: Subnet, token?: Token) {
     subnet: subnet,
     viaMetaMask: true,
   })
-  const [loading, setLoading] = React.useState(false)
-  const [balance, setBalance] = React.useState<string>()
+  const [loading, setLoading] = useState(false)
+  const [balance, setBalance] = useState<string>()
 
-  const signerAddress = React.useMemo(() => {
+  const signerAddress = useMemo(() => {
     const signer = provider.getSigner()
     return signer.getAddress()
   }, [provider])
 
-  const tokenContract = React.useMemo(
+  const tokenContract = useMemo(
     () =>
       token
         ? new ethers.Contract(
@@ -30,7 +30,7 @@ export default function useTokenBalance(subnet?: Subnet, token?: Token) {
     [token, provider]
   )
 
-  React.useEffect(
+  useEffect(
     function getTokenBalance() {
       async function _() {
         if (tokenContract) {

@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import React from 'react'
+import { useEffect, useMemo } from 'react'
 import { useMetaMask } from 'metamask-react'
 
 import { Subnet } from '../types'
@@ -14,7 +14,7 @@ export default function useEthers({ subnet, viaMetaMask }: Args = {}) {
   const { account, addChain, connect, ethereum, status, switchChain } =
     useMetaMask()
 
-  const provider = React.useMemo<
+  const provider = useMemo<
     ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider
   >(
     () =>
@@ -31,7 +31,7 @@ export default function useEthers({ subnet, viaMetaMask }: Args = {}) {
     [subnet, viaMetaMask, ethereum]
   )
 
-  React.useEffect(
+  useEffect(
     function switchNetworkAndConnect() {
       const _ = async () => {
         if (subnet && viaMetaMask && ethereum) {

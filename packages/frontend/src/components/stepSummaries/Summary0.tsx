@@ -1,12 +1,12 @@
 import { Avatar, Space, Typography } from 'antd'
-import React from 'react'
+import { useContext } from 'react'
 
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
 
 const { Text } = Typography
 
 export default function Summary0() {
-  const { sendingSubnet } = React.useContext(MultiStepFormContext)
+  const { sendingSubnet } = useContext(MultiStepFormContext)
 
   return (
     <Space direction="vertical" size={4}>

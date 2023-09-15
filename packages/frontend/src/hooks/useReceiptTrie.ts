@@ -3,7 +3,7 @@ import { RLP } from '@ethereumjs/rlp'
 import { BlockWithTransactions } from '@ethersproject/abstract-provider'
 import { Buffer } from 'buffer'
 import { ethers } from 'ethers'
-import React from 'react'
+import { useCallback, useState } from 'react'
 
 import useEthers from './useEthers'
 
@@ -11,9 +11,9 @@ export default function useTransactionTrie() {
   const { provider } = useEthers({
     viaMetaMask: true,
   })
-  const [errors, setErrors] = React.useState<string[]>([])
+  const [errors, setErrors] = useState<string[]>([])
 
-  const createReceiptTrie = React.useCallback(
+  const createReceiptTrie = useCallback(
     async (block: BlockWithTransactions) => {
       const trie = new Trie()
 
@@ -43,7 +43,7 @@ export default function useTransactionTrie() {
     []
   )
 
-  const createMerkleProof = React.useCallback(
+  const createMerkleProof = useCallback(
     async (block: BlockWithTransactions, transaction: ethers.Transaction) => {
       const trie = await createReceiptTrie(block)
       let proof

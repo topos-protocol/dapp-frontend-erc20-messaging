@@ -1,5 +1,5 @@
 import { BigNumber, ContractReceipt, ContractTransaction } from 'ethers'
-import React from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { erc20MessagingContract } from '../contracts'
 import useEthers from './useEthers'
@@ -13,14 +13,14 @@ export default function useSendToken() {
   const { provider } = useEthers({
     viaMetaMask: true,
   })
-  const [loading, setLoading] = React.useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const contract = React.useMemo(
+  const contract = useMemo(
     () => erc20MessagingContract.connect(provider.getSigner()),
     [provider]
   )
 
-  const sendToken = React.useCallback(
+  const sendToken = useCallback(
     (
       receivingSubnetId: string,
       tokenAddress: string,
