@@ -141,12 +141,15 @@ const Step2 = ({ onFinish }: StepProps) => {
           if (proof && trie) {
             const sendExecutorServiceSpan = apmTransaction?.startSpan(
               'send-request-to-executor-service',
-              'app'
+              'app',
+              { sync: true }
             )
 
-            const traceparent = `00-${
-              (sendExecutorServiceSpan as any).traceId
-            }-${(sendExecutorServiceSpan as any).id}-01`
+            const traceparent = sendExecutorServiceSpan
+              ? `00-${(sendExecutorServiceSpan as any).traceId}-${
+                  (sendExecutorServiceSpan as any).id
+                }-01`
+              : ''
 
             const iface = new ethers.utils.Interface(ERC20MessagingJSON.abi)
             let tokenSentLogIndex: number | undefined = undefined
@@ -185,12 +188,15 @@ const Step2 = ({ onFinish }: StepProps) => {
                 sendExecutorServiceSpan?.end()
                 const observeExecutorJobSpan = apmTransaction?.startSpan(
                   'wait-for-executor-service-job-execution',
-                  'app'
+                  'app',
+                  { sync: true }
                 )
 
-                const traceparent = `00-${
-                  (observeExecutorJobSpan as any).traceId
-                }-${(observeExecutorJobSpan as any).id}-01`
+                const traceparent = observeExecutorJobSpan
+                  ? `00-${(observeExecutorJobSpan as any).traceId}-${
+                      (observeExecutorJobSpan as any).id
+                    }-01`
+                  : ''
 
                 observeExecutorServiceJob(job.id, { traceparent }).subscribe({
                   next: (progress: number) => {
