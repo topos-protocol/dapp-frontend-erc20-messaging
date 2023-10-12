@@ -66,7 +66,7 @@ export default function useRegisteredSubnets() {
         values
           .filter((v) => v.status === 'fulfilled')
           .map((v) => (v.status === 'fulfilled' ? v.value : undefined))
-          .filter((v) => v)
+          .filter((v) => v && v.name === 'Incal')
       )
       setRegisteredSubnets(subnets as SubnetWithId[])
     }
