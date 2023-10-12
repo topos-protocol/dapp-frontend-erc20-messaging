@@ -21,6 +21,13 @@ const registeredSubnets: { [x: string]: Subnet } = {
     logoURL: '',
     name: 'subnetMock',
   },
+  incal: {
+    chainId: BigNumber.from(2),
+    currencySymbol: 'TST2',
+    endpoint: '',
+    logoURL: '',
+    name: 'Incal',
+  },
 }
 
 const subnetIdsByIndexes = ['subnet1', 'subnet2']
@@ -78,6 +85,8 @@ describe('useRegisteredSubnets', () => {
     expect(subnetsMock).toHaveBeenCalledWith('subnet1')
     expect(subnetsMock).toHaveBeenCalledWith('subnet2')
     expect(result.current.loading).toBe(false)
-    expect(result.current.registeredSubnets).toStrictEqual(expectedSubnets)
+    expect(result.current.registeredSubnets).toStrictEqual(
+      expectedSubnets.filter((s) => s.name === 'Incal')
+    )
   })
 })
