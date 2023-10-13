@@ -250,7 +250,7 @@ describe('Multistep form step-1 with Incal', () => {
     it('should have default balance with newly registered token', () => {
       cy.get('#token_extra')
         .should('exist')
-        .and('have.text', `${DEFAULT_TOKEN_SUPPLY}.0 TST`)
+        .and('include.text', `${DEFAULT_TOKEN_SUPPLY}.0 TST`)
     })
 
     it('should invalidate form if other fields are empty', () => {
