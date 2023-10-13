@@ -8,6 +8,9 @@ import {
   Segmented,
   Select,
   Space,
+  Tag,
+  Tooltip,
+  message,
 } from 'antd'
 import { SegmentedValue } from 'antd/lib/segmented'
 import { ethers } from 'ethers'
@@ -26,6 +29,8 @@ import SubnetSelect from '../SubnetSelect'
 import useCheckTokenOnSubnet from '../../hooks/useCheckTokenOnReceivingSubnet'
 import useTokenBalance from '../../hooks/useTokenBalance'
 import { ERROR } from '../../constants/wordings'
+import { CopyOutlined } from '@ant-design/icons'
+import { shortenAddress } from '../../utils'
 
 const TransactionTypeSelector = styled(Segmented)`
   margin-bottom: 1rem;
@@ -67,6 +72,11 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
     },
     [setTransactionType]
   )
+
+  const copyTokenAddress = useCallback(() => {
+    navigator.clipboard.writeText(token?.addr || '')
+    message.info(`${token?.symbol} token address copied to clipboard!`)
+  }, [token])
 
   const { balance } = useTokenBalance(sendingSubnet, token)
 
@@ -128,7 +138,27 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
         <Form.Item
           label="Token"
           name="token"
-          extra={balance !== undefined ? `${balance} ${token?.symbol}` : null}
+          extra={
+            balance !== undefined ? (
+              <div style={{ marginTop: '0.4rem' }}>
+                <Tag color="gold">
+                  {balance} {token?.symbol}
+                </Tag>
+                (<Tag>{token?.symbol}</Tag>:{' '}
+                <Tooltip title={token?.addr}>
+                  {shortenAddress(token?.addr || '')}
+                </Tooltip>{' '}
+                <Button
+                  type="text"
+                  size="small"
+                  shape="circle"
+                  icon={<CopyOutlined />}
+                  onClick={copyTokenAddress}
+                />
+                )
+              </div>
+            ) : null
+          }
           rules={[
             {
               required: true,

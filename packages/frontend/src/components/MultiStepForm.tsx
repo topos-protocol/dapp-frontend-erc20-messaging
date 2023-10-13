@@ -121,7 +121,11 @@ const MultiStepForm = () => {
           value={{ transactionType, setTransactionType }}
         >
           <Col
-            span={currentStep > 0 ? 3 : 1}
+            xs={currentStep > 0 ? 8 : 1}
+            sm={currentStep > 0 ? 8 : 1}
+            md={currentStep > 0 ? 6 : 1}
+            lg={currentStep > 0 ? 3 : 1}
+            xl={currentStep > 0 ? 3 : 1}
             style={{
               opacity: currentStep > 0 ? 1 : 0,
               transition: 'all 0.4s ease 0.1s, opacity 0.4s ease 0.2s',
@@ -133,7 +137,11 @@ const MultiStepForm = () => {
             </Space>
           </Col>
           <Col
-            span={6}
+            xs={12}
+            sm={12}
+            md={8}
+            lg={6}
+            xl={6}
             style={{
               transition: 'all 0.4s ease 0.1s',
             }}
