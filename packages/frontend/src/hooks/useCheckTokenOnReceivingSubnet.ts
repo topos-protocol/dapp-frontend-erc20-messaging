@@ -1,11 +1,10 @@
-import { ethers } from 'ethers'
+import { providers } from 'ethers'
 import { useCallback, useContext, useState } from 'react'
 
 import { ErrorsContext } from '../contexts/errors'
 import { SubnetsContext } from '../contexts/subnets'
 import { erc20MessagingContract } from '../contracts'
 import { Token } from '../types'
-import { sanitizeURLProtocol } from '../utils'
 
 export default function useCheckTokenOnSubnet() {
   const { setErrors } = useContext(ErrorsContext)
@@ -19,33 +18,35 @@ export default function useCheckTokenOnSubnet() {
 
         const subnet = subnets?.find((s) => s.id === subnetId)
 
-        const subnetProvider = subnet?.endpoint
-          ? new ethers.providers.WebSocketProvider(
-              sanitizeURLProtocol('ws', `${subnet?.endpoint}/ws`)
-            )
-          : null
+        if (subnet && token) {
+          const endpoint = subnet?.endpointWs || subnet?.endpointHttp
+          const url = new URL(endpoint)
+          const subnetProvider = url.protocol.startsWith('ws')
+            ? new providers.WebSocketProvider(endpoint)
+            : new providers.JsonRpcProvider(endpoint)
 
-        if (subnet && subnetProvider && token) {
-          if (
-            (await subnetProvider.getCode(erc20MessagingContract.address)) ===
-            '0x'
-          ) {
-            setLoading(false)
-            return Promise.reject(
-              `ToposCore contract could not be found on ${subnet.name}!`
-            )
-          } else {
-            const contract = erc20MessagingContract.connect(subnetProvider)
-
-            const onChainToken = await contract
-              .getTokenByAddress(token.addr)
-              .finally(() => {
-                setLoading(false)
-              })
-
-            if (!onChainToken.symbol) {
+          if (subnetProvider) {
+            if (
+              (await subnetProvider.getCode(erc20MessagingContract.address)) ===
+              '0x'
+            ) {
               setLoading(false)
-              reject(`${token.symbol} is not registered on ${subnet.name}!`)
+              return Promise.reject(
+                `ToposCore contract could not be found on ${subnet.name}!`
+              )
+            } else {
+              const contract = erc20MessagingContract.connect(subnetProvider)
+
+              const onChainToken = await contract
+                .getTokenByAddress(token.addr)
+                .finally(() => {
+                  setLoading(false)
+                })
+
+              if (!onChainToken.symbol) {
+                setLoading(false)
+                reject(`${token.symbol} is not registered on ${subnet.name}!`)
+              }
             }
           }
         }

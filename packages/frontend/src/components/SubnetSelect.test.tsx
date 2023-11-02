@@ -10,7 +10,8 @@ const subnetsMock: SubnetWithId[] = [
   {
     chainId: BigNumber.from(1),
     currencySymbol: 'TST',
-    endpoint: '',
+    endpointHttp: '',
+    endpointWs: '',
     id: '',
     logoURL: '',
     name: 'subnetMock',

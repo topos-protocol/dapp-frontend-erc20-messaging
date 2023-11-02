@@ -1,9 +1,8 @@
-import { ethers } from 'ethers'
+import { providers, utils } from 'ethers'
 import { useEffect, useMemo } from 'react'
 import { useMetaMask } from 'metamask-react'
 
 import { Subnet } from '../types'
-import { sanitizeURLProtocol } from '../utils'
 
 interface Args {
   subnet?: Subnet
@@ -15,29 +14,31 @@ export default function useEthers({ subnet, viaMetaMask }: Args = {}) {
     useMetaMask()
 
   const provider = useMemo<
-    ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider
-  >(
-    () =>
-      viaMetaMask && ethereum
-        ? new ethers.providers.Web3Provider(ethereum)
-        : new ethers.providers.WebSocketProvider(
-            sanitizeURLProtocol(
-              'ws',
-              `${
-                subnet?.endpoint || import.meta.env.VITE_TOPOS_SUBNET_ENDPOINT
-              }/ws`
-            )
-          ),
-    [subnet, viaMetaMask, ethereum]
-  )
+    providers.Web3Provider | providers.JsonRpcProvider
+  >(() => {
+    if (viaMetaMask && ethereum) {
+      return new providers.Web3Provider(ethereum)
+    }
+
+    if (!subnet) {
+      const toposSubnetEndpointWs = import.meta.env
+        .VITE_TOPOS_SUBNET_ENDPOINT_WS
+      return new providers.WebSocketProvider(toposSubnetEndpointWs)
+    }
+
+    const endpoint = subnet.endpointWs || subnet.endpointHttp
+    const url = new URL(endpoint)
+
+    return url.protocol.startsWith('ws')
+      ? new providers.WebSocketProvider(endpoint)
+      : new providers.JsonRpcProvider(endpoint)
+  }, [subnet, viaMetaMask, ethereum])
 
   useEffect(
     function switchNetworkAndConnect() {
       const _ = async () => {
         if (subnet && viaMetaMask && ethereum) {
-          const chainId = ethers.utils.hexStripZeros(
-            subnet.chainId.toHexString()
-          )
+          const chainId = utils.hexStripZeros(subnet.chainId.toHexString())
 
           if (ethereum.networkVersion !== chainId) {
             try {
@@ -53,7 +54,7 @@ export default function useEthers({ subnet, viaMetaMask }: Args = {}) {
                     symbol: subnet.currencySymbol,
                     decimals: 18,
                   },
-                  rpcUrls: [sanitizeURLProtocol('http', subnet.endpoint)],
+                  rpcUrls: [subnet.endpointHttp, subnet.endpointWs],
                 })
               }
             }

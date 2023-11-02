@@ -23,7 +23,7 @@
     "@ethereumjs/trie": "^5.0.4",
     "@ethereumjs/util": "^8.0.5",
     "@ethersproject/abstract-provider": "^5.7.0",
-    "@topos-protocol/topos-smart-contracts": "^1.2.2",
+    "@topos-protocol/topos-smart-contracts": "^2.0.0-rc1",
     "@types/event-source-polyfill": "^1.0.1",
     "antd": "^5.4.0",
     "axios": "^1.0.0",

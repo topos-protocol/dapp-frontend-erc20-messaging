@@ -6,9 +6,3 @@ export function shortenAddress(
     address.length - prefixSuffixLength
   )}`
 }
-
-export function sanitizeURLProtocol(protocol: 'ws' | 'http', endpoint: string) {
-  return location.protocol.startsWith('https')
-    ? `${protocol}s://${endpoint}`
-    : `${protocol}://${endpoint}`
-}

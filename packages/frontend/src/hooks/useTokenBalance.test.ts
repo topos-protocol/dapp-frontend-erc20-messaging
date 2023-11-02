@@ -8,7 +8,8 @@ import useTokenBalance from './useTokenBalance'
 const subnetMock: Subnet = {
   chainId: BigNumber.from(1),
   currencySymbol: 'TST',
-  endpoint: '',
+  endpointHttp: '',
+  endpointWs: '',
   logoURL: '',
   name: 'subnetMock',
 }
