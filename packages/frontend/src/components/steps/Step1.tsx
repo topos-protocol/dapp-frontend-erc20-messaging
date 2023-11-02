@@ -31,6 +31,7 @@ import useTokenBalance from '../../hooks/useTokenBalance'
 import { ERROR } from '../../constants/wordings'
 import { CopyOutlined } from '@ant-design/icons'
 import { shortenAddress } from '../../utils'
+import useTracingCreateSpan from '../../hooks/useTracingCreateSpan'
 
 const TransactionTypeSelector = styled(Segmented)`
   margin-bottom: 1rem;
@@ -51,10 +52,10 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
   } = useContext(MultiStepFormContext)
   const { checkTokenOnSubnet, loading: receivingSubnetLoading } =
     useCheckTokenOnSubnet()
-  const { transaction: apmTransaction } = useContext(TracingContext)
+  const { rootSpan } = useContext(TracingContext)
   const stepSpan = useMemo(
-    () => apmTransaction?.startSpan('multi-step-form-step-1', 'app'),
-    [apmTransaction]
+    () => useTracingCreateSpan('Step1', 'step-1', rootSpan),
+    [rootSpan]
   )
 
   const subnetsWithoutSendingOne = useMemo(
@@ -88,7 +89,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
 
   useEffect(
     function traceSelectToken() {
-      stepSpan?.addLabels({
+      stepSpan?.addEvent('selected token', {
         token: JSON.stringify(token),
       })
     },
@@ -97,7 +98,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
 
   useEffect(
     function traceSelectReceivingSubnet() {
-      stepSpan?.addLabels({
+      stepSpan?.addEvent('selected receiving subnet', {
         receivingSubnet: JSON.stringify(receivingSubnet),
       })
     },
@@ -106,7 +107,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
 
   useEffect(
     function traceSelectRecipientAddress() {
-      stepSpan?.addLabels({
+      stepSpan?.addEvent('selected recipient address', {
         recipientAddress: JSON.stringify(recipientAddress),
       })
     },
@@ -115,7 +116,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
 
   useEffect(
     function traceSelectAmount() {
-      stepSpan?.addLabels({
+      stepSpan?.addEvent('selected amount', {
         amount: JSON.stringify(amount),
       })
     },

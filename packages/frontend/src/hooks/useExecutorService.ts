@@ -17,6 +17,7 @@ export interface ExecuteDto {
 
 export interface TracingOptions {
   traceparent: string
+  tracestate: string
 }
 
 export default function useExecutorService() {
@@ -33,7 +34,7 @@ export default function useExecutorService() {
         console.error(error)
         setErrors((e) => [
           ...e,
-          `Error when requesting an access token (Auth0)`,
+          { message: `Error when requesting an access token (Auth0)` },
         ])
       })
   }, [])
@@ -47,11 +48,23 @@ export default function useExecutorService() {
         },
       })
 
-      return (executeDto: ExecuteDto, { traceparent }: TracingOptions) => {
+      return (
+        executeDto: ExecuteDto,
+        {
+          traceparent: rootTraceparent,
+          tracestate: rootTracestate,
+        }: TracingOptions,
+        { traceparent, tracestate }: TracingOptions
+      ) => {
         return api
           .post<Job>('v1/execute', executeDto, {
+            // Root tracing options are used to have the job
+            // consumer work attached to the root trace
             headers: {
+              rootTraceparent,
+              rootTracestate,
               traceparent,
+              tracestate,
             },
           })
           .then(({ data }) => data)
@@ -73,6 +86,7 @@ export default function useExecutorService() {
               headers: {
                 Authorization: `Bearer ${authToken}`,
                 traceparent: tracingOptions?.traceparent || '',
+                tracestate: tracingOptions?.tracestate || '',
               },
               heartbeatTimeout: 200000,
             }

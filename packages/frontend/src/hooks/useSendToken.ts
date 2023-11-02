@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { erc20MessagingContract } from '../contracts'
 import useEthers from './useEthers'
 
-interface Data {
+export interface SendTokenOutput {
   sendTokenTx: ContractTransaction
   sendTokenReceipt: ContractReceipt
 }
@@ -27,7 +27,7 @@ export default function useSendToken() {
       recipientAddress: string,
       amount: BigNumber
     ) =>
-      new Promise<Data>((resolve, reject) => {
+      new Promise<SendTokenOutput>((resolve, reject) => {
         setLoading(true)
 
         contract

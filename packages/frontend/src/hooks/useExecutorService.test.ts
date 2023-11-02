@@ -18,6 +18,7 @@ const validExecuteDtoMock: ExecuteDto = {
 
 const tracingOptionsMock: TracingOptions = {
   traceparent: '',
+  tracestate: '',
 }
 
 const axiosPostMock = vi.fn().mockResolvedValue({})

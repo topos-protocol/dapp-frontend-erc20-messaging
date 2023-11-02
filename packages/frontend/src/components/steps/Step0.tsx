@@ -1,5 +1,5 @@
 import { Button, Form } from 'antd'
-import React, { useCallback, useContext, useEffect, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
 import { SubnetsContext } from '../../contexts/subnets'
@@ -7,13 +7,14 @@ import { TracingContext } from '../../contexts/tracing'
 import { StepProps } from '../MultiStepForm'
 import SubnetSelect from '../SubnetSelect'
 import useEthers from '../../hooks/useEthers'
+import useTracingCreateSpan from '../../hooks/useTracingCreateSpan'
 import { ERROR, INFO } from '../../constants/wordings'
 
 const Step0 = ({ onFinish }: StepProps) => {
-  const { transaction: apmTransaction } = useContext(TracingContext)
+  const { rootSpan } = useContext(TracingContext)
   const stepSpan = useMemo(
-    () => apmTransaction?.startSpan('multi-step-form-step-0', 'app'),
-    [apmTransaction]
+    () => useTracingCreateSpan('Step0', 'step-0', rootSpan),
+    [rootSpan]
   )
 
   const { data: registeredSubnets, loading: getRegisteredSubnetsLoading } =
@@ -33,7 +34,7 @@ const Step0 = ({ onFinish }: StepProps) => {
   useEffect(
     function traceFetchRegisteredSubnets() {
       if (registeredSubnets) {
-        stepSpan?.addLabels({
+        stepSpan?.addEvent('fetched registered subnets', {
           registeredSubnets: JSON.stringify(registeredSubnets),
         })
       }
@@ -43,7 +44,7 @@ const Step0 = ({ onFinish }: StepProps) => {
 
   useEffect(
     function traceSelectSendingSubnet() {
-      stepSpan?.addLabels({
+      stepSpan?.addEvent('select sending subnet', {
         sendingSubnet: JSON.stringify(sendingSubnet),
       })
     },
