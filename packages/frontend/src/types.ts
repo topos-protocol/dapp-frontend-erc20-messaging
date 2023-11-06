@@ -3,7 +3,8 @@ import { BigNumber } from 'ethers'
 export interface Subnet {
   chainId: BigNumber
   currencySymbol: string
-  endpoint: string
+  endpointHttp: string
+  endpointWs: string
   logoURL: string
   name: string
 }

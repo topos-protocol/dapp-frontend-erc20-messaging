@@ -18,7 +18,8 @@ const subnetsMock: SubnetWithId[] = [
     chainId: BigNumber.from(1),
     currencySymbol: '',
     id: 'id',
-    endpoint: 'endpoint',
+    endpointHttp: 'http://endpoint',
+    endpointWs: 'ws://endpoint',
     logoURL: '',
     name: '',
   },
@@ -59,9 +60,7 @@ describe('useCheckTokenOnReceivingSubnet', () => {
         .checkTokenOnSubnet(tokenMock, subnetsMock[0].id)
         .then(() => {
           expect(result.current.loading).toBe(true)
-          expect(providerSpy).toHaveBeenCalledWith(
-            `ws://${subnetsMock[0].endpoint}/ws`
-          )
+          expect(providerSpy).toHaveBeenCalledWith(subnetsMock[0].endpointWs)
 
           expect(contractSpy).toHaveBeenCalled()
           expect(getCodeMock).toHaveBeenCalledWith(contractMock.address)

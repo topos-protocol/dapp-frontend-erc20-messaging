@@ -7,15 +7,15 @@ import useEthers from './useEthers'
 import React from 'react'
 
 const existingChainIds = ['1', '2'].map((x) => BigNumber.from(x))
-const subnetMock = { chainId: existingChainIds[0], endpoint: 'endpoint' }
+const subnetMock = { chainId: existingChainIds[0], endpointWs: 'ws://endpoint' }
 const subnetOtherMock = {
   chainId: existingChainIds[1],
-  endpoint: 'other-endpoint',
+  endpointWs: 'ws://other-endpoint',
 }
 const newSubnetMock = {
   chainId: BigNumber.from('3'),
   currencySymbol: '',
-  endpoint: 'other-other-endpoint',
+  endpointWs: 'ws://other-other-endpoint',
   name: '',
 }
 
@@ -53,7 +53,7 @@ describe('useEthers', () => {
   it('should use webSocket provider with Topos Subnet if not requested to use metaMask and no subnet', () => {
     renderHook(() => useEthers({ viaMetaMask: false }))
     expect(webSocketProviderSpy).toHaveBeenCalledWith(
-      `ws://${import.meta.env.VITE_TOPOS_SUBNET_ENDPOINT}/ws`
+      import.meta.env.VITE_TOPOS_SUBNET_ENDPOINT_WS
     )
   })
 
@@ -61,9 +61,7 @@ describe('useEthers', () => {
     renderHook(() =>
       useEthers({ subnet: subnetMock as any, viaMetaMask: false })
     )
-    expect(webSocketProviderSpy).toHaveBeenCalledWith(
-      `ws://${subnetMock.endpoint}/ws`
-    )
+    expect(webSocketProviderSpy).toHaveBeenCalledWith(subnetMock.endpointWs)
   })
 
   it('should use web3 provider if not requested to use metaMask', () => {

@@ -9,7 +9,8 @@ import { BigNumber } from 'ethers'
 const subnetMock = {
   chainId: BigNumber.from(1),
   currencySymbol: 'TST',
-  endpoint: '',
+  endpointHttp: '',
+  endpointWs: '',
   logoURL: '',
   name: 'subnetMock',
 }
