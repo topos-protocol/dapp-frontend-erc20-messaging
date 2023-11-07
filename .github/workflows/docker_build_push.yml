@@ -60,9 +60,9 @@ jobs:
           VITE_TOPOS_CORE_PROXY_CONTRACT_ADDRESS=${{ vars.TOPOS_CORE_PROXY_CONTRACT_ADDRESS }}
           VITE_TOPOS_SUBNET_ENDPOINT_WS=${{ vars.TOPOS_SUBNET_ENDPOINT_WS }}
           VITE_TOPOS_SUBNET_ENDPOINT_HTTP=${{ vars.TOPOS_SUBNET_ENDPOINT_HTTP }}
-          VITE_ELASTIC_APM_ENDPOINT=${{ secrets.ELASTIC_APM_ENDPOINT }}
-          VITE_TRACING_SERVICE_NAME=${{ vars.TRACING_SERVICE_NAME }}
-          VITE_TRACING_SERVICE_VERSION=${{ vars.TRACING_SERVICE_VERSION }}
+          VITE_OTEL_SERVICE_NAME=${{ vars.OTEL_SERVICE_NAME }}
+          VITE_OTEL_SERVICE_VERSION=${{ vars.OTEL_SERVICE_VERSION }}
+          VITE_OTEL_EXPORTER_OTLP_ENDPOINT=${{ vars.OTEL_EXPORTER_OTLP_ENDPOINT }}
         cache-from: |
           type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}:build-cache-${{ env.GITHUB_REF_SLUG_URL }}-${{ github.workflow }}
           type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}:build-cache-main-${{ github.workflow }}
