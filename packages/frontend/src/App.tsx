@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 
 import Header from './components/Header'
 import MultiStepForm from './components/MultiStepForm'
-import { ErrorsContext } from './contexts/errors'
+import { Error, ErrorsContext } from './contexts/errors'
 import { SubnetsContext } from './contexts/subnets'
 import useRegisteredSubnets from './hooks/useRegisteredSubnets'
 import useTheme from './hooks/useTheme'
@@ -34,7 +34,7 @@ const Content = styled(_Content)`
 
 const App = () => {
   const theme = useTheme()
-  const [errors, setErrors] = useState<string[]>([])
+  const [errors, setErrors] = useState<Error[]>([])
   const [subnets, setSubnets] = useState<SubnetWithId[]>()
   const { loading, registeredSubnets } = useRegisteredSubnets()
 
@@ -94,8 +94,15 @@ const App = () => {
           <Layout>
             <Header />
             <Errors>
-              {errors.map((e) => (
-                <Alert type="error" showIcon closable message={e} key={e} />
+              {errors.map((e, i) => (
+                <Alert
+                  type="error"
+                  showIcon
+                  closable
+                  message={e.message}
+                  description={e.description}
+                  key={i}
+                />
               ))}
             </Errors>
             <Content>

@@ -46,7 +46,7 @@ export default function useTransactionTrie() {
   const createMerkleProof = useCallback(
     async (block: BlockWithTransactions, transaction: ethers.Transaction) => {
       const trie = await createReceiptTrie(block)
-      let proof
+      let proof = ''
 
       const rawBlock = await provider.send('eth_getBlockByHash', [
         ethers.utils.hexValue(block.hash),

@@ -1,8 +1,7 @@
 import { ThunderboltTwoTone } from '@ant-design/icons'
 import { Button, Result, Typography } from 'antd'
-import React, { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext } from 'react'
 
-import { TracingContext } from '../../contexts/tracing'
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
 import { StepProps } from '../MultiStepForm'
 
@@ -11,17 +10,9 @@ const { Title } = Typography
 const Step3 = ({ onFinish }: StepProps) => {
   const { receivingSubnet, sendingSubnet } = useContext(MultiStepFormContext)
 
-  const { transaction: apmTransaction } = useContext(TracingContext)
-  const stepSpan = useMemo(
-    () => apmTransaction?.startSpan('multi-step-form-step-3', 'app'),
-    [apmTransaction]
-  )
-
   const reset = useCallback(() => {
-    stepSpan?.end()
-    apmTransaction?.end()
     onFinish()
-  }, [stepSpan])
+  }, [])
 
   return (
     <Result

@@ -1,4 +1,4 @@
-import { apm } from '@elastic/apm-rum'
+import { context, propagation, trace } from '@opentelemetry/api'
 import { Col, Form, Row, Space } from 'antd'
 import {
   Dispatch,
@@ -20,6 +20,7 @@ import Step2 from './steps/Step2'
 import Step3 from './steps/Step3'
 import Summary0 from './stepSummaries/Summary0'
 import Summary1 from './stepSummaries/Summary1'
+import { TracingOptions } from '../hooks/useExecutorService'
 
 const NUMBER_OF_STEPS = 4
 
@@ -49,6 +50,9 @@ const MultiStepForm = () => {
   )
   const [currentStep, setCurrentStep] = useState(0)
   const [[form0], [form1]] = [Form.useForm(), Form.useForm()]
+  const [tracingContext, setTracingContext] = useState<TracingContext>({
+    tracingOptions: { traceparent: '', tracestate: '' },
+  })
 
   const nextStep = useCallback(() => {
     setCurrentStep((currentStep) => Math.min(NUMBER_OF_STEPS, currentStep + 1))
@@ -98,10 +102,25 @@ const MultiStepForm = () => {
 
   const amount = Form.useWatch('amount', form1) || form1.getFieldValue('amount')
 
-  const apmTransaction = useMemo(
-    () => apm.startTransaction('root', 'app', { managed: true }),
-    []
-  )
+  useMemo(() => {
+    function getTracingContext() {
+      const tracer = trace.getTracer('MultiStepForm')
+      const rootSpan = tracer.startSpan('root')
+
+      context.with(trace.setSpan(context.active(), rootSpan), () => {
+        const tracingOptions: TracingOptions = {
+          traceparent: '',
+          tracestate: '',
+        }
+
+        propagation.inject(context.active(), tracingOptions)
+
+        setTracingContext({ rootSpan, tracingOptions })
+      })
+    }
+
+    getTracingContext()
+  }, [])
 
   return (
     <Row justify="center">
@@ -146,7 +165,7 @@ const MultiStepForm = () => {
               transition: 'all 0.4s ease 0.1s',
             }}
           >
-            <TracingContext.Provider value={{ transaction: apmTransaction }}>
+            <TracingContext.Provider value={tracingContext || {}}>
               {currentStep === 0 && <Step0 onFinish={nextStep} />}
               {currentStep === 1 && (
                 <Step1 onFinish={nextStep} onPrev={prevStep} />

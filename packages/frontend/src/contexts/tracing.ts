@@ -1,8 +1,12 @@
-import { Transaction } from '@elastic/apm-rum'
-import React from 'react'
+import { Span } from '@opentelemetry/api'
+import { createContext } from 'react'
+import { TracingOptions } from '../hooks/useExecutorService'
 
-interface TracingContext {
-  transaction?: Transaction
+export interface TracingContext {
+  rootSpan?: Span
+  tracingOptions: TracingOptions
 }
 
-export const TracingContext = React.createContext<TracingContext>({})
+export const TracingContext = createContext<TracingContext>({
+  tracingOptions: { traceparent: '', tracestate: '' },
+})
