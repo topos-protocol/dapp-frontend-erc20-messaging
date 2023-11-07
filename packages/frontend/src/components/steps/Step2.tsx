@@ -9,13 +9,7 @@ import {
 import * as ERC20MessagingJSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/examples/ERC20Messaging.sol/ERC20Messaging.json'
 import { Avatar, List, Spin } from 'antd'
 import { Job } from 'bull'
-import {
-  BigNumber,
-  ContractReceipt,
-  ContractTransaction,
-  ethers,
-  utils,
-} from 'ethers'
+import { BigNumber, ContractReceipt, ContractTransaction, ethers } from 'ethers'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { lastValueFrom, tap } from 'rxjs'
 
@@ -137,6 +131,19 @@ const Step2 = ({ onFinish }: StepProps) => {
               .catch((error) => {
                 throw error
               })
+
+            mainSpan?.setStatus({
+              code: SpanStatusCode.OK,
+            })
+            stepSpan.setStatus({
+              code: SpanStatusCode.OK,
+            })
+            rootSpan?.setStatus({
+              code: SpanStatusCode.OK,
+            })
+            mainSpan?.end()
+            stepSpan?.end()
+            rootSpan?.end()
           }
         } catch (error: any) {
           setErrors((e) => [
@@ -362,7 +369,6 @@ const Step2 = ({ onFinish }: StepProps) => {
             messagingContractAddress,
             receiptTrieMerkleProof: proof,
             receiptTrieRoot: trieRoot,
-            // receiptTrieRoot: trieRoot.substring(0, trieRoot.length - 1) + 'a',
             subnetId: receivingSubnet?.id,
           },
           rootTracingOptions,
@@ -448,12 +454,11 @@ const Step2 = ({ onFinish }: StepProps) => {
     function onCompletion() {
       if (onFinish && activeProgressStep === progressSteps.length) {
         setTimeout(() => {
-          stepSpan?.end()
           onFinish()
         }, 1000)
       }
     },
-    [activeProgressStep, stepSpan]
+    [activeProgressStep]
   )
 
   return (

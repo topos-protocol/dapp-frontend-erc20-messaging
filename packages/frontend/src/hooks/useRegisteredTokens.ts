@@ -30,7 +30,7 @@ export default function useRegisteredTokens(subnet?: Subnet) {
           console.error(error)
           setErrors((e) => [
             ...e,
-            `Error when fetching the count of registered token.`,
+            { message: `Error when fetching the count of registered token.` },
           ])
         })
 
@@ -44,7 +44,9 @@ export default function useRegisteredTokens(subnet?: Subnet) {
               console.error(error)
               setErrors((e) => [
                 ...e,
-                `Error fetching the id of the registered token at index ${i}.`,
+                {
+                  message: `Error fetching the id of the registered token at index ${i}.`,
+                },
               ])
             })
 
@@ -54,7 +56,9 @@ export default function useRegisteredTokens(subnet?: Subnet) {
                 console.error(error)
                 setErrors((e) => [
                   ...e,
-                  `Error fetching registered token with key ${tokenKey}.`,
+                  {
+                    message: `Error fetching registered token with key ${tokenKey}.`,
+                  },
                 ])
               })
             )

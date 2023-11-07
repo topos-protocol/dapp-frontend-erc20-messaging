@@ -77,10 +77,16 @@ describe('sendToExecutorService', () => {
     if (result.current.sendToExecutorService) {
       result.current.sendToExecutorService(
         validExecuteDtoMock,
+        tracingOptionsMock,
         tracingOptionsMock
       )
       expect(axiosPostMock).toBeCalledWith('v1/execute', validExecuteDtoMock, {
-        headers: { traceparent: tracingOptionsMock.traceparent },
+        headers: {
+          rootTraceparent: tracingOptionsMock.traceparent,
+          rootTracestate: tracingOptionsMock.tracestate,
+          traceparent: tracingOptionsMock.traceparent,
+          tracestate: tracingOptionsMock.tracestate,
+        },
       })
     }
   })

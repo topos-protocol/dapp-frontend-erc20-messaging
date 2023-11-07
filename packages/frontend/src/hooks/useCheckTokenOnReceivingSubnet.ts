@@ -1,13 +1,11 @@
 import { providers } from 'ethers'
 import { useCallback, useContext, useState } from 'react'
 
-import { ErrorsContext } from '../contexts/errors'
 import { SubnetsContext } from '../contexts/subnets'
 import { erc20MessagingContract } from '../contracts'
 import { Token } from '../types'
 
 export default function useCheckTokenOnSubnet() {
-  const { setErrors } = useContext(ErrorsContext)
   const { data: subnets } = useContext(SubnetsContext)
   const [loading, setLoading] = useState(false)
 

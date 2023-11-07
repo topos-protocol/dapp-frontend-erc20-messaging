@@ -24,7 +24,7 @@ export default function useRegisteredSubnets() {
         console.error(error)
         setErrors((e) => [
           ...e,
-          `Error when fetching the count of registered subnets.`,
+          { message: `Error when fetching the count of registered subnets.` },
         ])
       })
 
@@ -38,7 +38,9 @@ export default function useRegisteredSubnets() {
             console.error(error)
             setErrors((e) => [
               ...e,
-              `Error fetching the id of the registered subnet at index ${i}.`,
+              {
+                message: `Error fetching the id of the registered subnet at index ${i}.`,
+              },
             ])
           })
 
@@ -54,7 +56,9 @@ export default function useRegisteredSubnets() {
                 console.error(error)
                 setErrors((e) => [
                   ...e,
-                  `Error fetching registered subnet with id ${subnetId}.`,
+                  {
+                    message: `Error fetching registered subnet with id ${subnetId}.`,
+                  },
                 ])
               })
           )

@@ -256,7 +256,7 @@ describe('createMerkleProof', () => {
         blockWithTransactionsMock.transactions[0]
       )
 
-      expect(proof).toBeUndefined()
+      expect(proof).toBe('')
     })
 
     expect(result.current.errors.length).toBe(1)

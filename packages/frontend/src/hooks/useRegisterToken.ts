@@ -47,13 +47,19 @@ export default function useRegisterToken() {
               })
               .catch((error: Error) => {
                 console.error(error)
-                setErrors((e) => [...e, `Error when registering the token`])
+                setErrors((e) => [
+                  ...e,
+                  { message: `Error when registering the token` },
+                ])
                 reject(error)
               })
           )
           .catch((error: Error) => {
             console.error(error)
-            setErrors((e) => [...e, `Error when registering the token`])
+            setErrors((e) => [
+              ...e,
+              { message: `Error when registering the token` },
+            ])
             reject(error)
           })
           .finally(() => {

@@ -1,7 +1,7 @@
 import * as BurnableMintableCappedERC20JSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/topos-core/BurnableMintableCappedERC20.sol/BurnableMintableCappedERC20.json'
 import { BurnableMintableCappedERC20 } from '@topos-protocol/topos-smart-contracts/typechain-types/contracts/topos-core/BurnableMintableCappedERC20'
 import { BigNumber, ContractTransaction, ethers } from 'ethers'
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { Token } from '../types'
 import useEthers from './useEthers'
