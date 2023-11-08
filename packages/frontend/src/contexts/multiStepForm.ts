@@ -10,6 +10,7 @@ interface MultiStepFormContext {
   receivingSubnet?: SubnetWithId
   recipientAddress?: string
   registeredTokens?: Token[]
+  registeredTokensLoading?: boolean
   sendingSubnet?: SubnetWithId
   token?: Token
 }

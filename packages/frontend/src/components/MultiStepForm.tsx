@@ -82,14 +82,15 @@ const MultiStepForm = () => {
     [registeredSubnets, receivingSubnetId]
   )
 
-  const { tokens: registeredTokens } = useRegisteredTokens(sendingSubnet)
+  const { tokens: registeredTokens, loading: registeredTokensLoading } =
+    useRegisteredTokens(sendingSubnet)
 
-  const tokenSymbol =
+  const tokenAddress =
     Form.useWatch('token', form1) || form1.getFieldValue('token')
 
   const token = useMemo(
-    () => registeredTokens?.find((t) => t.symbol === tokenSymbol),
-    [registeredTokens, tokenSymbol]
+    () => registeredTokens?.find((t) => t.addr === tokenAddress),
+    [registeredTokens, tokenAddress]
   )
 
   const recipientAddress =
@@ -113,6 +114,7 @@ const MultiStepForm = () => {
           receivingSubnet,
           recipientAddress,
           registeredTokens,
+          registeredTokensLoading,
           sendingSubnet,
           token,
         }}
