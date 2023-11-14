@@ -6,6 +6,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react'
@@ -62,12 +63,6 @@ const MultiStepForm = () => {
     setCurrentStep((currentStep) => Math.max(0, currentStep - 1))
   }, [])
 
-  const reset = useCallback(() => {
-    setCurrentStep(0)
-    form0.resetFields()
-    form1.resetFields()
-  }, [form0, form1])
-
   const sendingSubnetId =
     Form.useWatch('sendingSubnet', form0) ||
     form0.getFieldValue('sendingSubnet')
@@ -102,25 +97,30 @@ const MultiStepForm = () => {
 
   const amount = Form.useWatch('amount', form1) || form1.getFieldValue('amount')
 
-  useMemo(() => {
-    function getTracingContext() {
-      const tracer = trace.getTracer('MultiStepForm')
-      const rootSpan = tracer.startSpan('root')
+  const initTracingContext = useCallback(() => {
+    const tracer = trace.getTracer('MultiStepForm')
+    const rootSpan = tracer.startSpan('root')
 
-      context.with(trace.setSpan(context.active(), rootSpan), () => {
-        const tracingOptions: TracingOptions = {
-          traceparent: '',
-          tracestate: '',
-        }
+    context.with(trace.setSpan(context.active(), rootSpan), () => {
+      const tracingOptions: TracingOptions = {
+        traceparent: '',
+        tracestate: '',
+      }
 
-        propagation.inject(context.active(), tracingOptions)
+      propagation.inject(context.active(), tracingOptions)
 
-        setTracingContext({ rootSpan, tracingOptions })
-      })
-    }
-
-    getTracingContext()
+      setTracingContext({ rootSpan, tracingOptions })
+    })
   }, [])
+
+  useEffect(initTracingContext, [])
+
+  const reset = useCallback(() => {
+    setCurrentStep(0)
+    form0.resetFields()
+    form1.resetFields()
+    initTracingContext()
+  }, [form0, form1])
 
   return (
     <Row justify="center">
