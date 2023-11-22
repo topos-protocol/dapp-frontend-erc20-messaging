@@ -36,7 +36,7 @@ export default function useCheckTokenOnSubnet() {
               const contract = erc20MessagingContract.connect(subnetProvider)
 
               const onChainToken = await contract
-                .getTokenByAddress(token.addr)
+                .getTokenBySymbol(token.symbol)
                 .finally(() => {
                   setLoading(false)
                 })

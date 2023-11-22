@@ -229,7 +229,7 @@ const Step2 = ({ onFinish }: StepProps) => {
 
       return sendToken(
         receivingSubnet?.id,
-        token?.addr,
+        token?.symbol,
         recipientAddress,
         parsedAmount
       )
