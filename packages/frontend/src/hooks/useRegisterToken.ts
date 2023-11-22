@@ -6,8 +6,6 @@ import { ErrorsContext } from '../contexts/errors'
 import { erc20MessagingContract } from '../contracts'
 import useEthers from './useEthers'
 
-export const zeroAddress = '0x0000000000000000000000000000000000000000'
-
 export default function useRegisterToken() {
   const { provider } = useEthers({
     viaMetaMask: true,
@@ -25,12 +23,11 @@ export default function useRegisterToken() {
       setLoading(true)
 
       const params = ethers.utils.defaultAbiCoder.encode(
-        ['string', 'string', 'uint256', 'address', 'uint256', 'uint256'],
+        ['string', 'string', 'uint256', 'uint256', 'uint256'],
         [
           name,
           symbol,
           ethers.utils.parseUnits(cap.toString()),
-          zeroAddress,
           ethers.utils.parseUnits(dailyMintLimit.toString()),
           ethers.utils.parseUnits(supply.toString()),
         ]
