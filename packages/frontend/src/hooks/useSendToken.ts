@@ -23,7 +23,7 @@ export default function useSendToken() {
   const sendToken = useCallback(
     (
       receivingSubnetId: string,
-      tokenAddress: string,
+      tokenSymbol: string,
       recipientAddress: string,
       amount: BigNumber
     ) =>
@@ -31,15 +31,9 @@ export default function useSendToken() {
         setLoading(true)
 
         contract
-          .sendToken(
-            receivingSubnetId,
-            tokenAddress,
-            recipientAddress,
-            amount,
-            {
-              gasLimit: 4_000_000,
-            }
-          )
+          .sendToken(receivingSubnetId, tokenSymbol, recipientAddress, amount, {
+            gasLimit: 4_000_000,
+          })
           .then((tx: ContractTransaction) => {
             tx.wait()
               .then((receipt) => {

@@ -35,10 +35,10 @@ const providerSpy = vi
   .spyOn(ethers.providers, 'WebSocketProvider')
   .mockReturnValue({ getCode: getCodeMock } as any)
 
-const getTokenByAddressMock = vi.fn().mockResolvedValue(tokenMock)
+const getTokenBySymbolMock = vi.fn().mockResolvedValue(tokenMock)
 
 const contractConnectMock = vi.fn().mockReturnValue({
-  getTokenByAddress: getTokenByAddressMock,
+  getTokenBySymbol: getTokenBySymbolMock,
 })
 
 const contractMock = {
@@ -65,7 +65,7 @@ describe('useCheckTokenOnReceivingSubnet', () => {
           expect(contractSpy).toHaveBeenCalled()
           expect(getCodeMock).toHaveBeenCalledWith(contractMock.address)
           expect(contractConnectMock).toHaveBeenCalled()
-          expect(getTokenByAddressMock).toHaveBeenCalledWith(tokenMock.addr)
+          expect(getTokenBySymbolMock).toHaveBeenCalledWith(tokenMock.symbol)
         })
     })
   })
