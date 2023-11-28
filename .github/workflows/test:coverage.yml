@@ -1,6 +1,9 @@
 name: Run test coverage
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
