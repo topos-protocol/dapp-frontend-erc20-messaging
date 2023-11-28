@@ -1,0 +1,39 @@
+name: Run test coverage
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  coverage:
+    name: Test/Coverage
+    runs-on: ubuntu-latest-16-core
+    environment: devnet-1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install npm packages
+        run: npm ci
+
+      - name: Run Frontend test coverage
+        run: npm run frontend:test:coverage
+        env:
+          VITE_ERC20_MESSAGING_CONTRACT_ADDRESS: ${{ vars.ERC20_MESSAGING_CONTRACT_ADDRESS }}
+          VITE_SUBNET_REGISTRATOR_CONTRACT_ADDRESS: ${{ vars.SUBNET_REGISTRATOR_CONTRACT_ADDRESS }}
+          VITE_TOPOS_CORE_PROXY_CONTRACT_ADDRESS: ${{ vars.TOPOS_CORE_PROXY_CONTRACT_ADDRESS }}
+
+      - name: Run Backend test coverage
+        run: npm run backend:test:coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
