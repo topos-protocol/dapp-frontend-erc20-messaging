@@ -37,8 +37,6 @@ const TransactionTypeSelector = styled(Segmented)`
   margin-bottom: 1rem;
 `
 
-const { Option } = Select
-
 const Step1 = ({ onFinish, onPrev }: StepProps) => {
   const { data: registeredSubnets } = useContext(SubnetsContext)
   const {
@@ -47,6 +45,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
     receivingSubnet,
     recipientAddress,
     registeredTokens,
+    registeredTokensLoading,
     sendingSubnet,
     token,
   } = useContext(MultiStepFormContext)
@@ -169,6 +168,8 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
         >
           <Select
             size="middle"
+            disabled={registeredTokensLoading}
+            loading={registeredTokensLoading}
             dropdownRender={(menu) => (
               <>
                 {menu}
@@ -178,13 +179,11 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
                 </Space>
               </>
             )}
-          >
-            {registeredTokens?.map((token) => (
-              <Option key={token.symbol} value={token.symbol}>
-                {token.symbol}
-              </Option>
-            ))}
-          </Select>
+            options={registeredTokens?.map(({ addr, symbol }) => ({
+              label: symbol,
+              value: addr,
+            }))}
+          />
         </Form.Item>
         <Form.Item
           name="receivingSubnet"

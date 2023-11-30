@@ -65,7 +65,7 @@ const Step0 = ({ onFinish }: StepProps) => {
         ]}
       >
         <SubnetSelect
-          disabled={status !== 'connected'}
+          disabled={status !== 'connected' || getRegisteredSubnetsLoading}
           loading={getRegisteredSubnetsLoading}
           size="large"
           subnets={registeredSubnets}

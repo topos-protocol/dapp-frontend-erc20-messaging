@@ -1,5 +1,5 @@
-import React from 'react'
+import { createContext } from 'react'
 
 import { FetchData, SubnetWithId } from '../types'
 
-export const SubnetsContext = React.createContext<FetchData<SubnetWithId[]>>({})
+export const SubnetsContext = createContext<FetchData<SubnetWithId[]>>({})
