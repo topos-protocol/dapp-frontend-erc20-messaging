@@ -36,7 +36,7 @@ const App = () => {
   const theme = useTheme()
   const [errors, setErrors] = useState<Error[]>([])
   const [subnets, setSubnets] = useState<SubnetWithId[]>()
-  const { loading, registeredSubnets } = useRegisteredSubnets()
+  const { registeredSubnets } = useRegisteredSubnets()
 
   useEffect(
     function onRegisteredSubnetsChange() {
@@ -87,7 +87,7 @@ const App = () => {
       <ErrorsContext.Provider value={{ setErrors }}>
         <SubnetsContext.Provider
           value={{
-            loading,
+            loading: !Boolean(subnets),
             data: subnets,
           }}
         >
