@@ -61,6 +61,7 @@ jobs:
           owner: topos-protocol
           repo: e2e-tests
           github_token: ${{ secrets.ROBOT_PAT_TRIGGER_E2E_WORKFLOWS }}
+          comment_downstream_url: ${{ github.event.pull_request.comments_url }}
           workflow_file_name: frontend:erc20-messaging.yml
           ref: main
           wait_interval: 60
