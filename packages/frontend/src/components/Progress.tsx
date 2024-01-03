@@ -1,5 +1,4 @@
 import { Progress as AntdProgress } from 'antd'
-import React from 'react'
 
 interface Props {
   progress: number

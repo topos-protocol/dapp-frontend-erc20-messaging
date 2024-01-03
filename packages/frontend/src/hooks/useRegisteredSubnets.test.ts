@@ -1,14 +1,13 @@
 import { renderHook, waitFor } from '@testing-library/react'
-import { BigNumber } from 'ethers'
+import * as typechainExports from '@topos-protocol/topos-smart-contracts/typechain-types'
 import { vi } from 'vitest'
 
 import useRegisteredSubnets from './useRegisteredSubnets'
-import * as contractExports from '../contracts'
 import { Subnet } from '../types'
 
 const registeredSubnets: { [x: string]: Subnet } = {
   subnet1: {
-    chainId: BigNumber.from(1),
+    chainId: BigInt(1),
     currencySymbol: 'TST',
     endpointHttp: '',
     endpointWs: '',
@@ -16,7 +15,7 @@ const registeredSubnets: { [x: string]: Subnet } = {
     name: 'subnetMock',
   },
   subnet2: {
-    chainId: BigNumber.from(2),
+    chainId: BigInt(2),
     currencySymbol: 'TST2',
     endpointHttp: '',
     endpointWs: '',
@@ -24,7 +23,7 @@ const registeredSubnets: { [x: string]: Subnet } = {
     name: 'subnetMock',
   },
   incal: {
-    chainId: BigNumber.from(2),
+    chainId: BigInt(2),
     currencySymbol: 'TST2',
     endpointHttp: '',
     endpointWs: '',
@@ -42,7 +41,7 @@ const expectedSubnets = subnetIdsByIndexes.map((id) => ({
 
 const getSubnetCountMock = vi
   .fn()
-  .mockResolvedValue(BigNumber.from(subnetIdsByIndexes.length))
+  .mockResolvedValue(BigInt(subnetIdsByIndexes.length))
 
 const getSubnetIdAtIndexMock = vi
   .fn()
@@ -62,9 +61,9 @@ const contractConnectMock = vi.fn().mockReturnValue({
   subnets: subnetsMock,
 })
 
-vi.spyOn(contractExports, 'subnetRegistratorContract', 'get').mockReturnValue({
-  connect: contractConnectMock,
-} as any)
+vi.spyOn(typechainExports, 'SubnetRegistrator__factory', 'get').mockReturnValue(
+  { connect: contractConnectMock } as any
+)
 
 vi.mock('./useEthers', () => ({
   default: vi.fn().mockReturnValue({ provider: {} }),

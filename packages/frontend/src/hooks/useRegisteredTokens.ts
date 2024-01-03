@@ -1,8 +1,7 @@
-import { ethers } from 'ethers'
+import { ERC20Messaging__factory } from '@topos-protocol/topos-smart-contracts/typechain-types'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 import { ErrorsContext } from '../contexts/errors'
-import { erc20MessagingContract } from '../contracts'
 import { Subnet, Token } from '../types'
 import useEthers from './useEthers'
 
@@ -14,18 +13,24 @@ export default function useRegisteredTokens(subnet?: Subnet) {
   const [loading, setLoading] = useState(false)
   const [tokens, setTokens] = useState<Token[]>()
 
-  const contract = useMemo(
-    () => (subnet ? erc20MessagingContract.connect(provider) : undefined),
+  const erc20Messaging = useMemo(
+    () =>
+      subnet
+        ? ERC20Messaging__factory.connect(
+            import.meta.env.VITE_ERC20_MESSAGING_CONTRACT_ADDRESS,
+            provider
+          )
+        : undefined,
     [subnet, provider]
   )
 
   const getRegisteredTokens = useCallback(async () => {
-    if (contract) {
+    if (erc20Messaging) {
       setLoading(true)
 
-      const registeredTokensCount = await contract
+      const registeredTokensCount = await erc20Messaging
         .getTokenCount()
-        .then((count: ethers.BigNumber) => count.toNumber())
+        .then((count) => Number(count))
         .catch((error: any) => {
           console.error(error)
           setErrors((e) => [
@@ -38,7 +43,7 @@ export default function useRegisteredTokens(subnet?: Subnet) {
         const promises = []
         let i = 0
         while (i < registeredTokensCount) {
-          const tokenKey = await contract
+          const tokenKey = await erc20Messaging
             .getTokenKeyAtIndex(i)
             .catch((error: any) => {
               console.error(error)
@@ -52,7 +57,7 @@ export default function useRegisteredTokens(subnet?: Subnet) {
 
           if (tokenKey !== undefined) {
             promises.push(
-              contract.tokens(tokenKey).catch((error: any) => {
+              erc20Messaging.tokens(tokenKey).catch((error: any) => {
                 console.error(error)
                 setErrors((e) => [
                   ...e,
@@ -77,7 +82,7 @@ export default function useRegisteredTokens(subnet?: Subnet) {
 
       setLoading(false)
     }
-  }, [contract])
+  }, [erc20Messaging])
 
   useEffect(
     function onSubnetChange() {
@@ -90,17 +95,23 @@ export default function useRegisteredTokens(subnet?: Subnet) {
 
   useEffect(
     function watchTokenDeployed() {
-      if (contract && getRegisteredTokens) {
-        contract.on('TokenDeployed', getRegisteredTokens)
+      if (erc20Messaging && getRegisteredTokens) {
+        erc20Messaging.on(
+          erc20Messaging.filters.TokenDeployed,
+          getRegisteredTokens
+        )
       }
 
       return function cleanup() {
-        if (contract && getRegisteredTokens) {
-          contract.removeListener('TokenDeployed', getRegisteredTokens)
+        if (erc20Messaging && getRegisteredTokens) {
+          erc20Messaging.removeListener(
+            erc20Messaging.filters.TokenDeployed,
+            getRegisteredTokens
+          )
         }
       }
     },
-    [contract, getRegisteredTokens]
+    [erc20Messaging, getRegisteredTokens]
   )
 
   return { loading, tokens }

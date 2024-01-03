@@ -3,12 +3,11 @@ import { describe, it, expect, vi } from 'vitest'
 
 import SubnetSelect from './SubnetSelect'
 import { SubnetWithId } from '../types'
-import { BigNumber } from 'ethers'
 import { userEvent } from '../utils/tests'
 
 const subnetsMock: SubnetWithId[] = [
   {
-    chainId: BigNumber.from(1),
+    chainId: BigInt(1),
     currencySymbol: 'TST',
     endpointHttp: '',
     endpointWs: '',

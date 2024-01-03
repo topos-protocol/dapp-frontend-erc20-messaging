@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react'
+import * as typechainExports from '@topos-protocol/topos-smart-contracts/typechain-types'
+import { AbiCoder, parseUnits } from 'ethers'
 import { vi } from 'vitest'
 
-import * as contractExports from '../contracts'
 import useRegisterToken from './useRegisterToken'
-import { ethers } from 'ethers'
 
 const deployTokenMock = vi
   .fn()
@@ -13,7 +13,7 @@ const contractConnectMock = vi.fn().mockReturnValue({
   deployToken: deployTokenMock,
 })
 
-vi.spyOn(contractExports, 'erc20MessagingContract', 'get').mockReturnValue({
+vi.spyOn(typechainExports, 'ERC20Messaging__factory', 'get').mockReturnValue({
   connect: contractConnectMock,
 } as any)
 
@@ -39,14 +39,14 @@ describe('registerToken', () => {
     const symbol = 'TST'
     const supply = 1_000
 
-    const params = ethers.utils.defaultAbiCoder.encode(
+    const params = AbiCoder.defaultAbiCoder().encode(
       ['string', 'string', 'uint256', 'uint256', 'uint256'],
       [
         name,
         symbol,
-        ethers.utils.parseUnits(cap.toString()),
-        ethers.utils.parseUnits(dailyMintLimit.toString()),
-        ethers.utils.parseUnits(supply.toString()),
+        parseUnits(cap.toString()),
+        parseUnits(dailyMintLimit.toString()),
+        parseUnits(supply.toString()),
       ]
     )
 

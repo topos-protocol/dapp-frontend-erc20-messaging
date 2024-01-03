@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Job, JobId } from 'bull'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { Observable } from 'rxjs'
 
 import { OAuthResponse } from 'common'

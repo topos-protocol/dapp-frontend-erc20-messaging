@@ -1,9 +1,9 @@
 import { act, renderHook } from '@testing-library/react'
-import { BigNumber } from 'ethers'
 import { vi } from 'vitest'
 
 import * as useEthersExports from './useEthers'
 import useReceiptTrie from './useReceiptTrie'
+import { Block } from 'ethers'
 
 // Taken from a local subnet
 const receiptMock = {
@@ -12,7 +12,7 @@ const receiptMock = {
   contractAddress: null,
   transactionIndex: 0,
   root: '0x0000000000000000000000000000000000000000000000000000000000000000',
-  gasUsed: BigNumber.from('0xeec7'),
+  gasUsed: BigInt('0xeec7'),
   logsBloom:
     '0x00000000000000000000000000000001000000000400000000000020080000001000080000000000000000000000000000000000000000000000000000200000800080000000000000000008400000000000000000000000000000000000000000000000020000000001000000000800000200000000000000000010000000000000000000000000000000000080100000000020000080000000000000000000020000000000001000001000000020000000100000000000000000000000000000000002000000000000000040000000000000000000000000000000002028000010000000000000000000000000000000000000020000000000000008000000',
   blockHash:
@@ -85,7 +85,7 @@ const receiptMock = {
   ],
   blockNumber: 1148,
   confirmations: 7,
-  cumulativeGasUsed: BigNumber.from('0xeec7'),
+  cumulativeGasUsed: BigInt('0xeec7'),
   status: 1,
   type: 0,
   byzantium: true,
@@ -140,7 +140,7 @@ const receiptMock = {
         '0xff63b98e7d02220e3cca1d3c37d28db75b18bae171fb03fd8e280cd634f4030f',
         '0x3add941f2DA6bA73dBA5C70cF433bbC1C1DF39ad',
         '0x4AAb25B4fAd0Beaac466050f3A7142A502f4Cf0a',
-        BigNumber.from('0x0de0b6b3a7640000'),
+        BigInt('0x0de0b6b3a7640000'),
       ],
       event: 'TokenSent',
       eventSignature: 'TokenSent(bytes32,address,address,uint256)',
@@ -171,12 +171,12 @@ const blockWithTransactionsMock = {
   timestamp: 1693209380,
   nonce: '0x0000000000000000',
   difficulty: 1148,
-  gasLimit: BigNumber.from('0x989680'),
-  gasUsed: BigNumber.from('0xeec7'),
+  gasLimit: BigInt('0x989680'),
+  gasUsed: BigInt('0xeec7'),
   miner: '0x0000000000000000000000000000000000000000',
   extraData:
     '0x0000000000000000000000000000000000000000000000000000000000000000f90239f90120f846943e8eec8c2c7e0bdf4c84ec81dc84393b59d6fab7b0a15ca1ed6f1a54e2c2e7c17a3a79a2410b583d6d0feb9611f2aa3f23d9ac7c92bf8e1176b0abd1226ebb5422d8381b43f84694bc41222403d787b568daa4b7008330d905310224b080e9c2d9d46921725ad4c4751c9f84c0e56d32c59caeeb3623b910f3ba02c428833d1ece9f879d3e9c27a7e5262901c1f846949f7fcfafd01ab7d12c24fe637ec86d1f1d278d96b0a28573fa4eedbaab32906923fc243205bedfb775463e2b30aa8a394c3f502a48fdfbd78e67534f5661ff109c9a267af5f84694425824b54e3a69f866e001f6c97e67f5063b35aab0acc44552254e317711bef743022e7458c434006f67b18402e0f59d6044ef716e967039fbc1ea38161263ec923a79ac02b8419df1edd4a995a4040e0d71304f2bfc45bc48775fa982ab84609e4cdc6d9eb9b974cdca2ab34ac789be33a28ff63ef2048292c70eb29bdae010638ca0843f16a900f8630db86096ab3f355eee0fb58d3ee9989d1e9569db9536a5a98324332349afcc7b1469a6987f8a8aa7ebf001a0c17d7bc498313109f86acc81411010900813c11cb655e033657c639065c660602541d40163935baddc4a0bc42d8a3159dd23b1bff9f0fef8630bb8608a6533aa1538ec3fee846b7a6b2c0c450267597bdc44db3f01a1999956e3895483b8a326d44462514d443eec21d7bc000866822a96b5ba7a3de7a6e7bf8822bf866ee41905b9178843c1e1bc7ae2c935a6a09291b7242c664627efd747d8b71a880000000000000000',
-  transactions: [
+  prefetchedTransactions: [
     {
       hash: '0xc5ff2012213c9d99671d2477bb386ec5e72f28e5b59a26d58301cb93dabfbb66',
       type: 0,
@@ -187,10 +187,10 @@ const blockWithTransactionsMock = {
       transactionIndex: 0,
       confirmations: 7,
       from: '0x4AAb25B4fAd0Beaac466050f3A7142A502f4Cf0a',
-      gasPrice: BigNumber.from('0x00'),
-      gasLimit: BigNumber.from('0x3d0900'),
+      gasPrice: BigInt('0x00'),
+      gasLimit: BigInt('0x3d0900'),
       to: '0xd8A6034001862c42982b0f3F9E3dB7a104420646',
-      value: BigNumber.from('0x00'),
+      value: BigInt('0x00'),
       nonce: 9,
       data: '0x5c914ec6ff63b98e7d02220e3cca1d3c37d28db75b18bae171fb03fd8e280cd634f4030f0000000000000000000000003add941f2da6ba73dba5c70cf433bbc1c1df39ad0000000000000000000000004aab25b4fad0beaac466050f3a7142a502f4cf0a0000000000000000000000000000000000000000000000000de0b6b3a7640000',
       r: '0x6e2b73aa905e903861ebcbdf5d74accf20e2e890c31d26cd0a562515b5eff750',
@@ -201,8 +201,8 @@ const blockWithTransactionsMock = {
       wait: vi.fn().mockResolvedValue(receiptMock),
     },
   ],
-  _difficulty: BigNumber.from('0x047c'),
-}
+  _difficulty: BigInt('0x047c'),
+} as unknown as Block
 
 vi.mock('./useEthers', () => ({
   default: vi.fn().mockReturnValue({
@@ -229,7 +229,7 @@ describe('createMerkleProof', () => {
 
     const { proof } = await result.current.createMerkleProof(
       blockWithTransactionsMock,
-      blockWithTransactionsMock.transactions[0]
+      blockWithTransactionsMock.prefetchedTransactions[0]
     )
 
     expect(result.current.errors.length).toBe(0)
@@ -253,7 +253,7 @@ describe('createMerkleProof', () => {
     await act(async () => {
       const { proof } = await result.current.createMerkleProof(
         blockWithTransactionsMock,
-        blockWithTransactionsMock.transactions[0]
+        blockWithTransactionsMock.prefetchedTransactions[0]
       )
 
       expect(proof).toBe('')
