@@ -62,6 +62,6 @@ jobs:
           repo: e2e-tests
           github_token: ${{ secrets.ROBOT_PAT_TRIGGER_E2E_WORKFLOWS }}
           workflow_file_name: frontend:erc20-messaging.yml
-          ref: main
+          ref: seb/too-411
           wait_interval: 60
-          client_payload: '{ "dapp-frontend-erc20-messaging-ref": "${{ github.head_ref }}" }'
+          client_payload: '{ "dapp-frontend-erc20-messaging-ref": "${{ github.head_ref }}", "e2e-test-type": "light" }'
