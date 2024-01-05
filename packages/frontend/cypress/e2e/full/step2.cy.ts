@@ -1,4 +1,4 @@
-import { shortenAddress } from '../../src/utils'
+import { shortenAddress } from '../../../src/utils'
 
 describe('Multistep form step-2', () => {
   before(() => {
