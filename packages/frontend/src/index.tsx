@@ -7,6 +7,13 @@ import App from './App'
 import reportWebVitals from './reportWebVitals'
 import './telemetry'
 
+Object.defineProperty(BigInt.prototype, 'toJSON', {
+  get() {
+    'use strict'
+    return () => String(this)
+  },
+})
+
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
   // <React.StrictMode>

@@ -1,9 +1,9 @@
-import { ContractTransaction, ethers } from 'ethers'
-import { useCallback, useContext, useMemo, useState } from 'react'
+import { ERC20Messaging__factory } from '@topos-protocol/topos-smart-contracts/typechain-types'
+import { AbiCoder, BrowserProvider, parseUnits } from 'ethers'
+import { useCallback, useContext, useState } from 'react'
 
 import { Values } from '../components/RegisterToken'
 import { ErrorsContext } from '../contexts/errors'
-import { erc20MessagingContract } from '../contracts'
 import useEthers from './useEthers'
 
 export default function useRegisterToken() {
@@ -13,30 +13,32 @@ export default function useRegisterToken() {
   const { setErrors } = useContext(ErrorsContext)
   const [loading, setLoading] = useState(false)
 
-  const contract = useMemo(
-    () => erc20MessagingContract.connect(provider.getSigner()),
-    [provider]
-  )
-
   const registerToken = useCallback(
     async ({ cap, dailyMintLimit, name, symbol, supply }: Values) => {
       setLoading(true)
 
-      const params = ethers.utils.defaultAbiCoder.encode(
+      const signer = await (provider as BrowserProvider).getSigner()
+
+      const erc20Messaging = ERC20Messaging__factory.connect(
+        import.meta.env.VITE_ERC20_MESSAGING_CONTRACT_ADDRESS,
+        signer
+      )
+
+      const params = AbiCoder.defaultAbiCoder().encode(
         ['string', 'string', 'uint256', 'uint256', 'uint256'],
         [
           name,
           symbol,
-          ethers.utils.parseUnits(cap.toString()),
-          ethers.utils.parseUnits(dailyMintLimit.toString()),
-          ethers.utils.parseUnits(supply.toString()),
+          parseUnits(cap.toString()),
+          parseUnits(dailyMintLimit.toString()),
+          parseUnits(supply.toString()),
         ]
       )
 
       return new Promise((resolve, reject) => {
-        contract
+        erc20Messaging
           .deployToken(params)
-          .then((tx: ContractTransaction) =>
+          .then((tx) =>
             tx
               .wait()
               .then((receipt) => {
@@ -52,7 +54,7 @@ export default function useRegisterToken() {
               })
           )
           .catch((error: Error) => {
-            console.error(error)
+            console.error(JSON.stringify(error))
             setErrors((e) => [
               ...e,
               { message: `Error when registering the token` },
@@ -64,7 +66,7 @@ export default function useRegisterToken() {
           })
       })
     },
-    [contract]
+    [provider]
   )
 
   return { loading, registerToken }

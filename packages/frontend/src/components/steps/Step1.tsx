@@ -13,7 +13,7 @@ import {
   message,
 } from 'antd'
 import { SegmentedValue } from 'antd/lib/segmented'
-import { ethers } from 'ethers'
+import { isAddress } from 'ethers'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 
 import { MultiStepFormContext } from '../../contexts/multiStepForm'
@@ -216,7 +216,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
             {
               validator: (_, value) =>
                 new Promise<void>((resolve, reject) => {
-                  if (ethers.utils.isAddress(value) || !value) {
+                  if ((isAddress(value) && value.startsWith('0x')) || !value) {
                     resolve()
                   }
 

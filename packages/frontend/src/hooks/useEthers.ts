@@ -1,4 +1,4 @@
-import { providers, utils } from 'ethers'
+import { BrowserProvider, getDefaultProvider } from 'ethers'
 import { useEffect, useMemo } from 'react'
 import { useMetaMask } from 'metamask-react'
 
@@ -13,32 +13,26 @@ export default function useEthers({ subnet, viaMetaMask }: Args = {}) {
   const { account, addChain, connect, ethereum, status, switchChain } =
     useMetaMask()
 
-  const provider = useMemo<
-    providers.Web3Provider | providers.JsonRpcProvider
-  >(() => {
+  const provider = useMemo(() => {
     if (viaMetaMask && ethereum) {
-      return new providers.Web3Provider(ethereum)
+      return new BrowserProvider(ethereum)
     }
 
     if (!subnet) {
       const toposSubnetEndpointWs = import.meta.env
         .VITE_TOPOS_SUBNET_ENDPOINT_WS
-      return new providers.WebSocketProvider(toposSubnetEndpointWs)
+      return getDefaultProvider(toposSubnetEndpointWs)
     }
 
     const endpoint = subnet.endpointWs || subnet.endpointHttp
-    const url = new URL(endpoint)
-
-    return url.protocol.startsWith('ws')
-      ? new providers.WebSocketProvider(endpoint)
-      : new providers.JsonRpcProvider(endpoint)
+    return getDefaultProvider(endpoint)
   }, [subnet, viaMetaMask, ethereum])
 
   useEffect(
     function switchNetworkAndConnect() {
       const _ = async () => {
         if (subnet && viaMetaMask && ethereum) {
-          const chainId = utils.hexStripZeros(subnet.chainId.toHexString())
+          const chainId = `0x${subnet.chainId.toString(16)}`
 
           if (ethereum.networkVersion !== chainId) {
             try {

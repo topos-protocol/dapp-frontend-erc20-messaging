@@ -1,12 +1,16 @@
-import { BigNumber, ContractReceipt, ContractTransaction } from 'ethers'
-import { useCallback, useMemo, useState } from 'react'
+import { ERC20Messaging__factory } from '@topos-protocol/topos-smart-contracts/typechain-types'
+import {
+  BrowserProvider,
+  ContractTransactionReceipt,
+  ContractTransactionResponse,
+} from 'ethers'
+import { useCallback, useState } from 'react'
 
-import { erc20MessagingContract } from '../contracts'
 import useEthers from './useEthers'
 
 export interface SendTokenOutput {
-  sendTokenTx: ContractTransaction
-  sendTokenReceipt: ContractReceipt
+  sendTokenTx: ContractTransactionResponse
+  sendTokenReceipt: ContractTransactionReceipt | null
 }
 
 export default function useSendToken() {
@@ -15,26 +19,28 @@ export default function useSendToken() {
   })
   const [loading, setLoading] = useState(false)
 
-  const contract = useMemo(
-    () => erc20MessagingContract.connect(provider.getSigner()),
-    [provider]
-  )
-
   const sendToken = useCallback(
-    (
+    async (
       receivingSubnetId: string,
       tokenSymbol: string,
       recipientAddress: string,
-      amount: BigNumber
-    ) =>
-      new Promise<SendTokenOutput>((resolve, reject) => {
-        setLoading(true)
+      amount: bigint
+    ) => {
+      setLoading(true)
 
-        contract
+      const signer = await (provider as BrowserProvider).getSigner()
+
+      const erc20Messaging = ERC20Messaging__factory.connect(
+        import.meta.env.VITE_ERC20_MESSAGING_CONTRACT_ADDRESS,
+        signer
+      )
+
+      return new Promise<SendTokenOutput>((resolve, reject) => {
+        erc20Messaging
           .sendToken(receivingSubnetId, tokenSymbol, recipientAddress, amount, {
             gasLimit: 4_000_000,
           })
-          .then((tx: ContractTransaction) => {
+          .then((tx) => {
             tx.wait()
               .then((receipt) => {
                 resolve({ sendTokenTx: tx, sendTokenReceipt: receipt })
@@ -53,8 +59,9 @@ export default function useSendToken() {
           .finally(() => {
             setLoading(false)
           })
-      }),
-    [contract]
+      })
+    },
+    [provider]
   )
 
   return { loading, sendToken }

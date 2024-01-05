@@ -1,13 +1,12 @@
 import { renderHook, waitFor } from '@testing-library/react'
+import * as typechainExports from '@topos-protocol/topos-smart-contracts/typechain-types'
 import { vi } from 'vitest'
 
-import * as contractExports from '../contracts'
 import { Token } from '../types'
 import useRegisteredTokens from './useRegisteredTokens'
-import { BigNumber } from 'ethers'
 
 const subnetMock = {
-  chainId: BigNumber.from(1),
+  chainId: BigInt(1),
   currencySymbol: 'TST',
   endpointHttp: '',
   endpointWs: '',
@@ -32,7 +31,7 @@ const expectedTokens = tokenKeysByIndexes.map((id) => registeredTokens[id])
 
 const getTokenCountMock = vi
   .fn()
-  .mockResolvedValue(BigNumber.from(tokenKeysByIndexes.length))
+  .mockResolvedValue(BigInt(tokenKeysByIndexes.length))
 
 const getTokenKeyAtIndexMock = vi
   .fn()
@@ -48,7 +47,10 @@ const tokensMock = vi
 
 const onMock = vi.fn()
 
+const onTokenDeployedEventMock = vi.fn()
+
 const contractConnectMock = vi.fn().mockReturnValue({
+  filters: { TokenDeployed: onTokenDeployedEventMock },
   getTokenCount: getTokenCountMock,
   getTokenKeyAtIndex: getTokenKeyAtIndexMock,
   on: onMock,
@@ -56,7 +58,7 @@ const contractConnectMock = vi.fn().mockReturnValue({
   tokens: tokensMock,
 })
 
-vi.spyOn(contractExports, 'erc20MessagingContract', 'get').mockReturnValue({
+vi.spyOn(typechainExports, 'ERC20Messaging__factory', 'get').mockReturnValue({
   connect: contractConnectMock,
 } as any)
 
@@ -87,6 +89,9 @@ describe('useRegisteredTokens', () => {
 
   it('should listen for new tokens', async () => {
     renderHook(() => useRegisteredTokens(subnetMock))
-    expect(onMock).toHaveBeenCalledWith('TokenDeployed', expect.anything())
+    expect(onMock).toHaveBeenCalledWith(
+      onTokenDeployedEventMock,
+      expect.anything()
+    )
   })
 })

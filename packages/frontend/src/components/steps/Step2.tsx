@@ -9,7 +9,14 @@ import {
 import * as ERC20MessagingJSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/examples/ERC20Messaging.sol/ERC20Messaging.json'
 import { Avatar, List, Spin } from 'antd'
 import { Job } from 'bull'
-import { BigNumber, ContractReceipt, ContractTransaction, ethers } from 'ethers'
+import {
+  ContractTransactionReceipt,
+  ContractTransactionResponse,
+  EventLog,
+  hexlify,
+  Interface,
+  parseUnits,
+} from 'ethers'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { lastValueFrom, tap } from 'rxjs'
 
@@ -91,7 +98,7 @@ const Step2 = ({ onFinish }: StepProps) => {
       if (isReady) {
         try {
           mainSpan = useTracingCreateSpan('Step2', 'main', stepSpan)
-          const parsedAmount = ethers.utils.parseUnits(amount.toString())
+          const parsedAmount = parseUnits(amount.toString())
 
           await processTokenAllowance(parsedAmount, token)
           setActiveProgressStep((s) => s + 1)
@@ -104,48 +111,53 @@ const Step2 = ({ onFinish }: StepProps) => {
           )
           setActiveProgressStep((s) => s + 1)
 
-          const merkleProofOutput = await processMerkleProofCreation(
-            sendTokenOutput!.sendTokenReceipt,
-            sendTokenOutput!.sendTokenTx
-          )
-
-          const tokenSentLogIndex = await processSentTokenLogIndex(
-            sendTokenOutput!.sendTokenReceipt
-          )
-
-          const executorServiceJob = await processExecutorServiceExecute(
-            receivingSubnet,
-            tokenSentLogIndex,
-            merkleProofOutput.proof,
-            merkleProofOutput.trieRoot
-          )
-
-          if (executorServiceJob) {
-            const observable = await processExecutorServiceObserveJob(
-              executorServiceJob
+          if (sendTokenOutput.sendTokenReceipt) {
+            const merkleProofOutput = await processMerkleProofCreation(
+              sendTokenOutput.sendTokenReceipt,
+              sendTokenOutput.sendTokenTx
             )
-            await lastValueFrom(observable)
-              .then(() => {
-                setActiveProgressStep((s) => s + 1)
-              })
-              .catch((error) => {
-                throw error
-              })
 
-            mainSpan?.setStatus({
-              code: SpanStatusCode.OK,
-            })
-            stepSpan.setStatus({
-              code: SpanStatusCode.OK,
-            })
-            rootSpan?.setStatus({
-              code: SpanStatusCode.OK,
-            })
-            mainSpan?.end()
-            stepSpan?.end()
-            rootSpan?.end()
+            const tokenSentLogIndex = await processSentTokenLogIndex(
+              sendTokenOutput!.sendTokenReceipt
+            )
+
+            if (merkleProofOutput) {
+              const executorServiceJob = await processExecutorServiceExecute(
+                receivingSubnet,
+                tokenSentLogIndex,
+                merkleProofOutput.proof,
+                merkleProofOutput.trieRoot
+              )
+
+              if (executorServiceJob) {
+                const observable = await processExecutorServiceObserveJob(
+                  executorServiceJob
+                )
+                await lastValueFrom(observable)
+                  .then(() => {
+                    setActiveProgressStep((s) => s + 1)
+                  })
+                  .catch((error) => {
+                    throw error
+                  })
+
+                mainSpan?.setStatus({
+                  code: SpanStatusCode.OK,
+                })
+                stepSpan.setStatus({
+                  code: SpanStatusCode.OK,
+                })
+                rootSpan?.setStatus({
+                  code: SpanStatusCode.OK,
+                })
+                mainSpan?.end()
+                stepSpan?.end()
+                rootSpan?.end()
+              }
+            }
           }
         } catch (error: any) {
+          console.error(error)
           setErrors((e) => [
             ...e,
             {
@@ -184,10 +196,10 @@ const Step2 = ({ onFinish }: StepProps) => {
       }
     }
 
-    function processTokenAllowance(parsedAmount: BigNumber, token: Token) {
+    function processTokenAllowance(parsedAmount: bigint, token: Token) {
       return getCurrentAllowance(token)
         .then((currentAllowance) => {
-          if (currentAllowance.lt(parsedAmount)) {
+          if (currentAllowance < parsedAmount) {
             const span = useTracingCreateSpan(
               'Step2',
               'processTokenAllowance',
@@ -219,7 +231,7 @@ const Step2 = ({ onFinish }: StepProps) => {
       receivingSubnet: SubnetWithId,
       token: Token,
       recipientAddress: string,
-      parsedAmount: BigNumber
+      parsedAmount: bigint
     ) {
       const span = useTracingCreateSpan(
         'Step2',
@@ -251,37 +263,43 @@ const Step2 = ({ onFinish }: StepProps) => {
     }
 
     function processMerkleProofCreation(
-      sendTokenReceipt: ContractReceipt,
-      sendTokenTx: ContractTransaction
+      sendTokenReceipt: ContractTransactionReceipt,
+      sendTokenTx: ContractTransactionResponse
     ) {
       const span = useTracingCreateSpan(
         'Step2',
         'processMerkleProofCreation',
         mainSpan
       )
+
+      const prefectTxs = true
+
       return provider
-        .getBlockWithTransactions(sendTokenReceipt.blockHash)
+        .getBlock(sendTokenReceipt.blockHash, prefectTxs)
         .then((block) => {
           span.addEvent('got block', { block: JSON.stringify(block) })
-          return createMerkleProof(block, sendTokenTx)
-            .then(({ proof, trie }) => {
-              const trieRoot = ethers.utils.hexlify(trie.root())
-              span.addEvent('got proof and trie', {
-                proof,
-                trie: JSON.stringify(trie),
-                trieRoot,
+
+          if (block) {
+            return createMerkleProof(block, sendTokenTx)
+              .then(({ proof, trie }) => {
+                const trieRoot = hexlify(trie.root())
+                span.addEvent('got proof and trie', {
+                  proof,
+                  trie: JSON.stringify(trie),
+                  trieRoot,
+                })
+                span.setStatus({ code: SpanStatusCode.OK })
+                return { proof, trie, trieRoot }
               })
-              span.setStatus({ code: SpanStatusCode.OK })
-              return { proof, trie, trieRoot }
-            })
-            .catch((error) => {
-              const message = getErrorMessage(error)
-              span.setStatus({
-                code: SpanStatusCode.ERROR,
-                message,
+              .catch((error) => {
+                const message = getErrorMessage(error)
+                span.setStatus({
+                  code: SpanStatusCode.ERROR,
+                  message,
+                })
+                throw error
               })
-              throw error
-            })
+          }
         })
         .catch((error) => {
           const message = getErrorMessage(error)
@@ -296,22 +314,24 @@ const Step2 = ({ onFinish }: StepProps) => {
         })
     }
 
-    function processSentTokenLogIndex(sendTokenReceipt: ContractReceipt) {
+    function processSentTokenLogIndex(
+      sendTokenReceipt: ContractTransactionReceipt
+    ) {
       const span = useTracingCreateSpan(
         'Step2',
         'processSentTokenLogIndex',
         mainSpan
       )
 
-      const iface = new ethers.utils.Interface(ERC20MessagingJSON.abi)
+      const iface = new Interface(ERC20MessagingJSON.abi)
       let tokenSentLogIndex: number | undefined = undefined
 
       for (let log of sendTokenReceipt.logs) {
         try {
-          const logDescription = iface.parseLog(log)
+          const logDescription = iface.parseLog(log as any)
 
-          if (logDescription.name === 'TokenSent') {
-            tokenSentLogIndex = log.logIndex
+          if (logDescription && logDescription.name === 'TokenSent') {
+            tokenSentLogIndex = log.index
             break
           }
         } catch {

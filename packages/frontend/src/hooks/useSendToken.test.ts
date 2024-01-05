@@ -1,9 +1,8 @@
 import { act, renderHook } from '@testing-library/react'
+import * as typechainExports from '@topos-protocol/topos-smart-contracts/typechain-types'
 import { vi } from 'vitest'
 
-import * as contractExports from '../contracts'
 import useSendToken from './useSendToken'
-import { BigNumber, ethers } from 'ethers'
 
 const sendTokenMock = vi
   .fn()
@@ -13,7 +12,7 @@ const contractConnectMock = vi.fn().mockReturnValue({
   sendToken: sendTokenMock,
 })
 
-vi.spyOn(contractExports, 'erc20MessagingContract', 'get').mockReturnValue({
+vi.spyOn(typechainExports, 'ERC20Messaging__factory', 'get').mockReturnValue({
   connect: contractConnectMock,
 } as any)
 
@@ -36,7 +35,7 @@ describe('sendToken', () => {
     const receivingSubnetId = 'receiving'
     const tokenSymbol = 'tokenSymbol'
     const recipientAddress = 'receivingAddr'
-    const amount = BigNumber.from(1)
+    const amount = BigInt(1)
 
     await act(() => {
       result.current

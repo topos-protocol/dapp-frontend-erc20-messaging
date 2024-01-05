@@ -1,6 +1,5 @@
 import { act, renderHook } from '@testing-library/react'
-import * as BurnableMintableCappedERC20JSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/topos-core/BurnableMintableCappedERC20.sol/BurnableMintableCappedERC20.json'
-import { ethers } from 'ethers'
+import * as typechainExports from '@topos-protocol/topos-smart-contracts/typechain-types'
 import { vi } from 'vitest'
 
 import { Token } from '../types'
@@ -15,13 +14,17 @@ const txMock = {
   wait: vi.fn().mockResolvedValue({}),
 }
 
-const amountMock = ethers.BigNumber.from(1)
+const amountMock = BigInt(1)
 const approveMock = vi.fn().mockResolvedValue(txMock)
 const allowanceMock = vi.fn().mockResolvedValue(1)
 
+const contractConnectMock = vi
+  .fn()
+  .mockReturnValue({ allowance: allowanceMock, approve: approveMock })
+
 const contractSpy = vi
-  .spyOn(ethers, 'Contract')
-  .mockReturnValue({ allowance: allowanceMock, approve: approveMock } as any)
+  .spyOn(typechainExports, 'BurnableMintableCappedERC20__factory', 'get')
+  .mockReturnValue({ connect: contractConnectMock } as any)
 
 vi.mock('./useEthers', () => ({
   default: vi.fn().mockReturnValue({
@@ -42,9 +45,8 @@ describe('useApproveAllowance', () => {
       act(() => {
         result.current.approveAllowance(tokenMock, amountMock).then(() => {
           expect(result.current.loading).toBe(true)
-          expect(contractSpy).toHaveBeenCalledWith(
+          expect(contractConnectMock).toHaveBeenCalledWith(
             tokenMock.addr,
-            BurnableMintableCappedERC20JSON.abi,
             expect.anything()
           )
 
@@ -67,9 +69,8 @@ describe('useApproveAllowance', () => {
           .getCurrentAllowance(tokenMock)
           .then((currentAllowance) => {
             expect(result.current.loading).toBe(true)
-            expect(contractSpy).toHaveBeenCalledWith(
+            expect(contractConnectMock).toHaveBeenCalledWith(
               tokenMock.addr,
-              BurnableMintableCappedERC20JSON.abi,
               expect.anything()
             )
 

@@ -1,8 +1,7 @@
 import { Trie } from '@ethereumjs/trie'
 import { RLP } from '@ethereumjs/rlp'
-import { BlockWithTransactions } from '@ethersproject/abstract-provider'
 import { Buffer } from 'buffer'
-import { ethers } from 'ethers'
+import { Block, BrowserProvider, TransactionResponse, hexlify } from 'ethers'
 import { useCallback, useState } from 'react'
 
 import useEthers from './useEthers'
@@ -13,47 +12,50 @@ export default function useTransactionTrie() {
   })
   const [errors, setErrors] = useState<string[]>([])
 
-  const createReceiptTrie = useCallback(
-    async (block: BlockWithTransactions) => {
-      const trie = new Trie()
+  const createReceiptTrie = useCallback(async (block: Block) => {
+    const trie = new Trie()
 
-      await Promise.all(
-        block.transactions.map(async (tx, index) => {
-          const { cumulativeGasUsed, logs, logsBloom, status } = await tx.wait()
+    await Promise.all(
+      block.prefetchedTransactions.map(async (tx, index) => {
+        const receipt = await tx.wait()
+
+        if (receipt) {
+          const { cumulativeGasUsed, logs, logsBloom, status } = receipt
 
           return trie.put(
             Buffer.from(RLP.encode(index)),
             Buffer.from(
               RLP.encode([
                 status,
-                cumulativeGasUsed.toNumber(),
+                Number(cumulativeGasUsed),
                 logsBloom,
-                logs.map((l) => [l.address, l.topics, l.data]),
+                logs.map((l) => [l.address, l.topics as any, l.data]),
               ])
             )
           )
-        })
-      ).catch((error) => {
-        console.error(error)
-        setErrors((e) => [...e, `Error when creating the transaction trie`])
+        }
       })
+    ).catch((error) => {
+      console.error(error)
+      setErrors((e) => [...e, `Error when creating the transaction trie`])
+    })
 
-      return trie
-    },
-    []
-  )
+    return trie
+  }, [])
 
   const createMerkleProof = useCallback(
-    async (block: BlockWithTransactions, transaction: ethers.Transaction) => {
+    async (block: Block, transaction: TransactionResponse) => {
       const trie = await createReceiptTrie(block)
       let proof = ''
 
-      const rawBlock = await provider.send('eth_getBlockByHash', [
-        ethers.utils.hexValue(block.hash),
-        true,
-      ])
+      const receipt = await transaction.wait()
 
-      const trieRoot = ethers.utils.hexlify(trie.root())
+      const rawBlock = await (provider as BrowserProvider).send(
+        'eth_getBlockByHash',
+        [receipt?.blockHash, true]
+      )
+
+      const trieRoot = hexlify(trie.root())
 
       if (trieRoot !== rawBlock.receiptsRoot) {
         const errorMessage =
@@ -65,7 +67,7 @@ export default function useTransactionTrie() {
       } else {
         if (trie) {
           try {
-            const indexOfTx = block.transactions.findIndex(
+            const indexOfTx = block.prefetchedTransactions.findIndex(
               (tx) => tx.hash === transaction.hash
             )
 
@@ -74,7 +76,7 @@ export default function useTransactionTrie() {
             const { stack: _stack } = await trie.findPath(key)
             const stack = _stack.map((node) => node.raw())
 
-            proof = ethers.utils.hexlify(RLP.encode([1, indexOfTx, stack]))
+            proof = hexlify(RLP.encode([1, indexOfTx, stack]))
           } catch (error) {
             console.error(error)
             setErrors((e) => [...e, `Error when creating the merkle proof`])

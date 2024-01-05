@@ -1,12 +1,13 @@
 import { renderHook, waitFor } from '@testing-library/react'
-import { BigNumber, ethers } from 'ethers'
+import * as typechainExports from '@topos-protocol/topos-smart-contracts/typechain-types'
+import { formatUnits } from 'ethers'
 import { vi } from 'vitest'
 
 import { Subnet, Token } from '../types'
 import useTokenBalance from './useTokenBalance'
 
 const subnetMock: Subnet = {
-  chainId: BigNumber.from(1),
+  chainId: BigInt(1),
   currencySymbol: 'TST',
   endpointHttp: '',
   endpointWs: '',
@@ -19,16 +20,24 @@ const tokenMock: Token = {
   symbol: 'TST2',
 }
 
-const balanceOfMock = vi.fn().mockResolvedValue(1)
+const balanceOfMock = vi.fn().mockResolvedValue(BigInt(1))
 
-vi.spyOn(ethers, 'Contract').mockReturnValue({
-  balanceOf: balanceOfMock,
+const contractConnectMock = vi
+  .fn()
+  .mockReturnValue({ balanceOf: balanceOfMock })
+
+vi.spyOn(
+  typechainExports,
+  'BurnableMintableCappedERC20__factory',
+  'get'
+).mockReturnValue({
+  connect: contractConnectMock,
 } as any)
 
 vi.mock('./useEthers', () => ({
   default: vi.fn().mockReturnValue({
     provider: {
-      getSigner: vi.fn().mockReturnValue({ getAddress: vi.fn() }),
+      getSigner: vi.fn().mockResolvedValue({ getAddress: vi.fn() }),
     },
   }),
 }))
@@ -40,7 +49,7 @@ describe('useTokenBalance', () => {
 
     await waitFor(() => {
       expect(balanceOfMock).toHaveBeenCalled()
-      expect(result.current.balance).toBe(ethers.utils.formatUnits(1))
+      expect(result.current.balance).toBe(formatUnits(1))
     })
   })
 

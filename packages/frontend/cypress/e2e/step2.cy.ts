@@ -31,7 +31,9 @@ describe('Multistep form step-2', () => {
       .find('.ant-select-item-option-content')
       .contains('Incal')
       .click()
-    cy.get('#recipientAddress').type('4aab25b4fad0beaac466050f3a7142a502f4cf0a')
+    cy.get('#recipientAddress').type(
+      '0x4aab25b4fad0beaac466050f3a7142a502f4cf0a'
+    )
     cy.get('#amount').type('1')
     cy.get('#nextButton').click()
   })
@@ -42,7 +44,7 @@ describe('Multistep form step-2', () => {
     cy.get('#summary1Token').should('have.text', 'TST')
     cy.get('#summary1RecipientAddress').should(
       'have.text',
-      shortenAddress('4aab25b4fad0beaac466050f3a7142a502f4cf0a')
+      shortenAddress('0x4aab25b4fad0beaac466050f3a7142a502f4cf0a')
     )
   })
 

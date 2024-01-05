@@ -1,4 +1,3 @@
-import React from 'react'
 import { Col, Layout, Row, Space } from 'antd'
 
 import logo from '../logo.svg'
