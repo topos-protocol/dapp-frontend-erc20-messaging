@@ -20,22 +20,22 @@ export default function useSendToken() {
   const [loading, setLoading] = useState(false)
 
   const sendToken = useCallback(
-    (
+    async (
       receivingSubnetId: string,
       tokenSymbol: string,
       recipientAddress: string,
       amount: bigint
-    ) =>
-      new Promise<SendTokenOutput>(async (resolve, reject) => {
-        setLoading(true)
+    ) => {
+      setLoading(true)
 
-        const signer = await (provider as BrowserProvider).getSigner()
+      const signer = await (provider as BrowserProvider).getSigner()
 
-        const erc20Messaging = ERC20Messaging__factory.connect(
-          import.meta.env.VITE_ERC20_MESSAGING_CONTRACT_ADDRESS,
-          signer
-        )
+      const erc20Messaging = ERC20Messaging__factory.connect(
+        import.meta.env.VITE_ERC20_MESSAGING_CONTRACT_ADDRESS,
+        signer
+      )
 
+      return new Promise<SendTokenOutput>((resolve, reject) => {
         erc20Messaging
           .sendToken(receivingSubnetId, tokenSymbol, recipientAddress, amount, {
             gasLimit: 4_000_000,
@@ -59,7 +59,8 @@ export default function useSendToken() {
           .finally(() => {
             setLoading(false)
           })
-      }),
+      })
+    },
     [provider]
   )
 

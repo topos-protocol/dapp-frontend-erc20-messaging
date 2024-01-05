@@ -216,7 +216,7 @@ const Step1 = ({ onFinish, onPrev }: StepProps) => {
             {
               validator: (_, value) =>
                 new Promise<void>((resolve, reject) => {
-                  if (isAddress(value) || !value) {
+                  if ((isAddress(value) && value.startsWith('0x')) || !value) {
                     resolve()
                   }
 

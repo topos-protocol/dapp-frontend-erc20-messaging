@@ -295,13 +295,6 @@ describe('Multistep form step-1 with Incal', () => {
         .parents('.ant-form-item')
         .should('not.have.class', 'ant-form-item-has-error')
       cy.get('#recipientAddress').clear()
-      cy.get('#recipientAddress').type(
-        '4aab25b4fad0beaac466050f3a7142a502f4cf0a'
-      )
-      cy.get('#recipientAddress')
-        .parents('.ant-form-item')
-        .should('not.have.class', 'ant-form-item-has-error')
-      cy.get('#recipientAddress').clear()
     })
 
     it('should not be able to input a larger amount than current balance (default supply)', () => {
