@@ -5,6 +5,7 @@ import { Alert, Layout as _Layout } from 'antd'
 import { JsonRpcProvider } from 'ethers'
 import { useEffect, useState } from 'react'
 
+import Footer from './components/Footer'
 import Header from './components/Header'
 import MultiStepForm from './components/MultiStepForm'
 import { Error, ErrorsContext } from './contexts/errors'
@@ -109,6 +110,7 @@ const App = () => {
             <Content>
               <MultiStepForm />
             </Content>
+            <Footer />
           </Layout>
         </SubnetsContext.Provider>
       </ErrorsContext.Provider>
