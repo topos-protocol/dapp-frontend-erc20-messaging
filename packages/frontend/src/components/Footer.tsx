@@ -1,4 +1,4 @@
-import { Col, Layout, Row, Space } from 'antd'
+import { Col, Layout, Row } from 'antd'
 
 import packageJson from '../../../../package.json'
 
