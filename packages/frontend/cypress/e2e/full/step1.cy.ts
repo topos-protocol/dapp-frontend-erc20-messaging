@@ -2,8 +2,8 @@ import {
   DEFAULT_TOKEN_CAP,
   DEFAULT_TOKEN_DAILY_MINT_LIMIT,
   DEFAULT_TOKEN_SUPPLY,
-} from '../../src/constants/defaults'
-import { ERROR, SUCCESS } from '../../src/constants/wordings'
+} from '../../../src/constants/defaults'
+import { ERROR, SUCCESS } from '../../../src/constants/wordings'
 
 describe('Multistep form step-1 with Topos', () => {
   before(() => {

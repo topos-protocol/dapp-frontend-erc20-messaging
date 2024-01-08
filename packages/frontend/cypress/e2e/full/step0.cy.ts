@@ -1,4 +1,4 @@
-import { ERROR, INFO } from '../../src/constants/wordings'
+import { ERROR, INFO } from '../../../src/constants/wordings'
 
 describe('Multistep form step-0 without MetaMask connect', () => {
   beforeEach(() => {

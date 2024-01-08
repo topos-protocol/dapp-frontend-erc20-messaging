@@ -10,7 +10,8 @@
     "start": "tsc && vite build --mode development --watch --sourcemap true",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "env-cmd --silent cypress run --browser chrome --headed"
+    "test:e2e:full": "env-cmd --silent cypress run --browser chrome --headed --spec cypress/e2e/full/*",
+    "test:e2e:light": "env-cmd --silent cypress run --browser chrome --headed --spec cypress/e2e/light/*"
   },
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
@@ -27,7 +28,7 @@
     "@opentelemetry/exporter-trace-otlp-proto": "^0.45.0",
     "@opentelemetry/sdk-metrics": "^1.17.1",
     "@opentelemetry/sdk-trace-web": "^1.17.1",
-    "@topos-protocol/topos-smart-contracts": "^3.1.0-rc1",
+    "@topos-protocol/topos-smart-contracts": "^3.1.0",
     "@types/event-source-polyfill": "^1.0.1",
     "antd": "^5.4.0",
     "axios": "^1.0.0",
@@ -45,7 +46,7 @@
     "web-vitals": "^3.3.1"
   },
   "devDependencies": {
-    "@synthetixio/synpress": "^3.7.0",
+    "@synthetixio/synpress": "3.7.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "14.0.0",
     "@testing-library/user-event": "^14.4.3",
@@ -57,7 +58,7 @@
     "@vitest/coverage-c8": "~0.25.8",
     "@vitest/coverage-v8": "^0.34.6",
     "@vitest/ui": "^0.25.8",
-    "cypress": "^12.13.0",
+    "cypress": "12.17.1",
     "env-cmd": "^10.1.0",
     "eslint": "^8.38.0",
     "eslint-plugin-react-hooks": "^4.6.0",

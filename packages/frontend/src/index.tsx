@@ -7,6 +7,7 @@ import App from './App'
 import reportWebVitals from './reportWebVitals'
 import './telemetry'
 
+// Allow for JSON.stringify for objects containing bigints
 Object.defineProperty(BigInt.prototype, 'toJSON', {
   get() {
     'use strict'

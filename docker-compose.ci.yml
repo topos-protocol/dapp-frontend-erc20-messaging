@@ -29,7 +29,7 @@ services:
     entrypoint: []
     working_dir: /app
     command: >
-      bash -c 'echo -n "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true " && echo -n "======> remote noVNC URL: " && npm run test:e2e'
+      bash -c 'echo -n "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true " && echo -n "======> remote noVNC URL: " && npm run test:e2e:${E2E_TEST_TYPE}'
     depends_on:
       - display
       - video
