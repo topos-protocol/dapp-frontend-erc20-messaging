@@ -7,7 +7,8 @@ const { Footer: AntdFooter } = Layout
 const Footer = () => {
   return (
     <AntdFooter>
-      <Row justify="end">
+      <Row justify="space-between">
+        <Col>zk Foundation © {new Date().getFullYear()}</Col>
         <Col>v{packageJson.version}</Col>
       </Row>
     </AntdFooter>
