@@ -23,7 +23,7 @@ const Step0 = ({ onFinish }: StepProps) => {
 
   const { status } = useEthers({
     subnet: sendingSubnet,
-    viaMetaMask: sendingSubnet !== undefined,
+    viaMetaMask: true,
   })
 
   const nextStep = useCallback(() => {
