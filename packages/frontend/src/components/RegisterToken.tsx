@@ -11,6 +11,7 @@ import { ERROR, SUCCESS } from '../constants/wordings'
 import { MultiStepFormContext } from '../contexts/multiStepForm'
 import useRegisterToken from '../hooks/useRegisterToken'
 import TestId from '../utils/testId'
+import { ErrorsContext } from '../contexts/errors'
 
 export interface Values {
   cap: number
@@ -26,10 +27,10 @@ interface RegisterTokenFormProps {
 }
 
 const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
-  const [loading, setLoading] = useState(false)
+  const { setErrors } = useContext(ErrorsContext)
   const { registeredTokens } = useContext(MultiStepFormContext)
   const [form] = Form.useForm()
-  const { registerToken } = useRegisterToken()
+  const { loading, registerToken } = useRegisterToken()
 
   const onCancel = useCallback(() => {
     setOpen(false)
@@ -51,14 +52,15 @@ const RegisterTokenForm = ({ open, setOpen }: RegisterTokenFormProps) => {
         form
           .validateFields()
           .then((values) => {
-            setLoading(true)
-
-            registerToken(values).then(() => {
-              message.success(SUCCESS.REGISTERED_TOKEN)
-              setLoading(false)
-              form.resetFields()
-              setOpen(false)
-            })
+            registerToken(values)
+              .then(() => {
+                message.success(SUCCESS.REGISTERED_TOKEN)
+                form.resetFields()
+                setOpen(false)
+              })
+              .catch((error) => {
+                setErrors((e) => [...e, error])
+              })
           })
           .catch((info) => {
             console.log('Validate Failed:', info)

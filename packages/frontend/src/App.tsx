@@ -61,7 +61,7 @@ const App = () => {
             const subnetId = await contract.networkSubnetId()
 
             toposSubnet = {
-              chainId: chainId,
+              chainId,
               endpointHttp: toposSubnetEndpointHttp,
               endpointWs: toposSubnetEndpointWs,
               currencySymbol: 'TOPOS',

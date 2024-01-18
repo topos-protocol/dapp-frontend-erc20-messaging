@@ -1,16 +1,14 @@
 import { ERC20Messaging__factory } from '@topos-protocol/topos-smart-contracts/typechain-types'
 import { AbiCoder, BrowserProvider, parseUnits } from 'ethers'
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { Values } from '../components/RegisterToken'
-import { ErrorsContext } from '../contexts/errors'
 import useEthers from './useEthers'
 
 export default function useRegisterToken() {
   const { provider } = useEthers({
     viaMetaMask: true,
   })
-  const { setErrors } = useContext(ErrorsContext)
   const [loading, setLoading] = useState(false)
 
   const registerToken = useCallback(
@@ -35,36 +33,20 @@ export default function useRegisterToken() {
         ]
       )
 
-      return new Promise((resolve, reject) => {
-        erc20Messaging
-          .deployToken(params)
-          .then((tx) =>
-            tx
-              .wait()
-              .then((receipt) => {
-                resolve(receipt)
-              })
-              .catch((error: Error) => {
-                console.error(error)
-                setErrors((e) => [
-                  ...e,
-                  { message: `Error when registering the token` },
-                ])
-                reject(error)
-              })
-          )
-          .catch((error: Error) => {
-            console.error(JSON.stringify(error))
-            setErrors((e) => [
-              ...e,
-              { message: `Error when registering the token` },
-            ])
-            reject(error)
-          })
-          .finally(() => {
-            setLoading(false)
-          })
-      })
+      try {
+        const tx = await erc20Messaging.deployToken(params, {
+          gasLimit: 5_000_000,
+        })
+        const receipt = await tx.wait()
+        setLoading(false)
+        return receipt
+      } catch (error: any) {
+        console.error(error)
+        setLoading(false)
+        throw Error(
+          `Error when registering the token (reason: ${error.reason})`
+        )
+      }
     },
     [provider]
   )
