@@ -59,7 +59,9 @@ describe('registerToken', () => {
         supply,
       })
       .then(() => {
-        expect(deployTokenMock).toHaveBeenCalledWith(params)
+        expect(deployTokenMock).toHaveBeenCalledWith(params, {
+          gasLimit: 5_000_000,
+        })
       })
       .finally(() => {
         expect(result.current.loading).toBe(false)
