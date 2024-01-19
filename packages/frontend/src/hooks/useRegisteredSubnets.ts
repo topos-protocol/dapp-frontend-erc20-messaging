@@ -8,7 +8,6 @@ import useEthers from './useEthers'
 
 export default function useRegisteredSubnets() {
   const { setErrors } = useContext(ErrorsContext)
-  console.log('useEthers from useRegisteredSubnets')
   const { provider } = useEthers()
   const [loading, setLoading] = useState(false)
   const [registeredSubnets, setRegisteredSubnets] = useState<SubnetWithId[]>()

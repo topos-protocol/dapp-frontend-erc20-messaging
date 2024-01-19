@@ -34,7 +34,7 @@ export default function useEthers({ subnet, viaMetaMask }: Args = {}) {
           setErrors((e) => [
             ...e,
             {
-              message: `Could not reach provider's endoint${
+              message: `Could not reach provider's endpoint${
                 ' (' +
                 (subnet
                   ? subnet.endpointWs || subnet.endpointHttp
