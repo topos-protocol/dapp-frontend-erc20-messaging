@@ -22,6 +22,7 @@ describe('Multistep form step-1 with Topos', () => {
     cy.get('#sendingSubnet').click()
     cy.get('.ant-select-item-option-content').contains('Topos').click()
     cy.get('#nextButton').click()
+    cy.wait(500)
   })
 
   it('should have token field enabled and others disabled', () => {

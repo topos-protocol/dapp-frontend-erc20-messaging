@@ -1,8 +1,9 @@
 import { BrowserProvider, getDefaultProvider } from 'ethers'
-import { useEffect, useMemo } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { useMetaMask } from 'metamask-react'
 
 import { Subnet } from '../types'
+import { ErrorsContext } from '../contexts/errors'
 
 interface Args {
   subnet?: Subnet
@@ -10,6 +11,7 @@ interface Args {
 }
 
 export default function useEthers({ subnet, viaMetaMask }: Args = {}) {
+  const { setErrors } = useContext(ErrorsContext)
   const { account, addChain, connect, ethereum, status, switchChain } =
     useMetaMask()
 
@@ -18,15 +20,38 @@ export default function useEthers({ subnet, viaMetaMask }: Args = {}) {
       return new BrowserProvider(ethereum)
     }
 
-    if (!subnet) {
-      const toposSubnetEndpointWs = import.meta.env
-        .VITE_TOPOS_SUBNET_ENDPOINT_WS
-      return getDefaultProvider(toposSubnetEndpointWs)
-    }
+    const endpoint = subnet
+      ? subnet.endpointWs || subnet.endpointHttp
+      : import.meta.env.VITE_TOPOS_SUBNET_ENDPOINT_WS
 
-    const endpoint = subnet.endpointWs || subnet.endpointHttp
     return getDefaultProvider(endpoint)
   }, [subnet, viaMetaMask, ethereum])
+
+  useEffect(
+    function verifyProviderReadiness() {
+      const timeoutId = window.setTimeout(() => {
+        if (!viaMetaMask && !(provider as any).ready) {
+          setErrors((e) => [
+            ...e,
+            {
+              message: `Could not reach provider's endpoint${
+                ' (' +
+                (subnet
+                  ? subnet.endpointWs || subnet.endpointHttp
+                  : import.meta.env.VITE_TOPOS_SUBNET_ENDPOINT_WS) +
+                ')'
+              }`,
+            },
+          ])
+        }
+      }, 3000)
+
+      return function clearTimeout() {
+        window.clearTimeout(timeoutId)
+      }
+    },
+    [provider]
+  )
 
   useEffect(
     function switchNetworkAndConnect() {
