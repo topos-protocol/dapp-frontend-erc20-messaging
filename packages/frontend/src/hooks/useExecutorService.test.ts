@@ -1,4 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react'
+import axios from 'axios'
 import EventSourceMock, { sources } from 'eventsourcemock'
 import { vi } from 'vitest'
 
@@ -6,7 +7,6 @@ import useExecutorService, {
   ExecuteDto,
   TracingOptions,
 } from './useExecutorService'
-import axios from 'axios'
 
 const validExecuteDtoMock: ExecuteDto = {
   logIndexes: [],

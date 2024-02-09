@@ -12,7 +12,6 @@ import { Job } from 'bull'
 import {
   ContractTransactionReceipt,
   ContractTransactionResponse,
-  EventLog,
   hexlify,
   Interface,
   parseUnits,
