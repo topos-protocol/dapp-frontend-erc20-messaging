@@ -1,11 +1,19 @@
+import * as ERC20MessagingJSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/examples/ERC20Messaging.sol/ERC20Messaging.json'
+import * as BurnableMintableCappedERC20JSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/topos-core/BurnableMintableCappedERC20.sol/BurnableMintableCappedERC20.json'
 import axios from 'axios'
 import { Job, JobId } from 'bull'
+import { OAuthResponse } from 'common'
+import { Interface } from 'ethers'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { Observable } from 'rxjs'
 
-import { OAuthResponse } from 'common'
 import { ErrorsContext } from '../contexts/errors'
+import {
+  ExecuteError,
+  ExecuteProcessorError,
+  ExecuteTransactionError,
+} from '../types'
 
 export interface ExecuteDto {
   logIndexes: number[]
@@ -106,11 +114,53 @@ export default function useExecutorService() {
             }
           }
 
-          eventSource.onerror = (error: any) => {
-            const message = error.data || JSON.stringify(error)
-            console.error(message)
-            eventSource.close()
-            subscriber.error(message)
+          eventSource.onerror = ({ data }: any) => {
+            try {
+              const executeError: ExecuteError = JSON.parse(data)
+              let { message } = executeError
+
+              if (
+                executeError.type ===
+                ExecuteProcessorError.EXECUTE_TRANSACTION_REVERT
+              ) {
+                const executeTransactionError: ExecuteTransactionError =
+                  JSON.parse(executeError.message)
+
+                if (!executeTransactionError.decoded) {
+                  const ERC20MessagingInterface = new Interface(
+                    ERC20MessagingJSON.abi
+                  )
+                  const ERC20Interface = new Interface(
+                    BurnableMintableCappedERC20JSON.abi
+                  )
+
+                  const decodedError =
+                    ERC20MessagingInterface.parseError(
+                      executeTransactionError.data
+                    ) || ERC20Interface.parseError(executeTransactionError.data)
+
+                  message = JSON.stringify({
+                    type: ExecuteProcessorError.EXECUTE_TRANSACTION_REVERT,
+                    message: decodedError?.name,
+                  })
+                } else {
+                  message = JSON.stringify({
+                    type: ExecuteProcessorError.EXECUTE_TRANSACTION_REVERT,
+                    message: executeTransactionError.data,
+                  })
+                }
+              } else {
+                message = executeError.message
+              }
+
+              console.error(message)
+              eventSource.close()
+              subscriber.error(message)
+            } catch (error) {
+              console.error(error)
+              eventSource.close()
+              subscriber.error(error)
+            }
           }
         })
       }

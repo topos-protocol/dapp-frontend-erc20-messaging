@@ -1,4 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react'
+import axios from 'axios'
 import EventSourceMock, { sources } from 'eventsourcemock'
 import { vi } from 'vitest'
 
@@ -6,7 +7,7 @@ import useExecutorService, {
   ExecuteDto,
   TracingOptions,
 } from './useExecutorService'
-import axios from 'axios'
+import { ExecuteError, ExecuteProcessorError } from '../types'
 
 const validExecuteDtoMock: ExecuteDto = {
   logIndexes: [],
@@ -145,6 +146,10 @@ describe('observeExecutorServiceJob', () => {
   })
 
   it('should error() when eventsource sends error event', async () => {
+    const errorMock: ExecuteError = {
+      type: ExecuteProcessorError.CERTIFICATE_NOT_FOUND,
+      message: 'message',
+    }
     const { result } = renderHook(() => useExecutorService())
 
     await waitFor(() => {
@@ -158,13 +163,13 @@ describe('observeExecutorServiceJob', () => {
       )
       observable.subscribe({
         error: (error) => {
-          expect(error).toBe('"any error"')
+          expect(error).toBe(errorMock.message)
         },
       })
 
       sources[
         `${import.meta.env.VITE_EXECUTOR_SERVICE_ENDPOINT}/v1/job/subscribe/1`
-      ].emitError('any error')
+      ].emitError({ data: JSON.stringify(errorMock) })
     }
   })
 })
