@@ -115,51 +115,53 @@ export default function useExecutorService() {
           }
 
           eventSource.onerror = ({ data }: any) => {
-            try {
-              const executeError: ExecuteError = JSON.parse(data)
-              let { message } = executeError
+            if (data) {
+              try {
+                const executeError: ExecuteError = JSON.parse(data)
+                let { message } = executeError
 
-              if (
-                executeError.type ===
-                ExecuteProcessorError.EXECUTE_TRANSACTION_REVERT
-              ) {
-                const executeTransactionError: ExecuteTransactionError =
-                  JSON.parse(executeError.message)
+                if (
+                  executeError.type ===
+                  ExecuteProcessorError.EXECUTE_TRANSACTION_REVERT
+                ) {
+                  const executeTransactionError: ExecuteTransactionError =
+                    JSON.parse(executeError.message)
 
-                if (!executeTransactionError.decoded) {
-                  const ERC20MessagingInterface = new Interface(
-                    ERC20MessagingJSON.abi
-                  )
-                  const ERC20Interface = new Interface(
-                    BurnableMintableCappedERC20JSON.abi
-                  )
+                  if (!executeTransactionError.decoded) {
+                    const ERC20MessagingInterface = new Interface(
+                      ERC20MessagingJSON.abi
+                    )
+                    const ERC20Interface = new Interface(
+                      BurnableMintableCappedERC20JSON.abi
+                    )
 
-                  const decodedError =
-                    ERC20MessagingInterface.parseError(
-                      executeTransactionError.data
-                    ) || ERC20Interface.parseError(executeTransactionError.data)
+                    const decodedError =
+                      ERC20MessagingInterface.parseError(
+                        executeTransactionError.data
+                      ) ||
+                      ERC20Interface.parseError(executeTransactionError.data)
 
-                  message = JSON.stringify({
-                    type: ExecuteProcessorError.EXECUTE_TRANSACTION_REVERT,
-                    message: decodedError?.name,
-                  })
+                    message = JSON.stringify({
+                      type: ExecuteProcessorError.EXECUTE_TRANSACTION_REVERT,
+                      message: decodedError?.name,
+                    })
+                  } else {
+                    message = JSON.stringify({
+                      type: ExecuteProcessorError.EXECUTE_TRANSACTION_REVERT,
+                      message: executeTransactionError.data,
+                    })
+                  }
                 } else {
-                  message = JSON.stringify({
-                    type: ExecuteProcessorError.EXECUTE_TRANSACTION_REVERT,
-                    message: executeTransactionError.data,
-                  })
+                  message = executeError.message
                 }
-              } else {
-                message = executeError.message
-              }
 
-              console.error(message)
-              eventSource.close()
-              subscriber.error(message)
-            } catch (error) {
-              console.error(error)
-              eventSource.close()
-              subscriber.error(error)
+                eventSource.close()
+                subscriber.error(message)
+              } catch (error) {
+                console.error(error)
+                eventSource.close()
+                subscriber.error(error)
+              }
             }
           }
         })
