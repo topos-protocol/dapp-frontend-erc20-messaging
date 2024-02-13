@@ -7,7 +7,7 @@ import {
   trace,
 } from '@opentelemetry/api'
 import * as ERC20MessagingJSON from '@topos-protocol/topos-smart-contracts/artifacts/contracts/examples/ERC20Messaging.sol/ERC20Messaging.json'
-import { Avatar, List, Spin } from 'antd'
+import { Avatar, Divider, List, Spin } from 'antd'
 import { Job } from 'bull'
 import {
   ContractTransactionReceipt,
@@ -156,28 +156,31 @@ const Step2 = ({ onFinish }: StepProps) => {
             }
           }
         } catch (error: any) {
-          console.error(error)
+          const message = getErrorMessage(error)
           setErrors((e) => [
             ...e,
             {
               message: `Something bad happened!`,
               description: (
-                <span>
-                  Request support on{' '}
-                  <a
-                    href={`https://discord.com/channels/1022950664650883092/1072269417762799676`}
-                    target="_blank"
-                    style={{ color: 'inherit', textDecoration: 'underline' }}
-                  >
-                    our dedicated Discord channel
-                  </a>{' '}
-                  by sending us this trace id:{' '}
-                  {(rootSpan as any)._spanContext.traceId}
-                </span>
+                <>
+                  <span>Details: {message}</span>
+                  <Divider />
+                  <span>
+                    Request support on{' '}
+                    <a
+                      href={`https://discord.com/channels/1022950664650883092/1072269417762799676`}
+                      target="_blank"
+                      style={{ color: 'inherit', textDecoration: 'underline' }}
+                    >
+                      our dedicated Discord channel
+                    </a>{' '}
+                    by sending us this trace id:{' '}
+                    {(rootSpan as any)._spanContext.traceId}
+                  </span>
+                </>
               ),
             },
           ])
-          const message = getErrorMessage(error)
           mainSpan?.setStatus({
             code: SpanStatusCode.ERROR,
             message,
